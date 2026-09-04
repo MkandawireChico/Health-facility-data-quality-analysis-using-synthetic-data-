@@ -80,9 +80,18 @@ Raw Synthetic Data → Data Inspection → Data Cleaning → Data Validation
 
 Full facility-by-facility, programme-by-programme, and monthly breakdowns are in the notebook itself.
 
-## Recommended Dashboard
+## Dashboard and Outputs
 
-Not yet built — see [`dashboard/powerbi_dashboard_documentation.md`](dashboard/powerbi_dashboard_documentation.md) for the full implementation plan: data model, DAX measures, a 4-page layout (Data Quality Overview, Facility Performance, Source Consistency, Programme Monitoring), and — importantly — a documented plan to surface the threshold-sensitivity finding above directly in the dashboard rather than only in this README.
+The Power BI dashboard has been implemented and exported to the project dashboard folder:
+
+- Power BI file: [dashboard/power bi.pbix](dashboard/power%20bi.pbix)
+- Data Quality Overview: [dashboard/Data_Quality_Overview.png](dashboard/Data_Quality_Overview.png)
+- Facility Performance: [dashboard/Facility_Performance.png](dashboard/Facility_Performance.png)
+- Source Consistency: [dashboard/Source_Consistency.png](dashboard/Source_Consistency.png)
+- Programme Monitoring: [dashboard/Programme_Monitoring.png](dashboard/Programme_Monitoring.png)
+- Dashboard documentation: [dashboard/powerbi_dashboard_documentation.md](dashboard/powerbi_dashboard_documentation.md)
+
+The Python analysis and data preparation workflow remains available in the notebook: [notebooks/health_data_quality_analysis.ipynb](notebooks/health_data_quality_analysis.ipynb)
 
 ## Decision-Making Use Case
 
@@ -100,14 +109,19 @@ health-facility-data-quality/
 ├── notebooks/
 │   └── health_data_quality_analysis.ipynb           # Full workflow, executed with real outputs
 ├── dashboard/
-│   └── powerbi_dashboard_documentation.md           # Implementation guide (not yet built)
+│   ├── power bi.pbix                                 # Finished Power BI dashboard
+│   ├── Data_Quality_Overview.png                     # Dashboard page export
+│   ├── Facility_Performance.png                      # Dashboard page export
+│   ├── Programme_Monitoring.png                      # Dashboard page export
+│   ├── Source_Consistency.png                        # Dashboard page export
+│   └── powerbi_dashboard_documentation.md           # Implementation and design guide
 ├── visuals/
 │   └── charts/                                       # 7 chart exports from the notebook
 ├── requirements.txt
 └── README.md
 ```
 
-**What belongs where:** `data/` holds only the dataset and its two states (raw synthetic, cleaned); `notebooks/` is the analysis itself, meant to be read top-to-bottom; `dashboard/` is planning/documentation for the BI layer (the `.pbix` would go here once built); `visuals/charts/` holds static exports for embedding in documentation.
+**What belongs where:** `data/` holds only the dataset and its two states (raw synthetic, cleaned); `notebooks/` is the analysis itself, meant to be read top-to-bottom; `dashboard/` contains the implemented Power BI report, its exported pages, and the supporting documentation; `visuals/charts/` holds static exports for embedding in documentation.
 
 ## How to Run
 
