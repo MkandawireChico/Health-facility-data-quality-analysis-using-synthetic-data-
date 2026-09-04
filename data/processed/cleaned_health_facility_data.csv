@@ -1,0 +1,961 @@
+Facility,Month,Programme,Indicator,Reported_Value,Target_Value,Data_Source,Paper_Value,EMR_Value,DHIS2_Value,Completeness_Score,Timeliness,Reported_Value_Missing,Source_Max,Source_Min,Source_Discrepancy,Source_Discrepancy_Pct,Consistency_Flag,Outlier_Flag,Primary_Issue
+Rumphi Central Health Centre,2025-01-01,HIV,Patients on ART,335.0,402,EMR,334,335,350,0.8199949831636006,On Time,False,350,334,16,0.04790419161676647,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-01-01,HIV,New ART Initiations,35.0,43,Paper Register,35,35,35,0.9984423118582435,On Time,False,35,35,0,0.0,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-01-01,TB,New TB Cases,46.0,53,DHIS2,46,45,46,0.8465542680860609,On Time,False,46,45,1,0.022222222222222223,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-01-01,TB,TB Treatment Completions,10.0,12,DHIS2,12,10,10,0.9126576435691078,On Time,False,12,10,2,0.2,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-01-01,Maternal Health,ANC Visits,180.0,209,Paper Register,180,168,160,0.9818640804157565,On Time,False,180,160,20,0.125,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-01-01,Maternal Health,Facility Deliveries,35.0,51,DHIS2,34,34,35,0.8899508266739532,Late,False,35,34,1,0.029411764705882353,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-01-01,Child Health,Immunisation Visits,349.0,450,EMR,314,349,326,0.8561869019374762,On Time,False,349,314,35,0.11146496815286625,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-01-01,Child Health,Under-5 Visits,95.0,164,DHIS2,94,105,95,0.9211919949562023,On Time,False,105,94,11,0.11702127659574468,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-01-01,Outpatient,OPD Visits,489.0,527,EMR,515,489,496,0.8650366644053494,On Time,False,515,489,26,0.053169734151329244,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-01-01,Outpatient,New Outpatient Cases,661.0,846,EMR,627,661,655,0.9541934359909122,On Time,False,661,627,34,0.05422647527910686,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-02-01,HIV,Patients on ART,276.0,314,EMR,265,276,273,0.9126551143952768,On Time,False,276,265,11,0.04150943396226415,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-02-01,HIV,New ART Initiations,,34,Paper Register,27,25,25,0.9859395304685146,On Time,True,27,25,2,0.08,Consistent,False,Missing Data
+Rumphi Central Health Centre,2025-02-01,TB,New TB Cases,11.0,15,EMR,9,11,9,0.8244175909401347,Late,False,11,9,2,0.2222222222222222,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-02-01,TB,TB Treatment Completions,5.0,10,Paper Register,5,8,6,0.9021494605155131,On Time,False,8,5,3,0.6,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-02-01,Maternal Health,ANC Visits,96.0,130,EMR,95,96,63,0.48887039487702066,Late,False,96,63,33,0.5238095238095238,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-02-01,Maternal Health,Facility Deliveries,52.0,88,Paper Register,52,53,61,0.8557292928473224,On Time,False,61,52,9,0.17307692307692307,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-02-01,Child Health,Immunisation Visits,130.0,229,Paper Register,130,139,131,0.873930891212281,On Time,False,139,130,9,0.06923076923076923,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-02-01,Child Health,Under-5 Visits,527.0,474,DHIS2,545,509,527,0.8641560129943472,On Time,False,545,509,36,0.07072691552062868,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-02-01,Outpatient,OPD Visits,893.0,1159,EMR,828,893,880,0.8192353102182842,Late,False,893,828,65,0.0785024154589372,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-02-01,Outpatient,New Outpatient Cases,623.0,850,DHIS2,656,692,623,0.9110401623198925,On Time,False,692,623,69,0.11075441412520064,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-03-01,HIV,Patients on ART,544.0,603,EMR,557,544,552,0.9400715659945542,On Time,False,557,544,13,0.02389705882352941,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-03-01,HIV,New ART Initiations,74.0,73,Paper Register,74,72,74,0.8202943085732065,On Time,False,74,72,2,0.027777777777777776,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-03-01,TB,New TB Cases,65.0,55,DHIS2,64,61,65,0.8474498174993601,On Time,False,65,61,4,0.06557377049180328,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-03-01,TB,TB Treatment Completions,14.0,17,EMR,17,14,16,0.8530404735363452,Late,False,17,14,3,0.21428571428571427,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-03-01,Maternal Health,ANC Visits,187.0,188,DHIS2,193,179,187,0.93378481193262,On Time,False,193,179,14,0.0782122905027933,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-03-01,Maternal Health,Facility Deliveries,72.0,97,Paper Register,72,70,73,0.9856637125175451,Late,False,73,70,3,0.04285714285714286,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-03-01,Child Health,Immunisation Visits,148.0,198,EMR,145,148,135,0.8789382933618944,Late,False,148,135,13,0.0962962962962963,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-03-01,Child Health,Under-5 Visits,,323,DHIS2,293,314,301,0.9394031481990536,On Time,True,314,293,21,0.07167235494880546,Consistent,False,Missing Data
+Rumphi Central Health Centre,2025-03-01,Outpatient,OPD Visits,730.0,976,Paper Register,730,805,723,0.8010369725547974,On Time,False,805,723,82,0.11341632088520055,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-03-01,Outpatient,New Outpatient Cases,726.0,811,DHIS2,658,611,726,0.8656305334949465,Late,False,726,611,115,0.18821603927986907,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-04-01,HIV,Patients on ART,359.0,449,EMR,377,359,369,0.9539987106197222,On Time,False,377,359,18,0.05013927576601671,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-04-01,HIV,New ART Initiations,74.0,87,Paper Register,74,78,70,0.826549084448594,On Time,False,78,70,8,0.11428571428571428,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-04-01,TB,New TB Cases,23.0,28,Paper Register,23,20,21,0.992529682935585,On Time,False,23,20,3,0.15,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-04-01,TB,TB Treatment Completions,4.0,10,DHIS2,7,8,4,0.9320394753435463,Late,False,8,4,4,1.0,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-04-01,Maternal Health,ANC Visits,313.0,271,EMR,338,313,324,0.4406254241774207,On Time,False,338,313,25,0.07987220447284345,Consistent,False,Low Completeness
+Rumphi Central Health Centre,2025-04-01,Maternal Health,Facility Deliveries,132.0,143,EMR,141,132,137,0.8946943541561132,On Time,False,141,132,9,0.06818181818181818,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-04-01,Child Health,Immunisation Visits,103.0,122,DHIS2,104,118,103,0.9231702328779827,Late,False,118,103,15,0.14563106796116504,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-04-01,Child Health,Under-5 Visits,581.0,533,Paper Register,581,588,611,0.9622408353472006,On Time,False,611,581,30,0.05163511187607573,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-04-01,Outpatient,OPD Visits,991.0,1076,DHIS2,992,1004,991,0.8046543871471652,On Time,False,1004,991,13,0.013118062563067608,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-04-01,Outpatient,New Outpatient Cases,376.0,495,EMR,387,376,366,0.8846941884616237,On Time,False,387,366,21,0.05737704918032787,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-05-01,HIV,Patients on ART,269.0,398,DHIS2,236,240,269,0.9716825503686024,On Time,False,269,236,33,0.13983050847457626,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-05-01,HIV,New ART Initiations,45.0,49,DHIS2,45,42,45,0.7168836917467423,On Time,False,45,42,3,0.07142857142857142,Consistent,False,Low Completeness
+Rumphi Central Health Centre,2025-05-01,TB,New TB Cases,14.0,16,Paper Register,14,11,7,0.8183408294516963,Late,False,14,7,7,1.0,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-05-01,TB,TB Treatment Completions,28.0,30,EMR,31,28,29,0.8883061002746754,On Time,False,31,28,3,0.10714285714285714,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-05-01,Maternal Health,ANC Visits,205.0,225,Paper Register,205,202,215,0.8793303203908505,On Time,False,215,202,13,0.06435643564356436,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-05-01,Maternal Health,Facility Deliveries,52.0,78,DHIS2,49,50,52,0.911680849947161,Late,False,52,49,3,0.061224489795918366,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-05-01,Child Health,Immunisation Visits,80.0,138,DHIS2,89,98,80,0.9534389706217143,On Time,False,98,80,18,0.225,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-05-01,Child Health,Under-5 Visits,503.0,536,DHIS2,523,491,503,0.8447191677038905,On Time,False,523,491,32,0.06517311608961303,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-05-01,Outpatient,OPD Visits,733.0,1171,DHIS2,741,712,733,0.8150869094179539,On Time,False,741,712,29,0.04073033707865169,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-05-01,Outpatient,New Outpatient Cases,529.0,442,Paper Register,529,555,543,0.8561926379184461,Late,False,555,529,26,0.04914933837429111,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-06-01,HIV,Patients on ART,477.0,707,EMR,498,477,443,0.7410381826831582,Late,False,498,443,55,0.12415349887133183,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-06-01,HIV,New ART Initiations,50.0,82,Paper Register,50,51,53,0.9821854368987685,Late,False,53,50,3,0.06,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-06-01,TB,New TB Cases,8.0,14,DHIS2,12,11,8,0.8300833782207057,On Time,False,12,8,4,0.5,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-06-01,TB,TB Treatment Completions,29.0,31,EMR,31,29,28,0.9499821498939944,On Time,False,31,28,3,0.10714285714285714,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-06-01,Maternal Health,ANC Visits,114.0,132,DHIS2,105,104,114,0.9236256480915792,On Time,False,114,104,10,0.09615384615384616,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-06-01,Maternal Health,Facility Deliveries,133.0,167,EMR,141,133,153,0.9569336527888619,On Time,False,153,133,20,0.15037593984962405,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-06-01,Child Health,Immunisation Visits,196.0,202,DHIS2,202,203,196,0.8696510934046601,On Time,False,203,196,7,0.03571428571428571,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-06-01,Child Health,Under-5 Visits,186.0,179,EMR,188,186,192,0.8918271512476523,On Time,False,192,186,6,0.03225806451612903,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-06-01,Outpatient,OPD Visits,686.0,704,EMR,644,686,558,0.9169532211898308,On Time,False,686,558,128,0.22939068100358423,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-06-01,Outpatient,New Outpatient Cases,546.0,659,DHIS2,551,519,466,0.9203870791081921,On Time,False,551,466,85,0.18240343347639484,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-07-01,HIV,Patients on ART,550.0,765,EMR,581,550,588,0.9006834541709714,On Time,False,588,550,38,0.06909090909090909,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-07-01,HIV,New ART Initiations,51.0,66,DHIS2,52,51,51,0.9496519380767316,On Time,False,52,51,1,0.0196078431372549,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-07-01,TB,New TB Cases,29.0,31,Paper Register,29,34,28,0.8295478183812454,On Time,False,34,28,6,0.21428571428571427,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-07-01,TB,TB Treatment Completions,42.0,32,EMR,45,42,41,0.848494100726946,On Time,False,45,41,4,0.0975609756097561,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-07-01,Maternal Health,ANC Visits,304.0,281,Paper Register,304,303,293,0.8685853728556521,Late,False,304,293,11,0.03754266211604096,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-07-01,Maternal Health,Facility Deliveries,205.0,158,EMR,200,205,213,0.9128917085045283,On Time,False,213,200,13,0.065,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-07-01,Child Health,Immunisation Visits,304.0,279,Paper Register,304,273,295,0.8305718278368664,On Time,False,304,273,31,0.11355311355311355,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-07-01,Child Health,Under-5 Visits,452.0,480,DHIS2,457,443,452,0.9641722946306706,On Time,False,457,443,14,0.03160270880361174,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-07-01,Outpatient,OPD Visits,533.0,525,EMR,533,533,523,0.901522075736891,On Time,False,533,523,10,0.019120458891013385,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-07-01,Outpatient,New Outpatient Cases,348.0,389,EMR,338,348,337,0.9187766195115797,On Time,False,348,337,11,0.032640949554896145,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-08-01,HIV,Patients on ART,562.0,560,DHIS2,578,606,562,0.9191277481215688,On Time,False,606,562,44,0.07829181494661921,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-08-01,HIV,New ART Initiations,64.0,68,DHIS2,66,66,64,0.8410003620106474,Late,False,66,64,2,0.03125,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-08-01,TB,New TB Cases,31.0,31,Paper Register,31,31,30,0.847138349213,Late,False,31,30,1,0.03333333333333333,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-08-01,TB,TB Treatment Completions,28.0,34,EMR,30,28,31,0.8925359571339213,On Time,False,31,28,3,0.10714285714285714,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-08-01,Maternal Health,ANC Visits,143.0,222,Paper Register,143,143,116,0.8458050781849593,On Time,False,143,116,27,0.23275862068965517,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-08-01,Maternal Health,Facility Deliveries,76.0,116,DHIS2,81,79,76,0.9066922183952644,On Time,False,81,76,5,0.06578947368421052,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-08-01,Child Health,Immunisation Visits,144.0,137,Paper Register,144,137,142,0.9428128164447228,On Time,False,144,137,7,0.051094890510948905,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-08-01,Child Health,Under-5 Visits,285.0,267,DHIS2,287,286,285,0.9440073073092149,On Time,False,287,285,2,0.007017543859649123,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-08-01,Outpatient,OPD Visits,759.0,791,EMR,834,759,775,0.8575859232951453,Late,False,834,759,75,0.09881422924901186,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-08-01,Outpatient,New Outpatient Cases,1185.0,915,DHIS2,1162,1163,1185,0.9844998762354591,On Time,False,1185,1162,23,0.019793459552495698,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-09-01,HIV,Patients on ART,556.0,677,EMR,534,556,534,0.8622888528091283,On Time,False,556,534,22,0.04119850187265917,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-09-01,HIV,New ART Initiations,54.0,66,EMR,56,54,52,0.9839711232825521,On Time,False,56,52,4,0.07692307692307693,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-09-01,TB,New TB Cases,40.0,43,Paper Register,40,39,35,0.806775832049319,On Time,False,40,35,5,0.14285714285714285,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-09-01,TB,TB Treatment Completions,24.0,31,EMR,22,24,24,0.9114610737780096,On Time,False,24,22,2,0.09090909090909091,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-09-01,Maternal Health,ANC Visits,235.0,183,Paper Register,235,235,234,0.9796108578881427,On Time,False,235,234,1,0.004273504273504274,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-09-01,Maternal Health,Facility Deliveries,77.0,79,EMR,76,77,70,0.9068911782514494,Late,False,77,70,7,0.1,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-09-01,Child Health,Immunisation Visits,358.0,418,EMR,348,358,353,0.9794860819637768,On Time,False,358,348,10,0.028735632183908046,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-09-01,Child Health,Under-5 Visits,193.0,204,Paper Register,193,197,198,0.8462149593176143,On Time,False,198,193,5,0.025906735751295335,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-09-01,Outpatient,OPD Visits,586.0,553,DHIS2,533,568,586,0.9610629934715811,On Time,False,586,533,53,0.09943714821763602,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-09-01,Outpatient,New Outpatient Cases,669.0,790,DHIS2,652,658,669,0.9471809226392005,On Time,False,669,652,17,0.02607361963190184,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-10-01,HIV,Patients on ART,943.0,847,EMR,960,943,961,0.965021466284532,On Time,False,961,943,18,0.019088016967126194,Consistent,True,Potential Outlier
+Rumphi Central Health Centre,2025-10-01,HIV,New ART Initiations,22.0,39,EMR,30,22,30,0.9896906613924313,On Time,False,30,22,8,0.36363636363636365,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-10-01,TB,New TB Cases,14.0,19,EMR,17,14,16,0.9024915311763844,On Time,False,17,14,3,0.21428571428571427,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-10-01,TB,TB Treatment Completions,24.0,34,EMR,26,24,27,0.8036781353094934,Late,False,27,24,3,0.125,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-10-01,Maternal Health,ANC Visits,121.0,179,DHIS2,139,139,116,0.8213157460257349,On Time,False,139,116,23,0.19827586206896552,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-10-01,Maternal Health,Facility Deliveries,77.0,80,Paper Register,77,80,78,0.9828823891849919,On Time,False,80,77,3,0.03896103896103896,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-10-01,Child Health,Immunisation Visits,130.0,221,Paper Register,130,138,135,0.9674157981406059,Late,False,138,130,8,0.06153846153846154,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-10-01,Child Health,Under-5 Visits,326.0,336,DHIS2,313,358,326,0.9465144194420501,On Time,False,358,313,45,0.14376996805111822,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-10-01,Outpatient,OPD Visits,618.0,647,EMR,603,618,581,0.8688767464088467,On Time,False,618,581,37,0.06368330464716007,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-10-01,Outpatient,New Outpatient Cases,281.0,360,DHIS2,309,300,281,0.9389392941708854,On Time,False,309,281,28,0.099644128113879,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-11-01,HIV,Patients on ART,1150.0,574,Paper Register,590,605,645,0.9916341586007861,On Time,False,645,590,55,0.09322033898305085,Consistent,True,Potential Outlier
+Rumphi Central Health Centre,2025-11-01,HIV,New ART Initiations,81.0,99,DHIS2,83,75,81,0.6469513103804909,Late,False,83,75,8,0.10666666666666667,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-11-01,TB,New TB Cases,21.0,32,DHIS2,27,20,21,0.8385198055571261,On Time,False,27,20,7,0.35,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-11-01,TB,TB Treatment Completions,41.0,38,DHIS2,39,39,41,0.8074015269430985,On Time,False,41,39,2,0.05128205128205128,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-11-01,Maternal Health,ANC Visits,253.0,267,EMR,280,253,294,0.9144855518866931,Late,False,294,253,41,0.16205533596837945,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-11-01,Maternal Health,Facility Deliveries,196.0,190,Paper Register,196,184,199,0.7061455854394698,On Time,False,199,184,15,0.08152173913043478,Consistent,False,Low Completeness
+Rumphi Central Health Centre,2025-11-01,Child Health,Immunisation Visits,191.0,195,DHIS2,207,207,236,0.9747354228372678,Late,False,236,207,29,0.14009661835748793,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-11-01,Child Health,Under-5 Visits,519.0,558,DHIS2,491,484,519,0.9431106630468484,On Time,False,519,484,35,0.07231404958677685,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-11-01,Outpatient,OPD Visits,1305.0,1448,Paper Register,1305,1384,1237,0.9899922367900451,On Time,False,1384,1237,147,0.11883589329021826,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-11-01,Outpatient,New Outpatient Cases,689.0,739,EMR,712,689,908,0.9675651470566491,On Time,False,908,689,219,0.3178519593613933,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-12-01,HIV,Patients on ART,519.0,665,DHIS2,523,517,519,0.7391859205492839,Late,False,523,517,6,0.01160541586073501,Consistent,False,Late Reporting
+Rumphi Central Health Centre,2025-12-01,HIV,New ART Initiations,43.0,39,DHIS2,41,41,43,0.8448881143673321,On Time,False,43,41,2,0.04878048780487805,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-12-01,TB,New TB Cases,40.0,18,Paper Register,8,9,6,0.5151679778794549,Late,False,9,6,3,0.5,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-12-01,TB,TB Treatment Completions,15.0,20,DHIS2,15,14,15,0.8991751470157542,On Time,False,15,14,1,0.07142857142857142,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-12-01,Maternal Health,ANC Visits,315.0,284,EMR,294,315,303,0.9728985760614697,On Time,False,315,294,21,0.07142857142857142,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-12-01,Maternal Health,Facility Deliveries,137.0,129,DHIS2,135,136,137,0.9394942923338567,On Time,False,137,135,2,0.014814814814814815,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-12-01,Child Health,Immunisation Visits,252.0,287,Paper Register,252,264,241,0.9635934048238124,On Time,False,264,241,23,0.0954356846473029,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-12-01,Child Health,Under-5 Visits,417.0,444,Paper Register,417,437,427,0.9637358840999684,On Time,False,437,417,20,0.047961630695443645,Consistent,False,No Major Issue
+Rumphi Central Health Centre,2025-12-01,Outpatient,OPD Visits,879.0,954,DHIS2,936,981,879,0.8205019455981359,On Time,False,981,879,102,0.11604095563139932,Review Required,False,Source Discrepancy
+Rumphi Central Health Centre,2025-12-01,Outpatient,New Outpatient Cases,562.0,541,Paper Register,562,531,546,0.9704829318397296,On Time,False,562,531,31,0.0583804143126177,Consistent,False,No Major Issue
+Bolero Health Centre,2025-01-01,HIV,Patients on ART,361.0,526,EMR,359,361,328,0.8002058959691267,On Time,False,361,328,33,0.10060975609756098,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-01-01,HIV,New ART Initiations,13.0,23,DHIS2,10,15,13,0.8441539225577521,On Time,False,15,10,5,0.5,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-01-01,TB,New TB Cases,28.0,31,EMR,29,28,32,0.8641485480876255,On Time,False,32,28,4,0.14285714285714285,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-01-01,TB,TB Treatment Completions,41.0,44,EMR,39,41,39,0.9936386855829443,On Time,False,41,39,2,0.05128205128205128,Consistent,False,No Major Issue
+Bolero Health Centre,2025-01-01,Maternal Health,ANC Visits,115.0,132,DHIS2,110,113,115,0.8588335946686956,Late,False,115,110,5,0.045454545454545456,Consistent,False,Late Reporting
+Bolero Health Centre,2025-01-01,Maternal Health,Facility Deliveries,182.0,197,Paper Register,182,168,188,0.6036899906700396,On Time,False,188,168,20,0.11904761904761904,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-01-01,Child Health,Immunisation Visits,397.0,443,DHIS2,417,415,397,0.8791090167759937,On Time,False,417,397,20,0.05037783375314862,Consistent,False,No Major Issue
+Bolero Health Centre,2025-01-01,Child Health,Under-5 Visits,164.0,160,Paper Register,164,155,161,0.9973325186534293,On Time,False,164,155,9,0.05806451612903226,Consistent,False,No Major Issue
+Bolero Health Centre,2025-01-01,Outpatient,OPD Visits,454.0,585,DHIS2,452,474,454,0.8165017068880843,Late,False,474,452,22,0.048672566371681415,Consistent,False,Late Reporting
+Bolero Health Centre,2025-01-01,Outpatient,New Outpatient Cases,360.0,402,Paper Register,360,388,383,0.833496516451814,On Time,False,388,360,28,0.07777777777777778,Consistent,False,No Major Issue
+Bolero Health Centre,2025-02-01,HIV,Patients on ART,368.0,308,DHIS2,363,364,368,0.8678900385085613,On Time,False,368,363,5,0.013774104683195593,Consistent,False,No Major Issue
+Bolero Health Centre,2025-02-01,HIV,New ART Initiations,116.0,99,EMR,108,116,105,0.9463179043510663,On Time,False,116,105,11,0.10476190476190476,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-02-01,TB,New TB Cases,23.0,32,EMR,31,23,29,0.9488558131189911,On Time,False,31,23,8,0.34782608695652173,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-02-01,TB,TB Treatment Completions,56.0,41,DHIS2,54,53,56,0.9949586324293567,On Time,False,56,53,3,0.05660377358490566,Consistent,False,No Major Issue
+Bolero Health Centre,2025-02-01,Maternal Health,ANC Visits,90.0,114,Paper Register,90,97,93,0.9921561102973954,On Time,False,97,90,7,0.07777777777777778,Consistent,False,No Major Issue
+Bolero Health Centre,2025-02-01,Maternal Health,Facility Deliveries,61.0,86,EMR,57,61,64,0.9450515320830273,On Time,False,64,57,7,0.12280701754385964,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-02-01,Child Health,Immunisation Visits,243.0,361,DHIS2,261,266,243,0.847158418791842,On Time,False,266,243,23,0.09465020576131687,Consistent,False,No Major Issue
+Bolero Health Centre,2025-02-01,Child Health,Under-5 Visits,173.0,236,Paper Register,173,138,166,0.8874330777633653,On Time,False,173,138,35,0.2536231884057971,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-02-01,Outpatient,OPD Visits,265.0,513,EMR,292,265,295,0.9938824644670575,On Time,False,295,265,30,0.11320754716981132,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-02-01,Outpatient,New Outpatient Cases,627.0,748,Paper Register,627,618,634,0.8146993494660025,On Time,False,634,618,16,0.025889967637540454,Consistent,False,No Major Issue
+Bolero Health Centre,2025-03-01,HIV,Patients on ART,430.0,660,Paper Register,430,478,461,0.6577407052729742,On Time,False,478,430,48,0.11162790697674418,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-03-01,HIV,New ART Initiations,58.0,56,EMR,57,58,55,0.7453425431250065,On Time,False,58,55,3,0.05454545454545454,Consistent,False,Low Completeness
+Bolero Health Centre,2025-03-01,TB,New TB Cases,39.0,46,EMR,37,39,40,0.8083145718100785,Late,False,40,37,3,0.08108108108108109,Consistent,False,Late Reporting
+Bolero Health Centre,2025-03-01,TB,TB Treatment Completions,17.0,33,EMR,23,17,21,0.8251483023613299,On Time,False,23,17,6,0.35294117647058826,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-03-01,Maternal Health,ANC Visits,273.0,257,DHIS2,245,247,273,0.8354299578894773,On Time,False,273,245,28,0.11428571428571428,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-03-01,Maternal Health,Facility Deliveries,160.0,163,Paper Register,160,165,166,0.9591020743392806,On Time,False,166,160,6,0.0375,Consistent,False,No Major Issue
+Bolero Health Centre,2025-03-01,Child Health,Immunisation Visits,288.0,386,DHIS2,302,272,288,0.7420109644774611,On Time,False,302,272,30,0.11029411764705882,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-03-01,Child Health,Under-5 Visits,271.0,325,DHIS2,278,268,271,0.953038172911157,On Time,False,278,268,10,0.03731343283582089,Consistent,False,No Major Issue
+Bolero Health Centre,2025-03-01,Outpatient,OPD Visits,1007.0,981,Paper Register,1007,1039,978,0.5136050404650946,On Time,False,1039,978,61,0.06237218813905931,Consistent,False,Low Completeness
+Bolero Health Centre,2025-03-01,Outpatient,New Outpatient Cases,311.0,442,EMR,359,311,333,0.6112070076834822,On Time,False,359,311,48,0.15434083601286175,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-04-01,HIV,Patients on ART,299.0,302,Paper Register,299,300,284,0.8953390950082318,On Time,False,300,284,16,0.056338028169014086,Consistent,False,No Major Issue
+Bolero Health Centre,2025-04-01,HIV,New ART Initiations,56.0,65,Paper Register,56,55,57,0.8971743518372651,On Time,False,57,55,2,0.03636363636363636,Consistent,False,No Major Issue
+Bolero Health Centre,2025-04-01,TB,New TB Cases,32.0,36,DHIS2,33,30,32,0.8799810413608313,On Time,False,33,30,3,0.1,Consistent,False,No Major Issue
+Bolero Health Centre,2025-04-01,TB,TB Treatment Completions,35.0,39,DHIS2,36,38,35,0.8213753846189488,On Time,False,38,35,3,0.08571428571428572,Consistent,False,No Major Issue
+Bolero Health Centre,2025-04-01,Maternal Health,ANC Visits,86.0,115,EMR,88,86,94,0.6232948220276542,On Time,False,94,86,8,0.09302325581395349,Consistent,False,Low Completeness
+Bolero Health Centre,2025-04-01,Maternal Health,Facility Deliveries,174.0,186,DHIS2,189,179,174,0.9539889400503359,On Time,False,189,174,15,0.08620689655172414,Consistent,False,No Major Issue
+Bolero Health Centre,2025-04-01,Child Health,Immunisation Visits,167.0,167,Paper Register,167,182,164,0.9247718649353146,On Time,False,182,164,18,0.10975609756097561,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-04-01,Child Health,Under-5 Visits,312.0,324,Paper Register,312,347,291,0.8624543572097593,On Time,False,347,291,56,0.19243986254295534,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-04-01,Outpatient,OPD Visits,939.0,1022,DHIS2,792,830,939,0.8272879505113466,On Time,False,939,792,147,0.1856060606060606,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-04-01,Outpatient,New Outpatient Cases,788.0,673,EMR,769,788,810,0.9811049584659348,On Time,False,810,769,41,0.053315994798439535,Consistent,False,No Major Issue
+Bolero Health Centre,2025-05-01,HIV,Patients on ART,395.0,652,DHIS2,457,389,395,0.8884819872961339,On Time,False,457,389,68,0.17480719794344474,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-05-01,HIV,New ART Initiations,58.0,63,EMR,54,58,60,0.8648667506230752,On Time,False,60,54,6,0.1111111111111111,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-05-01,TB,New TB Cases,20.0,32,EMR,18,20,21,0.916095001343335,Late,False,21,18,3,0.16666666666666666,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-05-01,TB,TB Treatment Completions,26.0,38,EMR,29,26,28,0.9512326657790492,On Time,False,29,26,3,0.11538461538461539,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-05-01,Maternal Health,ANC Visits,168.0,291,DHIS2,154,150,168,0.818585828875878,On Time,False,168,150,18,0.12,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-05-01,Maternal Health,Facility Deliveries,73.0,81,Paper Register,73,76,77,0.8606256711890657,On Time,False,77,73,4,0.0547945205479452,Consistent,False,No Major Issue
+Bolero Health Centre,2025-05-01,Child Health,Immunisation Visits,338.0,440,EMR,305,338,315,0.9884774038204467,On Time,False,338,305,33,0.10819672131147541,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-05-01,Child Health,Under-5 Visits,530.0,555,DHIS2,519,511,530,0.8232732795770953,On Time,False,530,511,19,0.03718199608610567,Consistent,False,No Major Issue
+Bolero Health Centre,2025-05-01,Outpatient,OPD Visits,820.0,715,DHIS2,838,822,820,0.4538269023838109,On Time,False,838,820,18,0.02195121951219512,Consistent,False,Low Completeness
+Bolero Health Centre,2025-05-01,Outpatient,New Outpatient Cases,461.0,505,DHIS2,460,453,461,0.9845514381026789,On Time,False,461,453,8,0.017660044150110375,Consistent,False,No Major Issue
+Bolero Health Centre,2025-06-01,HIV,Patients on ART,461.0,537,EMR,462,461,477,0.447308201204188,Late,False,477,461,16,0.03470715835140998,Consistent,False,Late Reporting
+Bolero Health Centre,2025-06-01,HIV,New ART Initiations,66.0,79,DHIS2,66,68,66,0.8555505247498523,On Time,False,68,66,2,0.030303030303030304,Consistent,False,No Major Issue
+Bolero Health Centre,2025-06-01,TB,New TB Cases,60.0,52,Paper Register,60,57,61,0.6432623301004936,Late,False,61,57,4,0.07017543859649122,Consistent,False,Late Reporting
+Bolero Health Centre,2025-06-01,TB,TB Treatment Completions,20.0,28,DHIS2,23,23,20,0.9266379252026928,On Time,False,23,20,3,0.15,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-06-01,Maternal Health,ANC Visits,201.0,203,Paper Register,201,190,218,0.9773208430480933,On Time,False,218,190,28,0.14736842105263157,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-06-01,Maternal Health,Facility Deliveries,31.0,56,DHIS2,39,33,31,0.8497160515429885,On Time,False,39,31,8,0.25806451612903225,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-06-01,Child Health,Immunisation Visits,330.0,329,Paper Register,330,339,323,0.8024241549287787,Late,False,339,323,16,0.04953560371517028,Consistent,False,Late Reporting
+Bolero Health Centre,2025-06-01,Child Health,Under-5 Visits,335.0,487,EMR,324,335,379,0.8298475555900353,On Time,False,379,324,55,0.1697530864197531,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-06-01,Outpatient,OPD Visits,919.0,1123,EMR,1038,919,908,0.9570033087674114,Late,False,1038,908,130,0.14317180616740088,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-06-01,Outpatient,New Outpatient Cases,310.0,316,EMR,307,310,303,0.9562340847573838,On Time,False,310,303,7,0.0231023102310231,Consistent,False,No Major Issue
+Bolero Health Centre,2025-07-01,HIV,Patients on ART,472.0,499,Paper Register,472,496,473,0.9976550542000262,On Time,False,496,472,24,0.05084745762711865,Consistent,False,No Major Issue
+Bolero Health Centre,2025-07-01,HIV,New ART Initiations,82.0,91,EMR,83,82,89,0.86994064594917,On Time,False,89,82,7,0.08536585365853659,Consistent,False,No Major Issue
+Bolero Health Centre,2025-07-01,TB,New TB Cases,23.0,37,Paper Register,23,29,27,0.8848593771769776,On Time,False,29,23,6,0.2608695652173913,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-07-01,TB,TB Treatment Completions,25.0,26,Paper Register,25,24,30,0.8242772836318814,On Time,False,30,24,6,0.25,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-07-01,Maternal Health,ANC Visits,226.0,248,Paper Register,226,218,228,0.8948672219812428,On Time,False,228,218,10,0.045871559633027525,Consistent,False,No Major Issue
+Bolero Health Centre,2025-07-01,Maternal Health,Facility Deliveries,181.0,144,Paper Register,181,181,174,0.8751985779882623,On Time,False,181,174,7,0.040229885057471264,Consistent,False,No Major Issue
+Bolero Health Centre,2025-07-01,Child Health,Immunisation Visits,186.0,213,EMR,182,186,190,0.9631893877937234,On Time,False,190,182,8,0.04395604395604396,Consistent,False,No Major Issue
+Bolero Health Centre,2025-07-01,Child Health,Under-5 Visits,472.0,382,Paper Register,472,470,489,0.8107716413996052,On Time,False,489,470,19,0.04042553191489362,Consistent,False,No Major Issue
+Bolero Health Centre,2025-07-01,Outpatient,OPD Visits,744.0,844,Paper Register,744,774,766,0.9011705385903658,Late,False,774,744,30,0.04032258064516129,Consistent,False,Late Reporting
+Bolero Health Centre,2025-07-01,Outpatient,New Outpatient Cases,1027.0,982,Paper Register,1027,968,1011,0.8187513841291114,On Time,False,1027,968,59,0.060950413223140494,Consistent,False,No Major Issue
+Bolero Health Centre,2025-08-01,HIV,Patients on ART,446.0,528,DHIS2,444,459,446,0.8408071269257797,On Time,False,459,444,15,0.033783783783783786,Consistent,False,No Major Issue
+Bolero Health Centre,2025-08-01,HIV,New ART Initiations,39.0,46,DHIS2,36,37,39,0.9679927960564365,On Time,False,39,36,3,0.08333333333333333,Consistent,False,No Major Issue
+Bolero Health Centre,2025-08-01,TB,New TB Cases,44.0,43,EMR,45,44,43,0.9004100426976894,On Time,False,45,43,2,0.046511627906976744,Consistent,False,No Major Issue
+Bolero Health Centre,2025-08-01,TB,TB Treatment Completions,8.0,13,EMR,12,8,14,0.6168562681109442,On Time,False,14,8,6,0.75,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-08-01,Maternal Health,ANC Visits,,136,DHIS2,85,92,97,0.8208274715840576,On Time,True,97,85,12,0.1411764705882353,Review Required,False,Missing Data
+Bolero Health Centre,2025-08-01,Maternal Health,Facility Deliveries,,169,DHIS2,197,188,140,0.4204928252353927,On Time,True,197,140,57,0.40714285714285714,Review Required,False,Missing Data
+Bolero Health Centre,2025-08-01,Child Health,Immunisation Visits,115.0,129,DHIS2,122,112,115,0.8471715198287375,Late,False,122,112,10,0.08928571428571429,Consistent,False,Late Reporting
+Bolero Health Centre,2025-08-01,Child Health,Under-5 Visits,397.0,400,DHIS2,416,391,448,0.8992332768226439,On Time,False,448,391,57,0.14578005115089515,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-08-01,Outpatient,OPD Visits,927.0,1058,Paper Register,927,972,958,0.8724470883304577,Late,False,972,927,45,0.04854368932038835,Consistent,False,Late Reporting
+Bolero Health Centre,2025-08-01,Outpatient,New Outpatient Cases,1072.0,924,DHIS2,1111,1080,1072,0.811227220683242,On Time,False,1111,1072,39,0.036380597014925374,Consistent,False,No Major Issue
+Bolero Health Centre,2025-09-01,HIV,Patients on ART,736.0,880,EMR,753,736,791,0.8266959944831888,On Time,False,791,736,55,0.07472826086956522,Consistent,False,No Major Issue
+Bolero Health Centre,2025-09-01,HIV,New ART Initiations,63.0,54,DHIS2,61,60,63,0.8270708164555371,On Time,False,63,60,3,0.05,Consistent,False,No Major Issue
+Bolero Health Centre,2025-09-01,TB,New TB Cases,30.0,45,DHIS2,32,31,30,0.8536278040191028,On Time,False,32,30,2,0.06666666666666667,Consistent,False,No Major Issue
+Bolero Health Centre,2025-09-01,TB,TB Treatment Completions,27.0,29,DHIS2,34,27,27,0.8172849221525094,On Time,False,34,27,7,0.25925925925925924,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-09-01,Maternal Health,ANC Visits,250.0,282,DHIS2,260,238,250,0.9962594180994493,Late,False,260,238,22,0.09243697478991597,Consistent,False,Late Reporting
+Bolero Health Centre,2025-09-01,Maternal Health,Facility Deliveries,94.0,98,Paper Register,94,88,99,0.8302493657469869,On Time,False,99,88,11,0.125,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-09-01,Child Health,Immunisation Visits,374.0,426,DHIS2,437,430,374,0.9097677313440118,On Time,False,437,374,63,0.16844919786096257,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-09-01,Child Health,Under-5 Visits,170.0,247,EMR,174,170,194,0.9301946934301908,On Time,False,194,170,24,0.1411764705882353,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-09-01,Outpatient,OPD Visits,1223.0,1435,DHIS2,1190,1103,1223,0.9089695518169032,On Time,False,1223,1103,120,0.10879419764279238,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-09-01,Outpatient,New Outpatient Cases,844.0,954,DHIS2,896,892,844,0.4228216069411722,On Time,False,896,844,52,0.061611374407582936,Consistent,False,Low Completeness
+Bolero Health Centre,2025-10-01,HIV,Patients on ART,288.0,343,DHIS2,331,303,288,0.8760840015015126,Late,False,331,288,43,0.14930555555555555,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-10-01,HIV,New ART Initiations,21.0,31,DHIS2,19,19,21,0.9595828319231788,Late,False,21,19,2,0.10526315789473684,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-10-01,TB,New TB Cases,23.0,49,DHIS2,25,20,23,0.8726201473268022,On Time,False,25,20,5,0.25,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-10-01,TB,TB Treatment Completions,37.0,47,EMR,38,37,39,0.9230596050139604,Late,False,39,37,2,0.05405405405405406,Consistent,False,Late Reporting
+Bolero Health Centre,2025-10-01,Maternal Health,ANC Visits,73.0,91,Paper Register,73,69,71,0.9450371096054782,Late,False,73,69,4,0.057971014492753624,Consistent,False,Late Reporting
+Bolero Health Centre,2025-10-01,Maternal Health,Facility Deliveries,124.0,108,Paper Register,124,118,117,0.9462992980680724,On Time,False,124,117,7,0.05982905982905983,Consistent,False,No Major Issue
+Bolero Health Centre,2025-10-01,Child Health,Immunisation Visits,427.0,471,DHIS2,453,422,427,0.975964382790339,On Time,False,453,422,31,0.07345971563981042,Consistent,False,No Major Issue
+Bolero Health Centre,2025-10-01,Child Health,Under-5 Visits,,305,DHIS2,244,239,223,0.9302295169763348,On Time,True,244,223,21,0.09417040358744394,Consistent,False,Missing Data
+Bolero Health Centre,2025-10-01,Outpatient,OPD Visits,1261.0,1336,EMR,1303,1261,1303,0.8007634268248695,On Time,False,1303,1261,42,0.03330689928628073,Consistent,False,No Major Issue
+Bolero Health Centre,2025-10-01,Outpatient,New Outpatient Cases,895.0,959,DHIS2,933,980,895,0.9025309506290106,On Time,False,980,895,85,0.09497206703910614,Consistent,False,No Major Issue
+Bolero Health Centre,2025-11-01,HIV,Patients on ART,455.0,526,Paper Register,455,440,437,0.7145965858630865,On Time,False,455,437,18,0.041189931350114416,Consistent,False,Low Completeness
+Bolero Health Centre,2025-11-01,HIV,New ART Initiations,24.0,25,EMR,28,24,23,0.972912721904534,On Time,False,28,23,5,0.21739130434782608,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-11-01,TB,New TB Cases,36.0,39,Paper Register,36,33,33,0.9932486821413596,On Time,False,36,33,3,0.09090909090909091,Consistent,False,No Major Issue
+Bolero Health Centre,2025-11-01,TB,TB Treatment Completions,14.0,12,DHIS2,13,10,14,0.8563042396829861,Late,False,14,10,4,0.4,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-11-01,Maternal Health,ANC Visits,165.0,245,EMR,161,165,149,0.8128982542498335,On Time,False,165,149,16,0.10738255033557047,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-11-01,Maternal Health,Facility Deliveries,181.0,174,Paper Register,181,185,175,0.916561367016698,On Time,False,185,175,10,0.05714285714285714,Consistent,False,No Major Issue
+Bolero Health Centre,2025-11-01,Child Health,Immunisation Visits,231.0,354,DHIS2,261,252,271,0.7039930272121011,On Time,False,271,252,19,0.07539682539682539,Consistent,False,Low Completeness
+Bolero Health Centre,2025-11-01,Child Health,Under-5 Visits,155.0,214,Paper Register,155,147,151,0.9896216640342884,On Time,False,155,147,8,0.05442176870748299,Consistent,False,No Major Issue
+Bolero Health Centre,2025-11-01,Outpatient,OPD Visits,610.0,678,EMR,584,610,594,0.9304448519090945,On Time,False,610,584,26,0.04452054794520548,Consistent,False,No Major Issue
+Bolero Health Centre,2025-11-01,Outpatient,New Outpatient Cases,817.0,660,EMR,822,817,815,0.4490084341436612,On Time,False,822,815,7,0.008588957055214725,Consistent,False,Low Completeness
+Bolero Health Centre,2025-12-01,HIV,Patients on ART,497.0,748,EMR,455,497,582,0.8948576840862521,On Time,False,582,455,127,0.27912087912087913,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-12-01,HIV,New ART Initiations,73.0,68,EMR,70,73,79,0.9863507438865633,On Time,False,79,70,9,0.12857142857142856,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-12-01,TB,New TB Cases,47.0,50,Paper Register,47,45,46,0.5577089566440969,Late,False,47,45,2,0.044444444444444446,Consistent,False,Late Reporting
+Bolero Health Centre,2025-12-01,TB,TB Treatment Completions,11.0,10,EMR,9,11,12,0.9349215705832432,On Time,False,12,9,3,0.3333333333333333,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-12-01,Maternal Health,ANC Visits,248.0,299,Paper Register,248,266,257,0.876767776608996,On Time,False,266,248,18,0.07258064516129033,Consistent,False,No Major Issue
+Bolero Health Centre,2025-12-01,Maternal Health,Facility Deliveries,207.0,196,EMR,221,207,215,0.9499701528872933,On Time,False,221,207,14,0.06763285024154589,Consistent,False,No Major Issue
+Bolero Health Centre,2025-12-01,Child Health,Immunisation Visits,333.0,301,DHIS2,308,326,333,0.9447946110932188,Late,False,333,308,25,0.08116883116883117,Consistent,False,Late Reporting
+Bolero Health Centre,2025-12-01,Child Health,Under-5 Visits,317.0,315,Paper Register,317,278,328,0.8798737496789382,On Time,False,328,278,50,0.17985611510791366,Review Required,False,Source Discrepancy
+Bolero Health Centre,2025-12-01,Outpatient,OPD Visits,692.0,626,DHIS2,665,706,692,0.8859862154780297,On Time,False,706,665,41,0.061654135338345864,Consistent,False,No Major Issue
+Bolero Health Centre,2025-12-01,Outpatient,New Outpatient Cases,607.0,933,EMR,655,607,561,0.9518702051505226,Late,False,655,561,94,0.16755793226381463,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-01-01,HIV,Patients on ART,420.0,417,EMR,453,420,432,0.8285188288163818,On Time,False,453,420,33,0.07857142857142857,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-01-01,HIV,New ART Initiations,38.0,39,EMR,31,38,35,0.8202519829230318,On Time,False,38,31,7,0.22580645161290322,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-01-01,TB,New TB Cases,66.0,57,Paper Register,66,66,64,0.90109102358209,On Time,False,66,64,2,0.03125,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-01-01,TB,TB Treatment Completions,20.0,36,EMR,19,20,21,0.8260095565022277,On Time,False,21,19,2,0.10526315789473684,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-01-01,Maternal Health,ANC Visits,206.0,203,DHIS2,200,212,206,0.8576810875637492,On Time,False,212,200,12,0.06,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-01-01,Maternal Health,Facility Deliveries,142.0,158,Paper Register,142,132,141,0.9677098429805656,On Time,False,142,132,10,0.07575757575757576,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-01-01,Child Health,Immunisation Visits,147.0,208,EMR,141,147,151,0.9160935201987392,On Time,False,151,141,10,0.07092198581560284,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-01-01,Child Health,Under-5 Visits,220.0,260,EMR,217,220,221,0.86516462351289,On Time,False,221,217,4,0.018433179723502304,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-01-01,Outpatient,OPD Visits,1238.0,1498,Paper Register,1238,1401,1152,0.9928057694331027,On Time,False,1401,1152,249,0.21614583333333334,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-01-01,Outpatient,New Outpatient Cases,803.0,984,Paper Register,803,817,869,0.9361511785920971,On Time,False,869,803,66,0.0821917808219178,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-02-01,HIV,Patients on ART,789.0,881,DHIS2,745,775,789,0.917746304426264,On Time,False,789,745,44,0.05906040268456376,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-02-01,HIV,New ART Initiations,33.0,52,EMR,35,33,32,0.9451432926439898,On Time,False,35,32,3,0.09375,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-02-01,TB,New TB Cases,37.0,37,Paper Register,37,37,36,0.8218528420619243,On Time,False,37,36,1,0.027777777777777776,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-02-01,TB,TB Treatment Completions,36.0,42,DHIS2,38,40,36,0.8038232188859529,On Time,False,40,36,4,0.1111111111111111,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-02-01,Maternal Health,ANC Visits,240.0,250,DHIS2,235,241,240,0.8666814644318221,On Time,False,241,235,6,0.02553191489361702,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-02-01,Maternal Health,Facility Deliveries,103.0,96,DHIS2,98,103,103,0.8208808259496163,On Time,False,103,98,5,0.05102040816326531,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-02-01,Child Health,Immunisation Visits,504.0,483,DHIS2,441,489,504,0.8012177496479679,Late,False,504,441,63,0.14285714285714285,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-02-01,Child Health,Under-5 Visits,187.0,215,Paper Register,187,198,201,0.8145803670735807,On Time,False,201,187,14,0.0748663101604278,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-02-01,Outpatient,OPD Visits,832.0,1007,EMR,895,832,845,0.8044053842447635,On Time,False,895,832,63,0.07572115384615384,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-02-01,Outpatient,New Outpatient Cases,458.0,532,DHIS2,423,431,458,0.9733866936703768,On Time,False,458,423,35,0.08274231678486997,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-03-01,HIV,Patients on ART,771.0,865,DHIS2,792,832,771,0.9607917015105041,On Time,False,832,771,61,0.07911802853437094,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-03-01,HIV,New ART Initiations,87.0,96,DHIS2,90,84,87,0.964755618020233,On Time,False,90,84,6,0.07142857142857142,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-03-01,TB,New TB Cases,46.0,58,Paper Register,46,48,43,0.4863883542206658,On Time,False,48,43,5,0.11627906976744186,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-03-01,TB,TB Treatment Completions,37.0,38,DHIS2,32,35,37,0.9885967633632085,On Time,False,37,32,5,0.15625,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-03-01,Maternal Health,ANC Visits,112.0,135,DHIS2,128,128,112,0.8008726539300619,On Time,False,128,112,16,0.14285714285714285,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-03-01,Maternal Health,Facility Deliveries,48.0,62,DHIS2,48,50,48,0.8537936063190772,On Time,False,50,48,2,0.041666666666666664,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-03-01,Child Health,Immunisation Visits,344.0,392,EMR,338,344,353,0.8915399210318589,On Time,False,353,338,15,0.04437869822485207,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-03-01,Child Health,Under-5 Visits,383.0,385,EMR,343,383,349,0.9739526353363421,On Time,False,383,343,40,0.11661807580174927,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-03-01,Outpatient,OPD Visits,615.0,599,DHIS2,654,608,615,0.9477194916264662,On Time,False,654,608,46,0.0756578947368421,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-03-01,Outpatient,New Outpatient Cases,406.0,448,Paper Register,406,365,382,0.9333733321101844,On Time,False,406,365,41,0.11232876712328767,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-04-01,HIV,Patients on ART,865.0,864,EMR,859,865,838,0.8808579494509738,On Time,False,865,838,27,0.032219570405727926,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-04-01,HIV,New ART Initiations,41.0,43,DHIS2,42,41,41,0.8909837779015174,Late,False,42,41,1,0.024390243902439025,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-04-01,TB,New TB Cases,32.0,37,EMR,31,32,29,0.8696191186336577,On Time,False,32,29,3,0.10344827586206896,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-04-01,TB,TB Treatment Completions,50.0,45,DHIS2,47,48,50,0.921229312986696,On Time,False,50,47,3,0.06382978723404255,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-04-01,Maternal Health,ANC Visits,,138,EMR,115,111,111,0.9494888813193388,On Time,True,115,111,4,0.036036036036036036,Consistent,False,Missing Data
+Mhuju Health Centre,2025-04-01,Maternal Health,Facility Deliveries,180.0,139,DHIS2,170,173,180,0.8409962419053634,On Time,False,180,170,10,0.058823529411764705,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-04-01,Child Health,Immunisation Visits,106.0,125,Paper Register,106,107,103,0.9285637829600348,Late,False,107,103,4,0.038834951456310676,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-04-01,Child Health,Under-5 Visits,680.0,251,Paper Register,201,218,221,0.6208226265802073,Late,False,221,201,20,0.09950248756218906,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-04-01,Outpatient,OPD Visits,741.0,1065,DHIS2,665,658,741,0.9924620405975568,Late,False,741,658,83,0.12613981762917933,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-04-01,Outpatient,New Outpatient Cases,871.0,745,Paper Register,871,897,957,0.8891083277483782,On Time,False,957,871,86,0.09873708381171067,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-05-01,HIV,Patients on ART,255.0,460,DHIS2,258,235,255,0.8996472000998547,Late,False,258,235,23,0.09787234042553192,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-05-01,HIV,New ART Initiations,54.0,81,Paper Register,54,59,48,0.9244686529234493,On Time,False,59,48,11,0.22916666666666666,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-05-01,TB,New TB Cases,31.0,38,DHIS2,35,33,31,0.8494680631638167,On Time,False,35,31,4,0.12903225806451613,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-05-01,TB,TB Treatment Completions,32.0,29,Paper Register,32,31,31,0.8714058687940025,Late,False,32,31,1,0.03225806451612903,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-05-01,Maternal Health,ANC Visits,,250,Paper Register,217,220,234,0.8805528796924504,On Time,True,234,217,17,0.07834101382488479,Consistent,False,Missing Data
+Mhuju Health Centre,2025-05-01,Maternal Health,Facility Deliveries,56.0,58,DHIS2,53,45,71,0.42019602494556463,On Time,False,71,45,26,0.5777777777777777,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-05-01,Child Health,Immunisation Visits,487.0,445,EMR,472,487,451,0.9313262147415753,On Time,False,487,451,36,0.07982261640798226,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-05-01,Child Health,Under-5 Visits,510.0,514,Paper Register,510,509,482,0.886276129754815,On Time,False,510,482,28,0.058091286307053944,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-05-01,Outpatient,OPD Visits,1263.0,1160,DHIS2,1328,1283,1263,0.9892913026300811,On Time,False,1328,1263,65,0.05146476642913698,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-05-01,Outpatient,New Outpatient Cases,281.0,431,EMR,298,281,278,0.8065619248257218,On Time,False,298,278,20,0.07194244604316546,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-06-01,HIV,Patients on ART,530.0,570,DHIS2,520,488,530,0.9031318811712907,On Time,False,530,488,42,0.0860655737704918,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-06-01,HIV,New ART Initiations,39.0,42,EMR,37,39,40,0.8122661911286566,On Time,False,40,37,3,0.08108108108108109,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-06-01,TB,New TB Cases,35.0,49,Paper Register,35,35,30,0.9458689588175992,On Time,False,35,30,5,0.16666666666666666,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-06-01,TB,TB Treatment Completions,40.0,45,EMR,44,40,42,0.9425242666197026,On Time,False,44,40,4,0.1,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-06-01,Maternal Health,ANC Visits,,205,Paper Register,139,144,154,0.8761379362321732,On Time,True,154,139,15,0.1079136690647482,Review Required,False,Missing Data
+Mhuju Health Centre,2025-06-01,Maternal Health,Facility Deliveries,76.0,81,Paper Register,76,79,78,0.8530652275110935,On Time,False,79,76,3,0.039473684210526314,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-06-01,Child Health,Immunisation Visits,224.0,252,Paper Register,224,240,242,0.9944839998080206,On Time,False,242,224,18,0.08035714285714286,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-06-01,Child Health,Under-5 Visits,365.0,420,DHIS2,379,360,365,0.972338180757469,On Time,False,379,360,19,0.05277777777777778,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-06-01,Outpatient,OPD Visits,810.0,976,Paper Register,810,787,841,0.9529438282952558,On Time,False,841,787,54,0.06861499364675985,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-06-01,Outpatient,New Outpatient Cases,254.0,491,DHIS2,263,273,254,0.6936490647013038,On Time,False,273,254,19,0.07480314960629922,Consistent,False,Low Completeness
+Mhuju Health Centre,2025-07-01,HIV,Patients on ART,522.0,569,EMR,565,522,557,0.8859191887152129,On Time,False,565,522,43,0.08237547892720307,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-07-01,HIV,New ART Initiations,31.0,32,EMR,29,31,31,0.9632821569930061,On Time,False,31,29,2,0.06896551724137931,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-07-01,TB,New TB Cases,24.0,23,EMR,27,24,22,0.8613553199044283,On Time,False,27,22,5,0.22727272727272727,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-07-01,TB,TB Treatment Completions,41.0,42,EMR,43,41,45,0.816783907164286,Late,False,45,41,4,0.0975609756097561,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-07-01,Maternal Health,ANC Visits,181.0,202,DHIS2,173,178,181,0.926456430727528,On Time,False,181,173,8,0.046242774566473986,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-07-01,Maternal Health,Facility Deliveries,98.0,103,Paper Register,98,100,98,0.9095569388766639,On Time,False,100,98,2,0.02040816326530612,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-07-01,Child Health,Immunisation Visits,136.0,181,EMR,154,136,132,0.84106658774136,On Time,False,154,132,22,0.16666666666666666,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-07-01,Child Health,Under-5 Visits,326.0,273,Paper Register,326,325,310,0.5506311623917777,Late,False,326,310,16,0.05161290322580645,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-07-01,Outpatient,OPD Visits,1050.0,902,DHIS2,1047,1056,1050,0.8625814788427297,On Time,False,1056,1047,9,0.008595988538681949,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-07-01,Outpatient,New Outpatient Cases,849.0,712,Paper Register,849,828,910,0.9254973143568559,Late,False,910,828,82,0.09903381642512077,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-08-01,HIV,Patients on ART,428.0,436,Paper Register,428,448,423,0.9344920996050058,On Time,False,448,423,25,0.0591016548463357,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-08-01,HIV,New ART Initiations,100.0,46,EMR,34,35,35,0.8517423284310882,On Time,False,35,34,1,0.029411764705882353,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-08-01,TB,New TB Cases,42.0,35,DHIS2,42,39,36,0.7190324526638607,On Time,False,42,36,6,0.16666666666666666,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-08-01,TB,TB Treatment Completions,32.0,42,DHIS2,31,36,32,0.934574333719616,Late,False,36,31,5,0.16129032258064516,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-08-01,Maternal Health,ANC Visits,185.0,217,DHIS2,191,170,185,0.8794896313798184,On Time,False,191,170,21,0.12352941176470589,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-08-01,Maternal Health,Facility Deliveries,112.0,140,EMR,109,112,107,0.9076663886511427,On Time,False,112,107,5,0.04672897196261682,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-08-01,Child Health,Immunisation Visits,245.0,281,DHIS2,246,238,343,0.8998863539733671,Late,False,343,238,105,0.4411764705882353,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-08-01,Child Health,Under-5 Visits,386.0,484,EMR,374,386,400,0.9854221257716855,On Time,False,400,374,26,0.06951871657754011,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-08-01,Outpatient,OPD Visits,1324.0,1473,DHIS2,1312,1406,1324,0.9493553279067436,On Time,False,1406,1312,94,0.07164634146341463,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-08-01,Outpatient,New Outpatient Cases,721.0,894,EMR,743,721,730,0.9071107629759345,On Time,False,743,721,22,0.030513176144244106,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-09-01,HIV,Patients on ART,313.0,351,DHIS2,322,329,313,0.9264433195507898,On Time,False,329,313,16,0.051118210862619806,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-09-01,HIV,New ART Initiations,104.0,99,DHIS2,97,98,117,0.9353881565993675,On Time,False,117,97,20,0.20618556701030927,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-09-01,TB,New TB Cases,9.0,12,EMR,9,9,6,0.9443858455031359,On Time,False,9,6,3,0.5,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-09-01,TB,TB Treatment Completions,27.0,26,EMR,25,27,25,0.9082739220314537,On Time,False,27,25,2,0.08,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-09-01,Maternal Health,ANC Visits,208.0,239,Paper Register,208,197,202,0.9038449141560411,On Time,False,208,197,11,0.05583756345177665,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-09-01,Maternal Health,Facility Deliveries,,96,EMR,64,69,53,0.8857888666860289,On Time,True,69,53,16,0.3018867924528302,Review Required,False,Missing Data
+Mhuju Health Centre,2025-09-01,Child Health,Immunisation Visits,220.0,274,EMR,220,220,193,0.804428295094526,On Time,False,220,193,27,0.13989637305699482,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-09-01,Child Health,Under-5 Visits,324.0,394,Paper Register,324,340,321,0.8783718746376052,On Time,False,340,321,19,0.059190031152647975,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-09-01,Outpatient,OPD Visits,1476.0,1316,DHIS2,1399,1339,1476,0.8443800921568746,Late,False,1476,1339,137,0.10231516056758776,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-09-01,Outpatient,New Outpatient Cases,1045.0,967,Paper Register,1045,1063,1018,0.8254772832000679,On Time,False,1063,1018,45,0.04420432220039293,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-10-01,HIV,Patients on ART,669.0,712,Paper Register,669,673,705,0.8775652179833863,Late,False,705,669,36,0.053811659192825115,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-10-01,HIV,New ART Initiations,47.0,67,EMR,45,47,47,0.9963414685042283,On Time,False,47,45,2,0.044444444444444446,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-10-01,TB,New TB Cases,20.0,24,DHIS2,19,21,20,0.9413268526935192,On Time,False,21,19,2,0.10526315789473684,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-10-01,TB,TB Treatment Completions,22.0,20,Paper Register,22,20,24,0.9608989284863645,On Time,False,24,20,4,0.2,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-10-01,Maternal Health,ANC Visits,162.0,232,EMR,163,162,176,0.9354946829646946,On Time,False,176,162,14,0.08641975308641975,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-10-01,Maternal Health,Facility Deliveries,72.0,93,DHIS2,74,73,72,0.9816456977400646,On Time,False,74,72,2,0.027777777777777776,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-10-01,Child Health,Immunisation Visits,169.0,163,EMR,161,169,160,0.8829942430800156,Late,False,169,160,9,0.05625,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-10-01,Child Health,Under-5 Visits,171.0,253,DHIS2,180,182,171,0.9014119293477437,Late,False,182,171,11,0.06432748538011696,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-10-01,Outpatient,OPD Visits,908.0,1013,EMR,853,908,883,0.9098685289805516,On Time,False,908,853,55,0.06447831184056271,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-10-01,Outpatient,New Outpatient Cases,477.0,521,EMR,457,477,507,0.9309418150712598,Late,False,507,457,50,0.10940919037199125,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-11-01,HIV,Patients on ART,736.0,736,Paper Register,736,702,740,0.9397897656974772,On Time,False,740,702,38,0.05413105413105413,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-11-01,HIV,New ART Initiations,11.0,20,DHIS2,11,13,11,0.9260079756959965,On Time,False,13,11,2,0.18181818181818182,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-11-01,TB,New TB Cases,33.0,34,EMR,33,33,35,0.8134511827934736,Late,False,35,33,2,0.06060606060606061,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-11-01,TB,TB Treatment Completions,38.0,40,EMR,41,38,38,0.8608060544895999,Late,False,41,38,3,0.07894736842105263,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-11-01,Maternal Health,ANC Visits,312.0,282,DHIS2,299,284,312,0.6675236852527495,On Time,False,312,284,28,0.09859154929577464,Consistent,False,Low Completeness
+Mhuju Health Centre,2025-11-01,Maternal Health,Facility Deliveries,163.0,149,EMR,167,163,159,0.9161900759776359,On Time,False,167,159,8,0.050314465408805034,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-11-01,Child Health,Immunisation Visits,229.0,270,DHIS2,212,226,229,0.8758255316751294,On Time,False,229,212,17,0.08018867924528301,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-11-01,Child Health,Under-5 Visits,328.0,340,EMR,346,328,338,0.9349572604334822,On Time,False,346,328,18,0.054878048780487805,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-11-01,Outpatient,OPD Visits,883.0,970,DHIS2,920,908,883,0.8139601309229259,On Time,False,920,883,37,0.04190260475651189,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-11-01,Outpatient,New Outpatient Cases,393.0,559,EMR,384,393,379,0.639888370206102,On Time,False,393,379,14,0.036939313984168866,Consistent,False,Low Completeness
+Mhuju Health Centre,2025-12-01,HIV,Patients on ART,352.0,358,EMR,372,352,410,0.830738208568841,Late,False,410,352,58,0.16477272727272727,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-12-01,HIV,New ART Initiations,48.0,55,DHIS2,49,50,48,0.8133055216421711,Late,False,50,48,2,0.041666666666666664,Consistent,False,Late Reporting
+Mhuju Health Centre,2025-12-01,TB,New TB Cases,22.0,29,EMR,22,22,19,0.960528062470586,On Time,False,22,19,3,0.15789473684210525,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-12-01,TB,TB Treatment Completions,24.0,26,Paper Register,24,26,23,0.7413700967176746,On Time,False,26,23,3,0.13043478260869565,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-12-01,Maternal Health,ANC Visits,129.0,143,EMR,123,129,80,0.8336236256798593,On Time,False,129,80,49,0.6125,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-12-01,Maternal Health,Facility Deliveries,160.0,187,Paper Register,160,167,165,0.45445000290425586,On Time,False,167,160,7,0.04375,Consistent,False,Low Completeness
+Mhuju Health Centre,2025-12-01,Child Health,Immunisation Visits,212.0,291,EMR,210,212,210,0.47367742888287007,On Time,False,212,210,2,0.009523809523809525,Consistent,False,Low Completeness
+Mhuju Health Centre,2025-12-01,Child Health,Under-5 Visits,363.0,372,DHIS2,398,380,363,0.860724787628768,On Time,False,398,363,35,0.09641873278236915,Consistent,False,No Major Issue
+Mhuju Health Centre,2025-12-01,Outpatient,OPD Visits,1004.0,1327,DHIS2,1024,924,1156,0.8113957453994737,On Time,False,1156,924,232,0.2510822510822511,Review Required,False,Source Discrepancy
+Mhuju Health Centre,2025-12-01,Outpatient,New Outpatient Cases,462.0,388,EMR,464,462,460,0.9076045410727807,Late,False,464,460,4,0.008695652173913044,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-01-01,HIV,Patients on ART,412.0,692,DHIS2,399,378,412,0.931616516949838,On Time,False,412,378,34,0.08994708994708994,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-01-01,HIV,New ART Initiations,24.0,35,Paper Register,24,27,28,0.9902889651326183,Late,False,28,24,4,0.16666666666666666,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-01-01,TB,New TB Cases,32.0,35,Paper Register,32,28,31,0.9709406900186395,On Time,False,32,28,4,0.14285714285714285,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-01-01,TB,TB Treatment Completions,10.0,12,DHIS2,10,11,10,0.9142520939874195,On Time,False,11,10,1,0.1,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-01-01,Maternal Health,ANC Visits,198.0,178,DHIS2,188,179,198,0.8050474691696529,On Time,False,198,179,19,0.10614525139664804,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-01-01,Maternal Health,Facility Deliveries,108.0,133,DHIS2,98,104,108,0.8304097134848984,On Time,False,108,98,10,0.10204081632653061,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-01-01,Child Health,Immunisation Visits,281.0,372,DHIS2,270,289,281,0.6703807001277915,On Time,False,289,270,19,0.07037037037037037,Consistent,False,Low Completeness
+Chiweta Health Centre,2025-01-01,Child Health,Under-5 Visits,284.0,524,DHIS2,247,243,284,0.4715569303624956,On Time,False,284,243,41,0.16872427983539096,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-01-01,Outpatient,OPD Visits,1393.0,1435,Paper Register,1393,1530,1431,0.925264470331239,Late,False,1530,1393,137,0.09834888729361091,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-01-01,Outpatient,New Outpatient Cases,820.0,948,Paper Register,820,810,795,0.8099228746677676,On Time,False,820,795,25,0.031446540880503145,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-02-01,HIV,Patients on ART,351.0,371,Paper Register,351,327,340,0.913692979701588,On Time,False,351,327,24,0.07339449541284404,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-02-01,HIV,New ART Initiations,54.0,59,DHIS2,52,51,54,0.846885120002303,On Time,False,54,51,3,0.058823529411764705,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-02-01,TB,New TB Cases,7.0,11,DHIS2,10,11,7,0.8635099400515177,Late,False,11,7,4,0.5714285714285714,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-02-01,TB,TB Treatment Completions,8.0,13,DHIS2,12,11,8,0.9086042861733529,On Time,False,12,8,4,0.5,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-02-01,Maternal Health,ANC Visits,118.0,162,EMR,112,118,113,0.8686773404355289,Late,False,118,112,6,0.05357142857142857,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-02-01,Maternal Health,Facility Deliveries,118.0,163,EMR,120,118,122,0.8493317231610813,On Time,False,122,118,4,0.03389830508474576,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-02-01,Child Health,Immunisation Visits,276.0,381,Paper Register,276,258,253,0.9883065820568881,On Time,False,276,253,23,0.09090909090909091,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-02-01,Child Health,Under-5 Visits,189.0,254,DHIS2,205,201,189,0.9818350528107171,On Time,False,205,189,16,0.08465608465608465,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-02-01,Outpatient,OPD Visits,1729.0,628,DHIS2,713,725,737,0.9644989298580454,On Time,False,737,713,24,0.033660589060308554,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-02-01,Outpatient,New Outpatient Cases,546.0,593,DHIS2,564,571,546,0.91672100740162,On Time,False,571,546,25,0.045787545787545784,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-03-01,HIV,Patients on ART,330.0,411,DHIS2,315,314,330,0.8821714183680993,Late,False,330,314,16,0.050955414012738856,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-03-01,HIV,New ART Initiations,,91,EMR,89,88,84,0.8237418191018223,On Time,True,89,84,5,0.05952380952380952,Consistent,False,Missing Data
+Chiweta Health Centre,2025-03-01,TB,New TB Cases,19.0,18,DHIS2,16,17,19,0.8446124123085514,On Time,False,19,16,3,0.1875,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-03-01,TB,TB Treatment Completions,15.0,17,Paper Register,15,12,14,0.8105530515719206,On Time,False,15,12,3,0.25,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-03-01,Maternal Health,ANC Visits,103.0,119,DHIS2,107,108,103,0.7135594634174309,On Time,False,108,103,5,0.04854368932038835,Consistent,False,Low Completeness
+Chiweta Health Centre,2025-03-01,Maternal Health,Facility Deliveries,47.0,66,EMR,46,47,45,0.9681817420805814,On Time,False,47,45,2,0.044444444444444446,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-03-01,Child Health,Immunisation Visits,198.0,242,DHIS2,210,183,198,0.8237287531483161,On Time,False,210,183,27,0.14754098360655737,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-03-01,Child Health,Under-5 Visits,351.0,366,DHIS2,365,347,351,0.9238478064107163,Late,False,365,347,18,0.05187319884726225,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-03-01,Outpatient,OPD Visits,810.0,961,DHIS2,824,855,810,0.524133171744779,On Time,False,855,810,45,0.05555555555555555,Consistent,False,Low Completeness
+Chiweta Health Centre,2025-03-01,Outpatient,New Outpatient Cases,377.0,421,EMR,409,377,427,0.8211748636426259,On Time,False,427,377,50,0.13262599469496023,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-04-01,HIV,Patients on ART,350.0,427,Paper Register,350,327,341,0.5467140065657425,On Time,False,350,327,23,0.07033639143730887,Consistent,False,Low Completeness
+Chiweta Health Centre,2025-04-01,HIV,New ART Initiations,57.0,85,DHIS2,57,62,57,0.8440892008490838,Late,False,62,57,5,0.08771929824561403,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-04-01,TB,New TB Cases,55.0,48,EMR,55,55,51,0.935487614245659,On Time,False,55,51,4,0.0784313725490196,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-04-01,TB,TB Treatment Completions,28.0,32,EMR,31,28,31,0.9830121465034445,On Time,False,31,28,3,0.10714285714285714,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-04-01,Maternal Health,ANC Visits,160.0,247,DHIS2,160,156,160,0.9118810851454714,On Time,False,160,156,4,0.02564102564102564,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-04-01,Maternal Health,Facility Deliveries,135.0,145,DHIS2,129,122,135,0.9610860086091958,On Time,False,135,122,13,0.10655737704918032,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-04-01,Child Health,Immunisation Visits,1151.0,467,EMR,391,357,335,0.8608985065497902,On Time,False,391,335,56,0.16716417910447762,Review Required,True,Source Discrepancy
+Chiweta Health Centre,2025-04-01,Child Health,Under-5 Visits,208.0,274,Paper Register,208,192,230,0.8341872804841697,On Time,False,230,192,38,0.19791666666666666,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-04-01,Outpatient,OPD Visits,1307.0,1217,Paper Register,1307,1319,1239,0.8319249802864335,On Time,False,1319,1239,80,0.0645682001614205,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-04-01,Outpatient,New Outpatient Cases,729.0,758,Paper Register,729,733,760,0.807878366738564,On Time,False,760,729,31,0.04252400548696845,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-05-01,HIV,Patients on ART,424.0,486,Paper Register,424,410,443,0.9176704441966307,Late,False,443,410,33,0.08048780487804878,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-05-01,HIV,New ART Initiations,17.0,21,Paper Register,17,22,19,0.9026366167513558,On Time,False,22,17,5,0.29411764705882354,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-05-01,TB,New TB Cases,19.0,22,DHIS2,21,19,19,0.9860796840338651,On Time,False,21,19,2,0.10526315789473684,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-05-01,TB,TB Treatment Completions,22.0,38,DHIS2,26,23,22,0.9741267762966981,On Time,False,26,22,4,0.18181818181818182,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-05-01,Maternal Health,ANC Visits,211.0,222,DHIS2,206,224,211,0.9520321859580319,On Time,False,224,206,18,0.08737864077669903,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-05-01,Maternal Health,Facility Deliveries,87.0,119,DHIS2,81,87,87,0.9169677263377765,On Time,False,87,81,6,0.07407407407407407,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-05-01,Child Health,Immunisation Visits,301.0,417,DHIS2,282,310,301,0.8282215188042703,On Time,False,310,282,28,0.09929078014184398,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-05-01,Child Health,Under-5 Visits,157.0,154,EMR,145,157,141,0.8162459269613346,On Time,False,157,141,16,0.11347517730496454,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-05-01,Outpatient,OPD Visits,690.0,634,DHIS2,674,745,690,0.9536010870626419,On Time,False,745,674,71,0.10534124629080119,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-05-01,Outpatient,New Outpatient Cases,504.0,493,DHIS2,468,488,504,0.9378175307496459,On Time,False,504,468,36,0.07692307692307693,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-06-01,HIV,Patients on ART,294.0,303,EMR,319,294,276,0.8390017960877232,On Time,False,319,276,43,0.15579710144927536,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-06-01,HIV,New ART Initiations,91.0,90,DHIS2,86,86,91,0.9188483654617194,Late,False,91,86,5,0.05813953488372093,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-06-01,TB,New TB Cases,28.0,39,DHIS2,28,28,28,0.8647639149804863,On Time,False,28,28,0,0.0,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-06-01,TB,TB Treatment Completions,34.0,46,Paper Register,34,33,31,0.9993818437178711,On Time,False,34,31,3,0.0967741935483871,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-06-01,Maternal Health,ANC Visits,72.0,91,EMR,70,72,82,0.8349294371792659,On Time,False,82,70,12,0.17142857142857143,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-06-01,Maternal Health,Facility Deliveries,136.0,127,Paper Register,136,132,139,0.8725507200798305,On Time,False,139,132,7,0.05303030303030303,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-06-01,Child Health,Immunisation Visits,309.0,315,DHIS2,310,299,309,0.858670684288202,On Time,False,310,299,11,0.03678929765886288,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-06-01,Child Health,Under-5 Visits,340.0,505,EMR,346,340,355,0.8507271111028076,On Time,False,355,340,15,0.04411764705882353,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-06-01,Outpatient,OPD Visits,1580.0,1464,DHIS2,1641,1564,1580,0.8647060824970983,On Time,False,1641,1564,77,0.049232736572890026,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-06-01,Outpatient,New Outpatient Cases,,857,DHIS2,680,725,650,0.6492479660582118,On Time,True,725,650,75,0.11538461538461539,Review Required,False,Missing Data
+Chiweta Health Centre,2025-07-01,HIV,Patients on ART,403.0,382,DHIS2,422,443,403,0.8451455447678256,On Time,False,443,403,40,0.09925558312655088,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-07-01,HIV,New ART Initiations,56.0,63,DHIS2,56,58,64,0.9165428898689363,On Time,False,64,56,8,0.14285714285714285,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-07-01,TB,New TB Cases,51.0,56,DHIS2,44,49,51,0.8729341352468674,On Time,False,51,44,7,0.1590909090909091,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-07-01,TB,TB Treatment Completions,15.0,21,DHIS2,13,12,15,0.8185000875877928,On Time,False,15,12,3,0.25,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-07-01,Maternal Health,ANC Visits,205.0,264,Paper Register,205,230,222,0.8251099579796954,On Time,False,230,205,25,0.12195121951219512,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-07-01,Maternal Health,Facility Deliveries,,75,DHIS2,52,57,58,0.9950946056628044,On Time,True,58,52,6,0.11538461538461539,Review Required,False,Missing Data
+Chiweta Health Centre,2025-07-01,Child Health,Immunisation Visits,381.0,366,DHIS2,395,389,381,0.8504623854139375,On Time,False,395,381,14,0.03674540682414698,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-07-01,Child Health,Under-5 Visits,202.0,214,DHIS2,195,187,202,0.9059427932216736,Late,False,202,187,15,0.08021390374331551,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-07-01,Outpatient,OPD Visits,816.0,768,EMR,802,816,742,0.9512507582844869,On Time,False,816,742,74,0.09973045822102426,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-07-01,Outpatient,New Outpatient Cases,843.0,737,EMR,826,843,769,0.9631538809270215,On Time,False,843,769,74,0.09622886866059818,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-08-01,HIV,Patients on ART,555.0,633,Paper Register,555,576,568,0.9227958912546788,On Time,False,576,555,21,0.03783783783783784,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-08-01,HIV,New ART Initiations,147.0,57,Paper Register,28,29,31,0.8361036456784847,On Time,False,31,28,3,0.10714285714285714,Review Required,True,Source Discrepancy
+Chiweta Health Centre,2025-08-01,TB,New TB Cases,35.0,59,Paper Register,35,37,35,0.9468731352984436,On Time,False,37,35,2,0.05714285714285714,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-08-01,TB,TB Treatment Completions,6.0,10,EMR,7,6,5,0.9356783771006026,On Time,False,7,5,2,0.4,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-08-01,Maternal Health,ANC Visits,181.0,235,EMR,180,181,173,0.8161230810339204,On Time,False,181,173,8,0.046242774566473986,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-08-01,Maternal Health,Facility Deliveries,57.0,88,DHIS2,60,63,57,0.8719588187090599,On Time,False,63,57,6,0.10526315789473684,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-08-01,Child Health,Immunisation Visits,340.0,352,DHIS2,312,348,340,0.8962555902438474,Late,False,348,312,36,0.11538461538461539,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-08-01,Child Health,Under-5 Visits,321.0,304,DHIS2,307,287,321,0.8048220386817334,On Time,False,321,287,34,0.11846689895470383,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-08-01,Outpatient,OPD Visits,563.0,634,Paper Register,563,540,511,0.9640975168960549,On Time,False,563,511,52,0.10176125244618395,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-08-01,Outpatient,New Outpatient Cases,389.0,397,DHIS2,388,379,389,0.919712598643552,Late,False,389,379,10,0.026385224274406333,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-09-01,HIV,Patients on ART,614.0,711,DHIS2,614,603,614,0.9649707534974208,On Time,False,614,603,11,0.01824212271973466,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-09-01,HIV,New ART Initiations,75.0,78,Paper Register,75,77,75,0.8368918102119767,On Time,False,77,75,2,0.02666666666666667,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-09-01,TB,New TB Cases,13.0,15,EMR,14,13,13,0.5936517238680501,On Time,False,14,13,1,0.07692307692307693,Consistent,False,Low Completeness
+Chiweta Health Centre,2025-09-01,TB,TB Treatment Completions,8.0,12,DHIS2,13,11,8,0.8091170315897338,On Time,False,13,8,5,0.625,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-09-01,Maternal Health,ANC Visits,263.0,263,Paper Register,263,272,292,0.811821164175131,On Time,False,292,263,29,0.11026615969581749,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-09-01,Maternal Health,Facility Deliveries,,74,Paper Register,59,59,62,0.9340868667593836,Late,True,62,59,3,0.05084745762711865,Consistent,False,Missing Data
+Chiweta Health Centre,2025-09-01,Child Health,Immunisation Visits,245.0,210,DHIS2,238,242,245,0.8082856177638776,On Time,False,245,238,7,0.029411764705882353,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-09-01,Child Health,Under-5 Visits,305.0,429,Paper Register,305,320,322,0.9595028090592972,Late,False,322,305,17,0.05573770491803279,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-09-01,Outpatient,OPD Visits,892.0,869,DHIS2,909,996,892,0.9687510087974587,On Time,False,996,892,104,0.11659192825112108,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-09-01,Outpatient,New Outpatient Cases,236.0,313,DHIS2,263,238,156,0.8361783802757797,On Time,False,263,156,107,0.6858974358974359,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-10-01,HIV,Patients on ART,747.0,738,Paper Register,747,779,700,0.8362451122099419,Late,False,779,700,79,0.11285714285714285,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-10-01,HIV,New ART Initiations,35.0,59,Paper Register,35,33,33,0.9350912090672852,On Time,False,35,33,2,0.06060606060606061,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-10-01,TB,New TB Cases,48.0,53,EMR,54,48,50,0.8708754365972271,On Time,False,54,48,6,0.125,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-10-01,TB,TB Treatment Completions,29.0,32,DHIS2,31,28,26,0.8397628121874806,On Time,False,31,26,5,0.19230769230769232,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-10-01,Maternal Health,ANC Visits,182.0,167,DHIS2,176,169,182,0.9134781888312147,Late,False,182,169,13,0.07692307692307693,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-10-01,Maternal Health,Facility Deliveries,134.0,161,Paper Register,134,143,138,0.9388034828211484,On Time,False,143,134,9,0.06716417910447761,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-10-01,Child Health,Immunisation Visits,246.0,396,Paper Register,246,257,248,0.8943298981501191,On Time,False,257,246,11,0.044715447154471545,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-10-01,Child Health,Under-5 Visits,309.0,390,EMR,294,309,169,0.8989042250240816,On Time,False,309,169,140,0.8284023668639053,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-10-01,Outpatient,OPD Visits,1510.0,1411,DHIS2,1551,1622,1510,0.9144245927444413,On Time,False,1622,1510,112,0.07417218543046358,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-10-01,Outpatient,New Outpatient Cases,495.0,738,Paper Register,495,587,589,0.9663081572675332,On Time,False,589,495,94,0.1898989898989899,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-11-01,HIV,Patients on ART,189.0,309,DHIS2,209,200,189,0.802772427182572,On Time,False,209,189,20,0.10582010582010581,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-11-01,HIV,New ART Initiations,16.0,28,DHIS2,18,21,16,0.932513583547757,Late,False,21,16,5,0.3125,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-11-01,TB,New TB Cases,28.0,38,EMR,30,28,27,0.8441302119243497,On Time,False,30,27,3,0.1111111111111111,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-11-01,TB,TB Treatment Completions,17.0,22,EMR,17,17,17,0.8821365266020565,Late,False,17,17,0,0.0,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-11-01,Maternal Health,ANC Visits,147.0,164,DHIS2,144,147,147,0.9931277950533601,On Time,False,147,144,3,0.020833333333333332,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-11-01,Maternal Health,Facility Deliveries,168.0,179,EMR,161,168,164,0.8294454148821034,On Time,False,168,161,7,0.043478260869565216,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-11-01,Child Health,Immunisation Visits,338.0,424,DHIS2,330,334,338,0.9818505388873985,On Time,False,338,330,8,0.024242424242424242,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-11-01,Child Health,Under-5 Visits,,588,Paper Register,487,509,512,0.9575940267181864,On Time,True,512,487,25,0.0513347022587269,Consistent,False,Missing Data
+Chiweta Health Centre,2025-11-01,Outpatient,OPD Visits,938.0,1190,EMR,886,938,936,0.9717396242489148,On Time,False,938,886,52,0.05869074492099323,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-11-01,Outpatient,New Outpatient Cases,737.0,817,EMR,778,737,815,0.9291450086702108,On Time,False,815,737,78,0.10583446404341927,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-12-01,HIV,Patients on ART,697.0,781,Paper Register,697,708,576,0.9887148288070354,On Time,False,708,576,132,0.22916666666666666,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-12-01,HIV,New ART Initiations,65.0,78,DHIS2,61,64,65,0.8614291296208423,Late,False,65,61,4,0.06557377049180328,Consistent,False,Late Reporting
+Chiweta Health Centre,2025-12-01,TB,New TB Cases,21.0,25,EMR,23,21,20,0.837839158478071,On Time,False,23,20,3,0.15,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-12-01,TB,TB Treatment Completions,27.0,26,Paper Register,27,29,29,0.9677707723808138,On Time,False,29,27,2,0.07407407407407407,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-12-01,Maternal Health,ANC Visits,200.0,238,EMR,192,200,188,0.5224286216326572,On Time,False,200,188,12,0.06382978723404255,Consistent,False,Low Completeness
+Chiweta Health Centre,2025-12-01,Maternal Health,Facility Deliveries,59.0,57,DHIS2,61,59,59,0.9823029451731702,On Time,False,61,59,2,0.03389830508474576,Consistent,False,No Major Issue
+Chiweta Health Centre,2025-12-01,Child Health,Immunisation Visits,129.0,178,DHIS2,116,103,129,0.901104158344698,On Time,False,129,103,26,0.2524271844660194,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-12-01,Child Health,Under-5 Visits,460.0,541,EMR,397,460,433,0.8935960924956087,On Time,False,460,397,63,0.15869017632241814,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-12-01,Outpatient,OPD Visits,910.0,984,EMR,989,910,866,0.950422866539395,On Time,False,989,866,123,0.1420323325635104,Review Required,False,Source Discrepancy
+Chiweta Health Centre,2025-12-01,Outpatient,New Outpatient Cases,738.0,689,EMR,698,738,654,0.9724152285153194,On Time,False,738,654,84,0.12844036697247707,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-01-01,HIV,Patients on ART,614.0,641,DHIS2,635,625,614,0.8861071641826074,On Time,False,635,614,21,0.03420195439739414,Consistent,False,No Major Issue
+Katowo Health Centre,2025-01-01,HIV,New ART Initiations,48.0,46,Paper Register,48,49,71,0.998866060537143,On Time,False,71,48,23,0.4791666666666667,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-01-01,TB,New TB Cases,49.0,51,DHIS2,48,50,49,0.9373027886086505,On Time,False,50,48,2,0.041666666666666664,Consistent,False,No Major Issue
+Katowo Health Centre,2025-01-01,TB,TB Treatment Completions,23.0,27,DHIS2,26,22,23,0.9509138722411473,On Time,False,26,22,4,0.18181818181818182,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-01-01,Maternal Health,ANC Visits,99.0,128,EMR,101,99,93,0.5077367025091417,On Time,False,101,93,8,0.08602150537634409,Consistent,False,Low Completeness
+Katowo Health Centre,2025-01-01,Maternal Health,Facility Deliveries,,73,Paper Register,51,49,50,0.87265455927978,Late,True,51,49,2,0.04081632653061224,Consistent,False,Missing Data
+Katowo Health Centre,2025-01-01,Child Health,Immunisation Visits,130.0,225,EMR,131,130,129,0.864080257228043,On Time,False,131,129,2,0.015503875968992248,Consistent,False,No Major Issue
+Katowo Health Centre,2025-01-01,Child Health,Under-5 Visits,298.0,427,DHIS2,333,319,298,0.8278004410398155,On Time,False,333,298,35,0.1174496644295302,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-01-01,Outpatient,OPD Visits,1150.0,1037,EMR,1179,1150,1140,0.8754107862003397,On Time,False,1179,1140,39,0.034210526315789476,Consistent,False,No Major Issue
+Katowo Health Centre,2025-01-01,Outpatient,New Outpatient Cases,682.0,626,DHIS2,731,711,682,0.9309450696996886,On Time,False,731,682,49,0.0718475073313783,Consistent,False,No Major Issue
+Katowo Health Centre,2025-02-01,HIV,Patients on ART,859.0,800,DHIS2,866,857,859,0.8419795259172462,Late,False,866,857,9,0.010501750291715286,Consistent,False,Late Reporting
+Katowo Health Centre,2025-02-01,HIV,New ART Initiations,,98,EMR,100,100,96,0.965830128056828,On Time,True,100,96,4,0.041666666666666664,Consistent,False,Missing Data
+Katowo Health Centre,2025-02-01,TB,New TB Cases,21.0,25,Paper Register,21,16,19,0.9876128279136263,Late,False,21,16,5,0.3125,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-02-01,TB,TB Treatment Completions,41.0,41,DHIS2,39,39,41,0.9852616553842393,On Time,False,41,39,2,0.05128205128205128,Consistent,False,No Major Issue
+Katowo Health Centre,2025-02-01,Maternal Health,ANC Visits,205.0,237,Paper Register,205,194,193,0.8599795185989073,On Time,False,205,193,12,0.06217616580310881,Consistent,False,No Major Issue
+Katowo Health Centre,2025-02-01,Maternal Health,Facility Deliveries,98.0,90,EMR,102,98,104,0.894503088563917,Late,False,104,98,6,0.061224489795918366,Consistent,False,Late Reporting
+Katowo Health Centre,2025-02-01,Child Health,Immunisation Visits,121.0,112,DHIS2,118,120,121,0.8481607632146346,On Time,False,121,118,3,0.025423728813559324,Consistent,False,No Major Issue
+Katowo Health Centre,2025-02-01,Child Health,Under-5 Visits,546.0,573,EMR,509,546,524,0.8491101251888983,On Time,False,546,509,37,0.07269155206286837,Consistent,False,No Major Issue
+Katowo Health Centre,2025-02-01,Outpatient,OPD Visits,801.0,772,EMR,752,801,774,0.9069118438312618,On Time,False,801,752,49,0.06515957446808511,Consistent,False,No Major Issue
+Katowo Health Centre,2025-02-01,Outpatient,New Outpatient Cases,282.0,400,EMR,287,282,279,0.5099153324214514,On Time,False,287,279,8,0.02867383512544803,Consistent,False,Low Completeness
+Katowo Health Centre,2025-03-01,HIV,Patients on ART,496.0,546,DHIS2,518,475,496,0.8889704865655081,On Time,False,518,475,43,0.09052631578947369,Consistent,False,No Major Issue
+Katowo Health Centre,2025-03-01,HIV,New ART Initiations,36.0,61,DHIS2,38,33,36,0.9592601326830265,Late,False,38,33,5,0.15151515151515152,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-03-01,TB,New TB Cases,42.0,45,DHIS2,42,42,42,0.5406566949328588,On Time,False,42,42,0,0.0,Consistent,False,Low Completeness
+Katowo Health Centre,2025-03-01,TB,TB Treatment Completions,13.0,17,DHIS2,15,10,13,0.9091391937626052,On Time,False,15,10,5,0.5,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-03-01,Maternal Health,ANC Visits,93.0,105,EMR,92,93,88,0.9226303822206036,On Time,False,93,88,5,0.056818181818181816,Consistent,False,No Major Issue
+Katowo Health Centre,2025-03-01,Maternal Health,Facility Deliveries,119.0,93,EMR,116,119,119,0.40773004585541295,On Time,False,119,116,3,0.02586206896551724,Consistent,False,Low Completeness
+Katowo Health Centre,2025-03-01,Child Health,Immunisation Visits,319.0,304,DHIS2,321,302,319,0.9200502820199166,On Time,False,321,302,19,0.06291390728476821,Consistent,False,No Major Issue
+Katowo Health Centre,2025-03-01,Child Health,Under-5 Visits,159.0,249,EMR,153,159,166,0.8356832193126992,On Time,False,166,153,13,0.08496732026143791,Consistent,False,No Major Issue
+Katowo Health Centre,2025-03-01,Outpatient,OPD Visits,520.0,745,EMR,519,520,483,0.9739299369624342,On Time,False,520,483,37,0.07660455486542443,Consistent,False,No Major Issue
+Katowo Health Centre,2025-03-01,Outpatient,New Outpatient Cases,560.0,742,DHIS2,559,554,560,0.8238213071753433,On Time,False,560,554,6,0.010830324909747292,Consistent,False,No Major Issue
+Katowo Health Centre,2025-04-01,HIV,Patients on ART,404.0,453,DHIS2,397,421,404,0.8870792646799504,On Time,False,421,397,24,0.060453400503778336,Consistent,False,No Major Issue
+Katowo Health Centre,2025-04-01,HIV,New ART Initiations,33.0,31,DHIS2,34,34,33,0.46110644793651523,On Time,False,34,33,1,0.030303030303030304,Consistent,False,Low Completeness
+Katowo Health Centre,2025-04-01,TB,New TB Cases,69.0,30,DHIS2,28,28,28,0.9183433937784801,On Time,False,28,28,0,0.0,Consistent,False,No Major Issue
+Katowo Health Centre,2025-04-01,TB,TB Treatment Completions,,21,Paper Register,25,28,23,0.9610348794720753,On Time,True,28,23,5,0.21739130434782608,Review Required,False,Missing Data
+Katowo Health Centre,2025-04-01,Maternal Health,ANC Visits,304.0,283,Paper Register,304,312,310,0.813943885166746,On Time,False,312,304,8,0.02631578947368421,Consistent,False,No Major Issue
+Katowo Health Centre,2025-04-01,Maternal Health,Facility Deliveries,199.0,186,EMR,195,199,195,0.5934852065014222,On Time,False,199,195,4,0.020512820512820513,Consistent,False,Low Completeness
+Katowo Health Centre,2025-04-01,Child Health,Immunisation Visits,187.0,150,EMR,189,187,178,0.8149791684003967,On Time,False,189,178,11,0.06179775280898876,Consistent,False,No Major Issue
+Katowo Health Centre,2025-04-01,Child Health,Under-5 Visits,405.0,453,DHIS2,378,377,405,0.8932506563055671,On Time,False,405,377,28,0.07427055702917772,Consistent,False,No Major Issue
+Katowo Health Centre,2025-04-01,Outpatient,OPD Visits,,731,EMR,636,634,669,0.8079845065127503,On Time,True,669,634,35,0.055205047318611984,Consistent,False,Missing Data
+Katowo Health Centre,2025-04-01,Outpatient,New Outpatient Cases,477.0,701,Paper Register,477,493,478,0.9533191889424103,Late,False,493,477,16,0.033542976939203356,Consistent,False,Late Reporting
+Katowo Health Centre,2025-05-01,HIV,Patients on ART,290.0,463,DHIS2,290,311,290,0.8580088056355973,On Time,False,311,290,21,0.07241379310344828,Consistent,False,No Major Issue
+Katowo Health Centre,2025-05-01,HIV,New ART Initiations,93.0,99,DHIS2,95,95,93,0.9220726015636314,On Time,False,95,93,2,0.021505376344086023,Consistent,False,No Major Issue
+Katowo Health Centre,2025-05-01,TB,New TB Cases,33.0,38,DHIS2,30,34,33,0.9486870347912388,On Time,False,34,30,4,0.13333333333333333,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-05-01,TB,TB Treatment Completions,17.0,21,Paper Register,17,19,20,0.9163443054946954,On Time,False,20,17,3,0.17647058823529413,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-05-01,Maternal Health,ANC Visits,213.0,220,EMR,223,213,224,0.8403589896504914,On Time,False,224,213,11,0.051643192488262914,Consistent,False,No Major Issue
+Katowo Health Centre,2025-05-01,Maternal Health,Facility Deliveries,109.0,148,Paper Register,109,111,121,0.5141595889448888,On Time,False,121,109,12,0.11009174311926606,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-05-01,Child Health,Immunisation Visits,366.0,336,EMR,359,366,366,0.801755442389586,On Time,False,366,359,7,0.019498607242339833,Consistent,False,No Major Issue
+Katowo Health Centre,2025-05-01,Child Health,Under-5 Visits,472.0,502,DHIS2,444,452,472,0.8267391308798873,On Time,False,472,444,28,0.06306306306306306,Consistent,False,No Major Issue
+Katowo Health Centre,2025-05-01,Outpatient,OPD Visits,1194.0,1117,DHIS2,1232,1226,1194,0.8430311243248112,Late,False,1232,1194,38,0.031825795644891124,Consistent,False,Late Reporting
+Katowo Health Centre,2025-05-01,Outpatient,New Outpatient Cases,595.0,606,EMR,588,595,600,0.8565530914120197,Late,False,600,588,12,0.02040816326530612,Consistent,False,Late Reporting
+Katowo Health Centre,2025-06-01,HIV,Patients on ART,426.0,580,DHIS2,386,429,426,0.9481738536770435,On Time,False,429,386,43,0.11139896373056994,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-06-01,HIV,New ART Initiations,104.0,97,Paper Register,104,115,107,0.8116915974473754,On Time,False,115,104,11,0.10576923076923077,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-06-01,TB,New TB Cases,37.0,48,Paper Register,37,40,38,0.8677889550696898,On Time,False,40,37,3,0.08108108108108109,Consistent,False,No Major Issue
+Katowo Health Centre,2025-06-01,TB,TB Treatment Completions,14.0,18,DHIS2,13,12,14,0.8621430656622895,On Time,False,14,12,2,0.16666666666666666,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-06-01,Maternal Health,ANC Visits,257.0,256,EMR,266,257,257,0.8950216729863671,Late,False,266,257,9,0.03501945525291829,Consistent,False,Late Reporting
+Katowo Health Centre,2025-06-01,Maternal Health,Facility Deliveries,135.0,162,DHIS2,126,112,135,0.8407989207218776,On Time,False,135,112,23,0.20535714285714285,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-06-01,Child Health,Immunisation Visits,218.0,306,DHIS2,258,250,218,0.930166644312297,On Time,False,258,218,40,0.1834862385321101,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-06-01,Child Health,Under-5 Visits,583.0,569,Paper Register,583,560,592,0.8665458953020758,On Time,False,592,560,32,0.05714285714285714,Consistent,False,No Major Issue
+Katowo Health Centre,2025-06-01,Outpatient,OPD Visits,766.0,1277,EMR,750,766,737,0.8703769668694014,On Time,False,766,737,29,0.03934871099050204,Consistent,False,No Major Issue
+Katowo Health Centre,2025-06-01,Outpatient,New Outpatient Cases,349.0,492,DHIS2,385,369,349,0.6742255259057681,On Time,False,385,349,36,0.10315186246418338,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-07-01,HIV,Patients on ART,798.0,745,DHIS2,758,741,798,0.9787867021339981,On Time,False,798,741,57,0.07692307692307693,Consistent,False,No Major Issue
+Katowo Health Centre,2025-07-01,HIV,New ART Initiations,87.0,99,DHIS2,90,82,87,0.8285628608945735,On Time,False,90,82,8,0.0975609756097561,Consistent,False,No Major Issue
+Katowo Health Centre,2025-07-01,TB,New TB Cases,39.0,38,EMR,38,39,37,0.8895103710212124,On Time,False,39,37,2,0.05405405405405406,Consistent,False,No Major Issue
+Katowo Health Centre,2025-07-01,TB,TB Treatment Completions,22.0,29,EMR,22,22,23,0.6837392496181571,Late,False,23,22,1,0.045454545454545456,Consistent,False,Late Reporting
+Katowo Health Centre,2025-07-01,Maternal Health,ANC Visits,251.0,214,DHIS2,262,255,251,0.949739695687831,On Time,False,262,251,11,0.043824701195219126,Consistent,False,No Major Issue
+Katowo Health Centre,2025-07-01,Maternal Health,Facility Deliveries,114.0,130,Paper Register,114,113,124,0.9336006501486028,On Time,False,124,113,11,0.09734513274336283,Consistent,False,No Major Issue
+Katowo Health Centre,2025-07-01,Child Health,Immunisation Visits,229.0,302,DHIS2,242,242,229,0.8968346064326815,On Time,False,242,229,13,0.056768558951965066,Consistent,False,No Major Issue
+Katowo Health Centre,2025-07-01,Child Health,Under-5 Visits,381.0,360,Paper Register,381,400,381,0.8287089511887537,On Time,False,400,381,19,0.049868766404199474,Consistent,False,No Major Issue
+Katowo Health Centre,2025-07-01,Outpatient,OPD Visits,1314.0,1353,Paper Register,1314,1375,1328,0.9138412926258855,On Time,False,1375,1314,61,0.04642313546423135,Consistent,False,No Major Issue
+Katowo Health Centre,2025-07-01,Outpatient,New Outpatient Cases,345.0,461,DHIS2,358,320,345,0.8487990604704945,Late,False,358,320,38,0.11875,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-08-01,HIV,Patients on ART,846.0,688,DHIS2,823,807,846,0.8321267225237102,On Time,False,846,807,39,0.048327137546468404,Consistent,False,No Major Issue
+Katowo Health Centre,2025-08-01,HIV,New ART Initiations,54.0,67,EMR,56,54,55,0.8641467164623142,On Time,False,56,54,2,0.037037037037037035,Consistent,False,No Major Issue
+Katowo Health Centre,2025-08-01,TB,New TB Cases,23.0,21,DHIS2,23,27,23,0.697481273580816,On Time,False,27,23,4,0.17391304347826086,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-08-01,TB,TB Treatment Completions,39.0,48,Paper Register,39,42,40,0.6953345022804072,On Time,False,42,39,3,0.07692307692307693,Consistent,False,Low Completeness
+Katowo Health Centre,2025-08-01,Maternal Health,ANC Visits,236.0,274,EMR,256,236,252,0.9755384357655696,On Time,False,256,236,20,0.0847457627118644,Consistent,False,No Major Issue
+Katowo Health Centre,2025-08-01,Maternal Health,Facility Deliveries,80.0,101,EMR,79,80,86,0.8781834853682324,Late,False,86,79,7,0.08860759493670886,Consistent,False,Late Reporting
+Katowo Health Centre,2025-08-01,Child Health,Immunisation Visits,211.0,358,EMR,218,211,243,0.8864462119009017,On Time,False,243,211,32,0.15165876777251186,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-08-01,Child Health,Under-5 Visits,319.0,290,DHIS2,311,316,319,0.8019655105139576,On Time,False,319,311,8,0.02572347266881029,Consistent,False,No Major Issue
+Katowo Health Centre,2025-08-01,Outpatient,OPD Visits,616.0,670,EMR,607,616,652,0.8793578650829169,On Time,False,652,607,45,0.07413509060955518,Consistent,False,No Major Issue
+Katowo Health Centre,2025-08-01,Outpatient,New Outpatient Cases,530.0,846,EMR,490,530,505,0.9263444836653169,On Time,False,530,490,40,0.08163265306122448,Consistent,False,No Major Issue
+Katowo Health Centre,2025-09-01,HIV,Patients on ART,541.0,886,EMR,545,541,562,0.9107958974440161,On Time,False,562,541,21,0.038817005545286505,Consistent,False,No Major Issue
+Katowo Health Centre,2025-09-01,HIV,New ART Initiations,74.0,89,DHIS2,72,74,74,0.8227931774238483,On Time,False,74,72,2,0.027777777777777776,Consistent,False,No Major Issue
+Katowo Health Centre,2025-09-01,TB,New TB Cases,37.0,46,DHIS2,37,34,37,0.8170536683223355,On Time,False,37,34,3,0.08823529411764706,Consistent,False,No Major Issue
+Katowo Health Centre,2025-09-01,TB,TB Treatment Completions,15.0,19,EMR,11,15,13,0.9048392542126615,On Time,False,15,11,4,0.36363636363636365,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-09-01,Maternal Health,ANC Visits,153.0,148,Paper Register,153,154,158,0.4901177257723643,Late,False,158,153,5,0.032679738562091505,Consistent,False,Late Reporting
+Katowo Health Centre,2025-09-01,Maternal Health,Facility Deliveries,88.0,102,EMR,83,88,74,0.9864696283267422,On Time,False,88,74,14,0.1891891891891892,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-09-01,Child Health,Immunisation Visits,132.0,138,DHIS2,129,134,132,0.6876437629635159,On Time,False,134,129,5,0.03875968992248062,Consistent,False,Low Completeness
+Katowo Health Centre,2025-09-01,Child Health,Under-5 Visits,448.0,342,DHIS2,470,470,448,0.9176731378435313,On Time,False,470,448,22,0.049107142857142856,Consistent,False,No Major Issue
+Katowo Health Centre,2025-09-01,Outpatient,OPD Visits,524.0,625,EMR,561,524,511,0.9857111065788272,Late,False,561,511,50,0.09784735812133072,Consistent,False,Late Reporting
+Katowo Health Centre,2025-09-01,Outpatient,New Outpatient Cases,712.0,801,DHIS2,708,729,712,0.9399068515231048,On Time,False,729,708,21,0.029661016949152543,Consistent,False,No Major Issue
+Katowo Health Centre,2025-10-01,HIV,Patients on ART,522.0,560,DHIS2,518,535,522,0.9781664296579267,On Time,False,535,518,17,0.032818532818532815,Consistent,False,No Major Issue
+Katowo Health Centre,2025-10-01,HIV,New ART Initiations,39.0,40,Paper Register,39,43,38,0.9875322921233184,On Time,False,43,38,5,0.13157894736842105,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-10-01,TB,New TB Cases,15.0,16,Paper Register,15,14,8,0.9513293098704798,On Time,False,15,8,7,0.875,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-10-01,TB,TB Treatment Completions,21.0,29,Paper Register,21,23,25,0.905089025272436,On Time,False,25,21,4,0.19047619047619047,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-10-01,Maternal Health,ANC Visits,134.0,196,Paper Register,134,129,147,0.9470457036203193,Late,False,147,129,18,0.13953488372093023,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-10-01,Maternal Health,Facility Deliveries,179.0,182,EMR,175,179,164,0.951847795931399,On Time,False,179,164,15,0.09146341463414634,Consistent,False,No Major Issue
+Katowo Health Centre,2025-10-01,Child Health,Immunisation Visits,306.0,252,DHIS2,306,304,306,0.8112427810919758,On Time,False,306,304,2,0.006578947368421052,Consistent,False,No Major Issue
+Katowo Health Centre,2025-10-01,Child Health,Under-5 Visits,426.0,517,Paper Register,426,441,442,0.5692511049963536,On Time,False,442,426,16,0.03755868544600939,Consistent,False,Low Completeness
+Katowo Health Centre,2025-10-01,Outpatient,OPD Visits,907.0,957,Paper Register,907,813,886,0.9366858830314542,On Time,False,907,813,94,0.11562115621156212,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-10-01,Outpatient,New Outpatient Cases,273.0,414,DHIS2,265,265,273,0.8411242975398683,On Time,False,273,265,8,0.03018867924528302,Consistent,False,No Major Issue
+Katowo Health Centre,2025-11-01,HIV,Patients on ART,572.0,575,Paper Register,572,546,598,0.8607470092450199,On Time,False,598,546,52,0.09523809523809523,Consistent,False,No Major Issue
+Katowo Health Centre,2025-11-01,HIV,New ART Initiations,107.0,99,Paper Register,107,104,111,0.8333697156411156,On Time,False,111,104,7,0.0673076923076923,Consistent,False,No Major Issue
+Katowo Health Centre,2025-11-01,TB,New TB Cases,48.0,59,Paper Register,48,48,48,0.8035340089590868,On Time,False,48,48,0,0.0,Consistent,False,No Major Issue
+Katowo Health Centre,2025-11-01,TB,TB Treatment Completions,22.0,26,DHIS2,25,25,22,0.9959910894716557,On Time,False,25,22,3,0.13636363636363635,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-11-01,Maternal Health,ANC Visits,226.0,258,EMR,226,226,225,0.9261270589966161,On Time,False,226,225,1,0.0044444444444444444,Consistent,False,No Major Issue
+Katowo Health Centre,2025-11-01,Maternal Health,Facility Deliveries,112.0,148,DHIS2,113,117,112,0.8478664573094717,On Time,False,117,112,5,0.044642857142857144,Consistent,False,No Major Issue
+Katowo Health Centre,2025-11-01,Child Health,Immunisation Visits,248.0,245,EMR,233,248,243,0.5313624710205549,On Time,False,248,233,15,0.06437768240343347,Consistent,False,Low Completeness
+Katowo Health Centre,2025-11-01,Child Health,Under-5 Visits,502.0,590,DHIS2,519,518,502,0.6819236161112856,On Time,False,519,502,17,0.03386454183266932,Consistent,False,Low Completeness
+Katowo Health Centre,2025-11-01,Outpatient,OPD Visits,1340.0,1386,DHIS2,1296,1293,1340,0.8271491706199803,Late,False,1340,1293,47,0.03634957463263728,Consistent,False,Late Reporting
+Katowo Health Centre,2025-11-01,Outpatient,New Outpatient Cases,322.0,331,Paper Register,322,313,296,0.8521323309665874,On Time,False,322,296,26,0.08783783783783784,Consistent,False,No Major Issue
+Katowo Health Centre,2025-12-01,HIV,Patients on ART,,814,Paper Register,632,569,615,0.8113251114755117,On Time,True,632,569,63,0.11072056239015818,Review Required,False,Missing Data
+Katowo Health Centre,2025-12-01,HIV,New ART Initiations,15.0,21,DHIS2,13,14,15,0.9967470067351516,On Time,False,15,13,2,0.15384615384615385,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-12-01,TB,New TB Cases,81.0,39,EMR,31,33,36,0.9632113514228647,On Time,False,36,31,5,0.16129032258064516,Review Required,True,Source Discrepancy
+Katowo Health Centre,2025-12-01,TB,TB Treatment Completions,21.0,21,Paper Register,21,21,27,0.7057369924858251,On Time,False,27,21,6,0.2857142857142857,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-12-01,Maternal Health,ANC Visits,145.0,193,DHIS2,140,149,145,0.8384692726307831,On Time,False,149,140,9,0.06428571428571428,Consistent,False,No Major Issue
+Katowo Health Centre,2025-12-01,Maternal Health,Facility Deliveries,95.0,124,EMR,102,95,112,0.8014926280834439,On Time,False,112,95,17,0.17894736842105263,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-12-01,Child Health,Immunisation Visits,258.0,328,Paper Register,258,255,267,0.8473440951707666,On Time,False,267,255,12,0.047058823529411764,Consistent,False,No Major Issue
+Katowo Health Centre,2025-12-01,Child Health,Under-5 Visits,492.0,431,Paper Register,492,485,476,0.7191047469195715,Late,False,492,476,16,0.03361344537815126,Consistent,False,Late Reporting
+Katowo Health Centre,2025-12-01,Outpatient,OPD Visits,860.0,1428,DHIS2,731,899,860,0.8902260139595684,On Time,False,899,731,168,0.22982216142270862,Review Required,False,Source Discrepancy
+Katowo Health Centre,2025-12-01,Outpatient,New Outpatient Cases,281.0,371,DHIS2,295,282,281,0.8926398872617841,Late,False,295,281,14,0.0498220640569395,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-01-01,HIV,Patients on ART,479.0,577,EMR,526,479,506,0.8101605179377885,On Time,False,526,479,47,0.09812108559498957,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-01-01,HIV,New ART Initiations,61.0,70,DHIS2,58,57,61,0.9429796876154577,Late,False,61,57,4,0.07017543859649122,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-01-01,TB,New TB Cases,15.0,21,DHIS2,15,15,15,0.9228998920510385,On Time,False,15,15,0,0.0,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-01-01,TB,TB Treatment Completions,5.0,11,DHIS2,8,9,5,0.9601072210253495,On Time,False,9,5,4,0.8,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-01-01,Maternal Health,ANC Visits,150.0,222,EMR,147,150,153,0.8014183625548742,On Time,False,153,147,6,0.04081632653061224,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-01-01,Maternal Health,Facility Deliveries,69.0,75,Paper Register,69,71,73,0.823152009249265,On Time,False,73,69,4,0.057971014492753624,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-01-01,Child Health,Immunisation Visits,152.0,143,DHIS2,148,145,152,0.9700265469370074,Late,False,152,145,7,0.04827586206896552,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-01-01,Child Health,Under-5 Visits,151.0,248,EMR,157,151,174,0.9005260231242507,On Time,False,174,151,23,0.152317880794702,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-01-01,Outpatient,OPD Visits,880.0,1038,EMR,981,880,1052,0.8144426370670377,On Time,False,1052,880,172,0.19545454545454546,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-01-01,Outpatient,New Outpatient Cases,240.0,325,DHIS2,233,220,240,0.9226232478138483,Late,False,240,220,20,0.09090909090909091,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-02-01,HIV,Patients on ART,589.0,631,DHIS2,639,619,589,0.8413068807944013,On Time,False,639,589,50,0.08488964346349745,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-02-01,HIV,New ART Initiations,73.0,69,Paper Register,73,69,69,0.9926188261795605,On Time,False,73,69,4,0.057971014492753624,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-02-01,TB,New TB Cases,48.0,57,DHIS2,46,42,48,0.8467380897650727,On Time,False,48,42,6,0.14285714285714285,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-02-01,TB,TB Treatment Completions,19.0,19,Paper Register,19,16,14,0.9400695777733139,On Time,False,19,14,5,0.35714285714285715,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-02-01,Maternal Health,ANC Visits,149.0,256,EMR,141,149,122,0.9593723140552383,On Time,False,149,122,27,0.22131147540983606,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-02-01,Maternal Health,Facility Deliveries,68.0,82,EMR,71,68,62,0.8476674421255994,On Time,False,71,62,9,0.14516129032258066,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-02-01,Child Health,Immunisation Visits,176.0,183,DHIS2,175,172,176,0.8341076097796453,On Time,False,176,172,4,0.023255813953488372,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-02-01,Child Health,Under-5 Visits,138.0,156,EMR,141,138,155,0.9931035836469533,On Time,False,155,138,17,0.12318840579710146,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-02-01,Outpatient,OPD Visits,,1308,DHIS2,824,807,834,0.847512002913554,On Time,True,834,807,27,0.03345724907063197,Consistent,False,Missing Data
+Kachulu Health Centre,2025-02-01,Outpatient,New Outpatient Cases,612.0,866,DHIS2,605,585,843,0.8705058482601035,On Time,False,843,585,258,0.441025641025641,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-03-01,HIV,Patients on ART,413.0,572,EMR,379,413,390,0.8069301419628034,Late,False,413,379,34,0.08970976253298153,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-03-01,HIV,New ART Initiations,29.0,28,EMR,25,29,29,0.860013416581088,On Time,False,29,25,4,0.16,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-03-01,TB,New TB Cases,41.0,46,DHIS2,42,41,41,0.9276700130261462,On Time,False,42,41,1,0.024390243902439025,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-03-01,TB,TB Treatment Completions,24.0,35,Paper Register,24,20,19,0.8054941125025971,Late,False,24,19,5,0.2631578947368421,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-03-01,Maternal Health,ANC Visits,249.0,218,Paper Register,249,241,242,0.9672157801590562,On Time,False,249,241,8,0.03319502074688797,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-03-01,Maternal Health,Facility Deliveries,,99,Paper Register,97,96,94,0.913303633117566,On Time,True,97,94,3,0.031914893617021274,Consistent,False,Missing Data
+Kachulu Health Centre,2025-03-01,Child Health,Immunisation Visits,275.0,342,DHIS2,250,239,275,0.9015504303725329,On Time,False,275,239,36,0.1506276150627615,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-03-01,Child Health,Under-5 Visits,247.0,291,DHIS2,240,243,291,0.9874962344798209,On Time,False,291,240,51,0.2125,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-03-01,Outpatient,OPD Visits,757.0,820,DHIS2,764,695,757,0.985333110777374,On Time,False,764,695,69,0.09928057553956834,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-03-01,Outpatient,New Outpatient Cases,,579,DHIS2,587,557,600,0.8209671494411983,On Time,True,600,557,43,0.07719928186714542,Consistent,False,Missing Data
+Kachulu Health Centre,2025-04-01,HIV,Patients on ART,265.0,362,Paper Register,265,279,283,0.8733443817187598,Late,False,283,265,18,0.06792452830188679,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-04-01,HIV,New ART Initiations,18.0,23,Paper Register,18,12,23,0.9002325462914981,Late,False,23,12,11,0.9166666666666666,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-04-01,TB,New TB Cases,30.0,28,DHIS2,32,33,30,0.9213432403940007,Late,False,33,30,3,0.1,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-04-01,TB,TB Treatment Completions,18.0,23,Paper Register,18,18,20,0.8800659736821517,On Time,False,20,18,2,0.1111111111111111,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-04-01,Maternal Health,ANC Visits,242.0,292,EMR,267,242,260,0.7022448810494084,On Time,False,267,242,25,0.10330578512396695,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-04-01,Maternal Health,Facility Deliveries,169.0,172,EMR,167,169,163,0.9305456247554449,On Time,False,169,163,6,0.03680981595092025,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-04-01,Child Health,Immunisation Visits,200.0,210,Paper Register,200,193,165,0.8767894017808311,On Time,False,200,165,35,0.21212121212121213,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-04-01,Child Health,Under-5 Visits,390.0,422,EMR,409,390,407,0.9903404812781074,On Time,False,409,390,19,0.04871794871794872,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-04-01,Outpatient,OPD Visits,791.0,780,Paper Register,791,791,865,0.6209158273210249,On Time,False,865,791,74,0.09355246523388117,Consistent,False,Low Completeness
+Kachulu Health Centre,2025-04-01,Outpatient,New Outpatient Cases,216.0,435,DHIS2,243,263,216,0.8723536623845132,On Time,False,263,216,47,0.2175925925925926,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-05-01,HIV,Patients on ART,220.0,308,Paper Register,220,203,233,0.9370012173326357,On Time,False,233,203,30,0.1477832512315271,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-05-01,HIV,New ART Initiations,30.0,39,Paper Register,30,29,26,0.8075132459087961,On Time,False,30,26,4,0.15384615384615385,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-05-01,TB,New TB Cases,34.0,48,DHIS2,36,36,34,0.9800624479148982,On Time,False,36,34,2,0.058823529411764705,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-05-01,TB,TB Treatment Completions,86.0,40,EMR,43,42,42,0.9395728790704289,Late,False,43,42,1,0.023809523809523808,Consistent,True,Late Reporting
+Kachulu Health Centre,2025-05-01,Maternal Health,ANC Visits,148.0,182,DHIS2,148,153,148,0.9081105350777848,Late,False,153,148,5,0.033783783783783786,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-05-01,Maternal Health,Facility Deliveries,147.0,168,EMR,145,147,138,0.9164289605629484,On Time,False,147,138,9,0.06521739130434782,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-05-01,Child Health,Immunisation Visits,127.0,132,DHIS2,131,130,127,0.6594580479227667,Late,False,131,127,4,0.031496062992125984,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-05-01,Child Health,Under-5 Visits,385.0,389,DHIS2,370,393,385,0.9016710975129185,On Time,False,393,370,23,0.062162162162162166,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-05-01,Outpatient,OPD Visits,465.0,618,DHIS2,480,515,465,0.9981285474344358,On Time,False,515,465,50,0.10752688172043011,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-05-01,Outpatient,New Outpatient Cases,461.0,435,Paper Register,461,476,470,0.7110097481530033,On Time,False,476,461,15,0.03253796095444685,Consistent,False,Low Completeness
+Kachulu Health Centre,2025-06-01,HIV,Patients on ART,290.0,465,Paper Register,290,286,313,0.8379038086474754,Late,False,313,286,27,0.0944055944055944,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-06-01,HIV,New ART Initiations,71.0,67,DHIS2,66,67,71,0.49179601263524475,On Time,False,71,66,5,0.07575757575757576,Consistent,False,Low Completeness
+Kachulu Health Centre,2025-06-01,TB,New TB Cases,13.0,14,DHIS2,9,13,13,0.9030384452276428,Late,False,13,9,4,0.4444444444444444,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-06-01,TB,TB Treatment Completions,14.0,14,DHIS2,12,13,14,0.8504803429884302,On Time,False,14,12,2,0.16666666666666666,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-06-01,Maternal Health,ANC Visits,108.0,116,EMR,112,108,111,0.9682192341232203,Late,False,112,108,4,0.037037037037037035,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-06-01,Maternal Health,Facility Deliveries,141.0,111,Paper Register,141,142,140,0.9370402907539732,On Time,False,142,140,2,0.014285714285714285,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-06-01,Child Health,Immunisation Visits,206.0,257,DHIS2,201,211,206,0.9937888794348582,Late,False,211,201,10,0.04975124378109453,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-06-01,Child Health,Under-5 Visits,528.0,506,DHIS2,543,527,528,0.871957882676386,Late,False,543,527,16,0.030360531309297913,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-06-01,Outpatient,OPD Visits,1180.0,1283,DHIS2,1277,1214,1180,0.9207585514572236,On Time,False,1277,1180,97,0.08220338983050847,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-06-01,Outpatient,New Outpatient Cases,288.0,428,Paper Register,288,312,331,0.9048629876680242,On Time,False,331,288,43,0.14930555555555555,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-07-01,HIV,Patients on ART,289.0,310,EMR,280,289,261,0.8697740833210581,On Time,False,289,261,28,0.10727969348659004,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-07-01,HIV,New ART Initiations,27.0,31,EMR,30,27,30,0.947443844714261,On Time,False,30,27,3,0.1111111111111111,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-07-01,TB,New TB Cases,24.0,25,Paper Register,24,25,25,0.8718929243707887,Late,False,25,24,1,0.041666666666666664,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-07-01,TB,TB Treatment Completions,18.0,20,EMR,16,18,17,0.9213946232548531,On Time,False,18,16,2,0.125,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-07-01,Maternal Health,ANC Visits,235.0,244,DHIS2,212,216,235,0.9500543658943543,On Time,False,235,212,23,0.10849056603773585,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-07-01,Maternal Health,Facility Deliveries,100.0,101,DHIS2,91,97,100,0.8806728610052706,On Time,False,100,91,9,0.0989010989010989,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-07-01,Child Health,Immunisation Visits,97.0,105,EMR,108,97,95,0.708440323717054,On Time,False,108,95,13,0.1368421052631579,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-07-01,Child Health,Under-5 Visits,293.0,293,DHIS2,291,317,293,0.9747589380839762,On Time,False,317,291,26,0.08934707903780069,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-07-01,Outpatient,OPD Visits,505.0,612,EMR,491,505,343,0.8603324483262298,On Time,False,505,343,162,0.47230320699708456,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-07-01,Outpatient,New Outpatient Cases,916.0,905,EMR,915,916,953,0.9888927375764076,On Time,False,953,915,38,0.041530054644808745,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-08-01,HIV,Patients on ART,498.0,501,Paper Register,498,510,511,0.8173497271002763,On Time,False,511,498,13,0.02610441767068273,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-08-01,HIV,New ART Initiations,77.0,84,EMR,77,77,74,0.9450936336900326,On Time,False,77,74,3,0.04054054054054054,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-08-01,TB,New TB Cases,47.0,44,DHIS2,48,48,47,0.9111741628397919,On Time,False,48,47,1,0.02127659574468085,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-08-01,TB,TB Treatment Completions,39.0,40,DHIS2,41,34,39,0.9174739737151154,On Time,False,41,34,7,0.20588235294117646,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-08-01,Maternal Health,ANC Visits,82.0,94,EMR,88,82,85,0.9797193821137941,On Time,False,88,82,6,0.07317073170731707,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-08-01,Maternal Health,Facility Deliveries,60.0,99,EMR,68,60,63,0.9171122586994894,On Time,False,68,60,8,0.13333333333333333,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-08-01,Child Health,Immunisation Visits,148.0,193,EMR,156,148,176,0.9492904257714228,On Time,False,176,148,28,0.1891891891891892,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-08-01,Child Health,Under-5 Visits,483.0,532,DHIS2,475,450,483,0.6907225176401313,Late,False,483,450,33,0.07333333333333333,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-08-01,Outpatient,OPD Visits,567.0,707,DHIS2,509,530,567,0.8466375108843233,On Time,False,567,509,58,0.11394891944990176,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-08-01,Outpatient,New Outpatient Cases,259.0,464,Paper Register,259,269,228,0.9597897124143412,On Time,False,269,228,41,0.17982456140350878,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-09-01,HIV,Patients on ART,831.0,853,EMR,837,831,844,0.9617717078067131,On Time,False,844,831,13,0.015643802647412757,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-09-01,HIV,New ART Initiations,59.0,90,DHIS2,57,64,59,0.9090166825719781,Late,False,64,57,7,0.12280701754385964,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-09-01,TB,New TB Cases,5.0,13,Paper Register,5,5,5,0.8307926477333009,On Time,False,5,5,0,0.0,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-09-01,TB,TB Treatment Completions,24.0,25,Paper Register,24,29,23,0.8674718156714559,Late,False,29,23,6,0.2608695652173913,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-09-01,Maternal Health,ANC Visits,94.0,109,Paper Register,94,94,94,0.932890131418652,On Time,False,94,94,0,0.0,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-09-01,Maternal Health,Facility Deliveries,132.0,137,DHIS2,122,125,132,0.7474912460886913,Late,False,132,122,10,0.08196721311475409,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-09-01,Child Health,Immunisation Visits,187.0,204,DHIS2,178,175,187,0.8351159555269233,Late,False,187,175,12,0.06857142857142857,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-09-01,Child Health,Under-5 Visits,116.0,158,EMR,113,116,104,0.9585680090547054,Late,False,116,104,12,0.11538461538461539,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-09-01,Outpatient,OPD Visits,557.0,919,DHIS2,643,628,557,0.8099729152988359,On Time,False,643,557,86,0.15439856373429084,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-09-01,Outpatient,New Outpatient Cases,580.0,725,EMR,542,580,475,0.854882344200075,Late,False,580,475,105,0.22105263157894736,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-10-01,HIV,Patients on ART,855.0,845,EMR,820,855,818,0.879695752421843,On Time,False,855,818,37,0.04523227383863081,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-10-01,HIV,New ART Initiations,41.0,47,Paper Register,41,41,39,0.8221086332617161,On Time,False,41,39,2,0.05128205128205128,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-10-01,TB,New TB Cases,36.0,40,DHIS2,39,37,36,0.5874147011069684,Late,False,39,36,3,0.08333333333333333,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-10-01,TB,TB Treatment Completions,10.0,12,DHIS2,13,10,10,0.8430538091571669,On Time,False,13,10,3,0.3,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-10-01,Maternal Health,ANC Visits,179.0,185,DHIS2,184,175,179,0.8726645144172448,On Time,False,184,175,9,0.05142857142857143,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-10-01,Maternal Health,Facility Deliveries,118.0,188,Paper Register,118,125,132,0.9862980773837853,On Time,False,132,118,14,0.11864406779661017,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-10-01,Child Health,Immunisation Visits,296.0,340,Paper Register,296,287,326,0.9745660468306641,On Time,False,326,287,39,0.13588850174216027,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-10-01,Child Health,Under-5 Visits,123.0,172,EMR,134,123,125,0.88550151151853,On Time,False,134,123,11,0.08943089430894309,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-10-01,Outpatient,OPD Visits,831.0,981,DHIS2,884,831,831,0.853117519661472,On Time,False,884,831,53,0.06377858002406739,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-10-01,Outpatient,New Outpatient Cases,854.0,738,EMR,794,854,785,0.895409645035871,On Time,False,854,785,69,0.08789808917197452,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-11-01,HIV,Patients on ART,555.0,609,DHIS2,585,608,555,0.925774628882661,Late,False,608,555,53,0.09549549549549549,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-11-01,HIV,New ART Initiations,32.0,36,DHIS2,31,26,32,0.9344653619987282,On Time,False,32,26,6,0.23076923076923078,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-11-01,TB,New TB Cases,98.0,39,EMR,33,35,26,0.9298307929661745,On Time,False,35,26,9,0.34615384615384615,Review Required,True,Source Discrepancy
+Kachulu Health Centre,2025-11-01,TB,TB Treatment Completions,41.0,47,EMR,47,41,42,0.8765458382635543,Late,False,47,41,6,0.14634146341463414,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-11-01,Maternal Health,ANC Visits,261.0,280,DHIS2,274,268,261,0.8273006024167164,Late,False,274,261,13,0.04980842911877394,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-11-01,Maternal Health,Facility Deliveries,127.0,161,DHIS2,131,134,127,0.8827289129455398,On Time,False,134,127,7,0.05511811023622047,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-11-01,Child Health,Immunisation Visits,80.0,148,EMR,83,80,82,0.8252928490807143,On Time,False,83,80,3,0.0375,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-11-01,Child Health,Under-5 Visits,339.0,467,DHIS2,351,356,339,0.9699685209194049,On Time,False,356,339,17,0.05014749262536873,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-11-01,Outpatient,OPD Visits,1175.0,1201,DHIS2,1195,1208,1175,0.9685069016703604,On Time,False,1208,1175,33,0.028085106382978724,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-11-01,Outpatient,New Outpatient Cases,732.0,819,DHIS2,705,713,732,0.9823153774526105,Late,False,732,705,27,0.03829787234042553,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-12-01,HIV,Patients on ART,814.0,868,EMR,827,814,880,0.4844355176133098,On Time,False,880,814,66,0.08108108108108109,Consistent,False,Low Completeness
+Kachulu Health Centre,2025-12-01,HIV,New ART Initiations,24.0,22,DHIS2,25,23,24,0.8619466497892024,On Time,False,25,23,2,0.08695652173913043,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-12-01,TB,New TB Cases,51.0,54,EMR,49,51,47,0.9726860029043535,Late,False,51,47,4,0.0851063829787234,Consistent,False,Late Reporting
+Kachulu Health Centre,2025-12-01,TB,TB Treatment Completions,39.0,46,Paper Register,39,38,43,0.6408766217927075,On Time,False,43,38,5,0.13157894736842105,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-12-01,Maternal Health,ANC Visits,85.0,93,DHIS2,77,82,85,0.8967593793165592,On Time,False,85,77,8,0.1038961038961039,Review Required,False,Source Discrepancy
+Kachulu Health Centre,2025-12-01,Maternal Health,Facility Deliveries,95.0,82,Paper Register,95,96,92,0.8567491019920912,On Time,False,96,92,4,0.043478260869565216,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-12-01,Child Health,Immunisation Visits,175.0,210,Paper Register,175,164,174,0.8730095133385203,On Time,False,175,164,11,0.06707317073170732,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-12-01,Child Health,Under-5 Visits,582.0,596,Paper Register,582,597,617,0.8515621748046676,On Time,False,617,582,35,0.06013745704467354,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-12-01,Outpatient,OPD Visits,778.0,693,Paper Register,778,730,738,0.9846447493970457,On Time,False,778,730,48,0.06575342465753424,Consistent,False,No Major Issue
+Kachulu Health Centre,2025-12-01,Outpatient,New Outpatient Cases,546.0,727,EMR,507,546,561,0.9935479909318172,Late,False,561,507,54,0.10650887573964497,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-01-01,HIV,Patients on ART,473.0,674,EMR,473,473,451,0.9440666738331986,On Time,False,473,451,22,0.04878048780487805,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-01-01,HIV,New ART Initiations,92.0,98,Paper Register,92,89,89,0.9402022534190082,On Time,False,92,89,3,0.033707865168539325,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-01-01,TB,New TB Cases,51.0,49,Paper Register,51,49,45,0.8556287280897822,Late,False,51,45,6,0.13333333333333333,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-01-01,TB,TB Treatment Completions,15.0,16,Paper Register,15,17,14,0.9835517285270321,Late,False,17,14,3,0.21428571428571427,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-01-01,Maternal Health,ANC Visits,204.0,216,DHIS2,201,206,204,0.9507627425956738,Late,False,206,201,5,0.024875621890547265,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-01-01,Maternal Health,Facility Deliveries,148.0,146,DHIS2,148,149,148,0.9168639463525419,On Time,False,149,148,1,0.006756756756756757,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-01-01,Child Health,Immunisation Visits,525.0,489,DHIS2,469,483,525,0.9398625842310607,On Time,False,525,469,56,0.11940298507462686,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-01-01,Child Health,Under-5 Visits,314.0,333,DHIS2,312,324,314,0.8692532083069497,On Time,False,324,312,12,0.038461538461538464,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-01-01,Outpatient,OPD Visits,708.0,779,EMR,729,708,750,0.8467249527297134,On Time,False,750,708,42,0.059322033898305086,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-01-01,Outpatient,New Outpatient Cases,267.0,648,Paper Register,267,270,301,0.8509535172657241,On Time,False,301,267,34,0.12734082397003746,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-02-01,HIV,Patients on ART,312.0,445,Paper Register,312,315,335,0.9532314203165556,Late,False,335,312,23,0.07371794871794872,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-02-01,HIV,New ART Initiations,76.0,75,EMR,77,76,71,0.9520623302208848,Late,False,77,71,6,0.08450704225352113,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-02-01,TB,New TB Cases,35.0,43,DHIS2,33,32,35,0.9131494613102292,Late,False,35,32,3,0.09375,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-02-01,TB,TB Treatment Completions,29.0,36,DHIS2,34,37,29,0.8510364457548462,On Time,False,37,29,8,0.27586206896551724,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-02-01,Maternal Health,ANC Visits,172.0,192,Paper Register,172,168,167,0.9087755842322235,On Time,False,172,167,5,0.029940119760479042,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-02-01,Maternal Health,Facility Deliveries,143.0,180,DHIS2,140,149,143,0.8112004617878,On Time,False,149,140,9,0.06428571428571428,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-02-01,Child Health,Immunisation Visits,158.0,164,DHIS2,157,154,116,0.8641325509472865,On Time,False,157,116,41,0.35344827586206895,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-02-01,Child Health,Under-5 Visits,204.0,260,EMR,216,204,220,0.4169969531534816,On Time,False,220,204,16,0.0784313725490196,Consistent,False,Low Completeness
+Chitimba Health Centre,2025-02-01,Outpatient,OPD Visits,753.0,1139,Paper Register,753,795,806,0.8860351816888626,On Time,False,806,753,53,0.0703851261620186,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-02-01,Outpatient,New Outpatient Cases,301.0,359,DHIS2,301,318,301,0.9855349082999039,On Time,False,318,301,17,0.05647840531561462,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-03-01,HIV,Patients on ART,480.0,567,Paper Register,480,476,454,0.9956530927058949,On Time,False,480,454,26,0.05726872246696035,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-03-01,HIV,New ART Initiations,33.0,48,Paper Register,33,34,29,0.8513361183300527,On Time,False,34,29,5,0.1724137931034483,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-03-01,TB,New TB Cases,14.0,26,DHIS2,15,13,14,0.8078583890301385,On Time,False,15,13,2,0.15384615384615385,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-03-01,TB,TB Treatment Completions,27.0,33,Paper Register,27,24,30,0.9626813787129359,On Time,False,30,24,6,0.25,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-03-01,Maternal Health,ANC Visits,102.0,110,DHIS2,99,105,102,0.9036985949884481,On Time,False,105,99,6,0.06060606060606061,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-03-01,Maternal Health,Facility Deliveries,201.0,184,Paper Register,201,194,187,0.8245843759997946,On Time,False,201,187,14,0.0748663101604278,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-03-01,Child Health,Immunisation Visits,407.0,467,EMR,414,407,396,0.8336881102263831,Late,False,414,396,18,0.045454545454545456,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-03-01,Child Health,Under-5 Visits,325.0,322,DHIS2,347,326,325,0.8780172077560428,On Time,False,347,325,22,0.06769230769230769,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-03-01,Outpatient,OPD Visits,1422.0,1096,Paper Register,1422,1478,1493,0.9208347876345184,On Time,False,1493,1422,71,0.04992967651195499,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-03-01,Outpatient,New Outpatient Cases,369.0,494,EMR,336,369,369,0.9555889054940643,On Time,False,369,336,33,0.09821428571428571,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-04-01,HIV,Patients on ART,429.0,541,Paper Register,429,474,413,0.9620518261034574,On Time,False,474,413,61,0.14769975786924938,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-04-01,HIV,New ART Initiations,72.0,99,EMR,74,72,70,0.880903904891647,On Time,False,74,70,4,0.05714285714285714,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-04-01,TB,New TB Cases,22.0,45,EMR,25,22,24,0.8609676338512534,On Time,False,25,22,3,0.13636363636363635,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-04-01,TB,TB Treatment Completions,7.0,12,EMR,10,7,12,0.8938354992185543,On Time,False,12,7,5,0.7142857142857143,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-04-01,Maternal Health,ANC Visits,577.0,274,DHIS2,211,202,191,0.9685899986278215,On Time,False,211,191,20,0.10471204188481675,Review Required,True,Source Discrepancy
+Chitimba Health Centre,2025-04-01,Maternal Health,Facility Deliveries,108.0,138,Paper Register,108,106,111,0.9289513453180186,On Time,False,111,106,5,0.04716981132075472,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-04-01,Child Health,Immunisation Visits,361.0,440,DHIS2,359,345,291,0.8917299796162153,Late,False,359,291,68,0.23367697594501718,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-04-01,Child Health,Under-5 Visits,121.0,178,EMR,120,121,110,0.9827629045249888,On Time,False,121,110,11,0.1,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-04-01,Outpatient,OPD Visits,777.0,832,EMR,762,777,788,0.867232051548904,On Time,False,788,762,26,0.03412073490813648,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-04-01,Outpatient,New Outpatient Cases,362.0,411,EMR,333,362,382,0.8276491131268114,On Time,False,382,333,49,0.14714714714714713,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-05-01,HIV,Patients on ART,497.0,547,EMR,507,497,502,0.8673695402894306,On Time,False,507,497,10,0.02012072434607646,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-05-01,HIV,New ART Initiations,60.0,75,DHIS2,73,68,60,0.8552477883246288,On Time,False,73,60,13,0.21666666666666667,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-05-01,TB,New TB Cases,6.0,10,DHIS2,4,7,6,0.4395003506494668,On Time,False,7,4,3,0.75,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-05-01,TB,TB Treatment Completions,30.0,40,EMR,28,30,25,0.9457230313585554,On Time,False,30,25,5,0.2,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-05-01,Maternal Health,ANC Visits,185.0,231,DHIS2,206,192,185,0.8297266431155771,On Time,False,206,185,21,0.11351351351351352,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-05-01,Maternal Health,Facility Deliveries,112.0,134,Paper Register,112,99,99,0.8122433316287144,Late,False,112,99,13,0.13131313131313133,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-05-01,Child Health,Immunisation Visits,324.0,320,EMR,315,324,322,0.9323939678901269,On Time,False,324,315,9,0.02857142857142857,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-05-01,Child Health,Under-5 Visits,245.0,270,DHIS2,232,258,245,0.9327583247882888,On Time,False,258,232,26,0.11206896551724138,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-05-01,Outpatient,OPD Visits,997.0,1450,DHIS2,904,921,997,0.8188119640457178,On Time,False,997,904,93,0.10287610619469026,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-05-01,Outpatient,New Outpatient Cases,803.0,844,DHIS2,765,811,803,0.9343558540509732,On Time,False,811,765,46,0.06013071895424837,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-06-01,HIV,Patients on ART,652.0,756,DHIS2,711,629,652,0.9216700093063357,Late,False,711,629,82,0.13036565977742448,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-06-01,HIV,New ART Initiations,21.0,24,EMR,23,21,24,0.9808069972909119,On Time,False,24,21,3,0.14285714285714285,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-06-01,TB,New TB Cases,24.0,25,EMR,24,24,26,0.9776418386428298,On Time,False,26,24,2,0.08333333333333333,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-06-01,TB,TB Treatment Completions,17.0,25,EMR,13,17,14,0.8314471330188468,On Time,False,17,13,4,0.3076923076923077,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-06-01,Maternal Health,ANC Visits,91.0,129,EMR,94,91,94,0.808190306429896,Late,False,94,91,3,0.03296703296703297,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-06-01,Maternal Health,Facility Deliveries,,191,DHIS2,198,188,193,0.9280387737074064,On Time,True,198,188,10,0.05319148936170213,Consistent,False,Missing Data
+Chitimba Health Centre,2025-06-01,Child Health,Immunisation Visits,340.0,357,Paper Register,340,337,337,0.8220344240507267,On Time,False,340,337,3,0.008902077151335312,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-06-01,Child Health,Under-5 Visits,369.0,403,EMR,363,369,393,0.8554853469601958,On Time,False,393,363,30,0.08264462809917356,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-06-01,Outpatient,OPD Visits,1523.0,1411,DHIS2,1558,1548,1523,0.9972656347120252,Late,False,1558,1523,35,0.02298095863427446,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-06-01,Outpatient,New Outpatient Cases,811.0,652,DHIS2,824,789,811,0.9494449290177174,On Time,False,824,789,35,0.044359949302915085,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-07-01,HIV,Patients on ART,822.0,748,EMR,863,822,859,0.9689583475731823,On Time,False,863,822,41,0.049878345498783457,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-07-01,HIV,New ART Initiations,,96,EMR,70,72,68,0.528363226749079,On Time,True,72,68,4,0.058823529411764705,Consistent,False,Missing Data
+Chitimba Health Centre,2025-07-01,TB,New TB Cases,16.0,19,Paper Register,16,18,17,0.94964776123618,Late,False,18,16,2,0.125,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-07-01,TB,TB Treatment Completions,17.0,20,DHIS2,20,15,17,0.8770325255545082,On Time,False,20,15,5,0.3333333333333333,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-07-01,Maternal Health,ANC Visits,343.0,292,DHIS2,341,326,343,0.8266937758564258,Late,False,343,326,17,0.05214723926380368,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-07-01,Maternal Health,Facility Deliveries,81.0,74,EMR,80,81,83,0.9339367944926545,On Time,False,83,80,3,0.0375,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-07-01,Child Health,Immunisation Visits,409.0,437,DHIS2,406,419,409,0.9318846493699833,On Time,False,419,406,13,0.03201970443349754,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-07-01,Child Health,Under-5 Visits,179.0,204,DHIS2,202,192,179,0.8597095851964328,On Time,False,202,179,23,0.12849162011173185,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-07-01,Outpatient,OPD Visits,1292.0,1213,EMR,1269,1292,1336,0.8061649237398741,Late,False,1336,1269,67,0.05279747832939322,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-07-01,Outpatient,New Outpatient Cases,281.0,339,DHIS2,248,265,281,0.8783935480548927,Late,False,281,248,33,0.13306451612903225,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-08-01,HIV,Patients on ART,571.0,533,EMR,595,571,568,0.8075640273104071,Late,False,595,568,27,0.04753521126760563,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-08-01,HIV,New ART Initiations,67.0,96,Paper Register,67,76,72,0.8830427513368662,On Time,False,76,67,9,0.13432835820895522,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-08-01,TB,New TB Cases,31.0,34,EMR,27,31,32,0.8762293764069471,On Time,False,32,27,5,0.18518518518518517,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-08-01,TB,TB Treatment Completions,114.0,44,DHIS2,40,41,43,0.8316572512118197,On Time,False,43,40,3,0.075,Consistent,True,Potential Outlier
+Chitimba Health Centre,2025-08-01,Maternal Health,ANC Visits,,141,DHIS2,129,115,121,0.8263487599263929,On Time,True,129,115,14,0.12173913043478261,Review Required,False,Missing Data
+Chitimba Health Centre,2025-08-01,Maternal Health,Facility Deliveries,72.0,100,Paper Register,72,70,75,0.9141983142651957,On Time,False,75,70,5,0.07142857142857142,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-08-01,Child Health,Immunisation Visits,135.0,206,EMR,130,135,132,0.8749298438029658,On Time,False,135,130,5,0.038461538461538464,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-08-01,Child Health,Under-5 Visits,617.0,473,DHIS2,614,566,617,0.5600306468668406,On Time,False,617,566,51,0.09010600706713781,Consistent,False,Low Completeness
+Chitimba Health Centre,2025-08-01,Outpatient,OPD Visits,542.0,591,DHIS2,558,490,542,0.8963606885077883,On Time,False,558,490,68,0.13877551020408163,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-08-01,Outpatient,New Outpatient Cases,391.0,462,EMR,343,391,397,0.851539129637836,On Time,False,397,343,54,0.15743440233236153,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-09-01,HIV,Patients on ART,594.0,606,EMR,622,594,608,0.8584606093109676,On Time,False,622,594,28,0.04713804713804714,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-09-01,HIV,New ART Initiations,87.0,99,Paper Register,87,82,85,0.8489599746003452,On Time,False,87,82,5,0.06097560975609756,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-09-01,TB,New TB Cases,126.0,52,Paper Register,40,40,39,0.8632009445732788,On Time,False,40,39,1,0.02564102564102564,Consistent,True,Potential Outlier
+Chitimba Health Centre,2025-09-01,TB,TB Treatment Completions,28.0,36,EMR,28,28,27,0.555787332301298,On Time,False,28,27,1,0.037037037037037035,Consistent,False,Low Completeness
+Chitimba Health Centre,2025-09-01,Maternal Health,ANC Visits,173.0,284,DHIS2,187,152,173,0.9802518415593127,On Time,False,187,152,35,0.23026315789473684,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-09-01,Maternal Health,Facility Deliveries,76.0,104,DHIS2,78,78,76,0.9827530006607598,Late,False,78,76,2,0.02631578947368421,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-09-01,Child Health,Immunisation Visits,207.0,270,Paper Register,207,236,202,0.5471173862184247,Late,False,236,202,34,0.16831683168316833,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-09-01,Child Health,Under-5 Visits,280.0,371,Paper Register,280,276,289,0.9843453338903323,On Time,False,289,276,13,0.04710144927536232,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-09-01,Outpatient,OPD Visits,919.0,962,EMR,967,919,993,0.8965620186656741,On Time,False,993,919,74,0.08052230685527748,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-09-01,Outpatient,New Outpatient Cases,333.0,360,EMR,355,333,360,0.8629682310817471,On Time,False,360,333,27,0.08108108108108109,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-10-01,HIV,Patients on ART,513.0,635,EMR,467,513,509,0.8690687955852661,On Time,False,513,467,46,0.09850107066381156,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-10-01,HIV,New ART Initiations,44.0,42,Paper Register,44,47,43,0.9678816075218544,On Time,False,47,43,4,0.09302325581395349,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-10-01,TB,New TB Cases,,44,EMR,24,24,21,0.9445886848778894,On Time,True,24,21,3,0.14285714285714285,Review Required,False,Missing Data
+Chitimba Health Centre,2025-10-01,TB,TB Treatment Completions,31.0,41,DHIS2,36,33,31,0.8455265071638784,On Time,False,36,31,5,0.16129032258064516,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-10-01,Maternal Health,ANC Visits,136.0,187,Paper Register,136,133,130,0.854276279015917,On Time,False,136,130,6,0.046153846153846156,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-10-01,Maternal Health,Facility Deliveries,52.0,61,DHIS2,52,54,52,0.854277637647353,On Time,False,54,52,2,0.038461538461538464,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-10-01,Child Health,Immunisation Visits,339.0,348,DHIS2,323,333,339,0.8716725071315657,On Time,False,339,323,16,0.04953560371517028,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-10-01,Child Health,Under-5 Visits,284.0,235,EMR,290,284,281,0.8898246827860502,On Time,False,290,281,9,0.03202846975088968,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-10-01,Outpatient,OPD Visits,1039.0,1301,EMR,1109,1039,1053,0.9460832530039471,Late,False,1109,1039,70,0.06737247353224254,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-10-01,Outpatient,New Outpatient Cases,765.0,996,DHIS2,760,762,765,0.9321454786218303,On Time,False,765,760,5,0.006578947368421052,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-11-01,HIV,Patients on ART,274.0,373,EMR,285,274,284,0.8268980212991005,Late,False,285,274,11,0.040145985401459854,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-11-01,HIV,New ART Initiations,81.0,93,DHIS2,76,84,96,0.6804100261533637,On Time,False,96,76,20,0.2631578947368421,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-11-01,TB,New TB Cases,45.0,45,DHIS2,47,42,45,0.9326725221912986,On Time,False,47,42,5,0.11904761904761904,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-11-01,TB,TB Treatment Completions,49.0,48,DHIS2,47,51,49,0.9358316691487114,On Time,False,51,47,4,0.0851063829787234,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-11-01,Maternal Health,ANC Visits,275.0,270,EMR,266,275,272,0.538686571385742,Late,False,275,266,9,0.03383458646616541,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-11-01,Maternal Health,Facility Deliveries,206.0,199,Paper Register,206,194,195,0.9102282672389468,On Time,False,206,194,12,0.061855670103092786,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-11-01,Child Health,Immunisation Visits,381.0,478,DHIS2,420,417,381,0.8206293521756722,On Time,False,420,381,39,0.10236220472440945,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-11-01,Child Health,Under-5 Visits,354.0,329,EMR,349,354,339,0.8960180284480093,On Time,False,354,339,15,0.04424778761061947,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-11-01,Outpatient,OPD Visits,745.0,1092,EMR,696,745,725,0.8389587605287854,On Time,False,745,696,49,0.07040229885057471,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-11-01,Outpatient,New Outpatient Cases,641.0,659,Paper Register,641,655,657,0.9736594036322656,On Time,False,657,641,16,0.0249609984399376,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-12-01,HIV,Patients on ART,326.0,392,EMR,318,326,337,0.9746782915818439,On Time,False,337,318,19,0.059748427672955975,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-12-01,HIV,New ART Initiations,68.0,81,DHIS2,61,65,56,0.9134024650840344,On Time,False,65,56,9,0.16071428571428573,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-12-01,TB,New TB Cases,37.0,42,Paper Register,37,33,37,0.8117073200160101,Late,False,37,33,4,0.12121212121212122,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-12-01,TB,TB Treatment Completions,26.0,29,DHIS2,27,25,26,0.995730816267593,Late,False,27,25,2,0.08,Consistent,False,Late Reporting
+Chitimba Health Centre,2025-12-01,Maternal Health,ANC Visits,204.0,261,EMR,209,204,266,0.9950901048269902,On Time,False,266,204,62,0.30392156862745096,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-12-01,Maternal Health,Facility Deliveries,147.0,137,EMR,151,147,153,0.9405476598579174,On Time,False,153,147,6,0.04081632653061224,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-12-01,Child Health,Immunisation Visits,433.0,373,EMR,414,433,397,0.5367635445984514,On Time,False,433,397,36,0.0906801007556675,Consistent,False,Low Completeness
+Chitimba Health Centre,2025-12-01,Child Health,Under-5 Visits,411.0,561,DHIS2,428,388,411,0.9227415939087494,On Time,False,428,388,40,0.10309278350515463,Review Required,False,Source Discrepancy
+Chitimba Health Centre,2025-12-01,Outpatient,OPD Visits,683.0,658,EMR,682,683,681,0.9209603523687928,On Time,False,683,681,2,0.002936857562408223,Consistent,False,No Major Issue
+Chitimba Health Centre,2025-12-01,Outpatient,New Outpatient Cases,450.0,481,Paper Register,450,411,439,0.8282219296665299,On Time,False,450,411,39,0.0948905109489051,Consistent,False,No Major Issue
+Nyika Health Centre,2025-01-01,HIV,Patients on ART,568.0,564,EMR,562,568,559,0.8873909722167396,On Time,False,568,559,9,0.016100178890876567,Consistent,False,No Major Issue
+Nyika Health Centre,2025-01-01,HIV,New ART Initiations,55.0,56,Paper Register,55,58,57,0.9657060519163017,On Time,False,58,55,3,0.05454545454545454,Consistent,False,No Major Issue
+Nyika Health Centre,2025-01-01,TB,New TB Cases,62.0,31,EMR,24,23,21,0.8953507751016656,On Time,False,24,21,3,0.14285714285714285,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-01-01,TB,TB Treatment Completions,,27,DHIS2,20,22,16,0.8421854672213024,On Time,True,22,16,6,0.375,Review Required,False,Missing Data
+Nyika Health Centre,2025-01-01,Maternal Health,ANC Visits,213.0,228,DHIS2,208,207,213,0.8863610201571824,On Time,False,213,207,6,0.028985507246376812,Consistent,False,No Major Issue
+Nyika Health Centre,2025-01-01,Maternal Health,Facility Deliveries,95.0,121,Paper Register,95,105,108,0.40434895782787633,Late,False,108,95,13,0.1368421052631579,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-01-01,Child Health,Immunisation Visits,563.0,467,Paper Register,563,572,591,0.86345104328994,On Time,False,591,563,28,0.0497335701598579,Consistent,False,No Major Issue
+Nyika Health Centre,2025-01-01,Child Health,Under-5 Visits,194.0,208,EMR,195,194,193,0.9034241776226661,On Time,False,195,193,2,0.010362694300518135,Consistent,False,No Major Issue
+Nyika Health Centre,2025-01-01,Outpatient,OPD Visits,717.0,847,DHIS2,770,740,771,0.9215419616454009,On Time,False,771,740,31,0.041891891891891894,Consistent,False,No Major Issue
+Nyika Health Centre,2025-01-01,Outpatient,New Outpatient Cases,684.0,909,EMR,732,684,812,0.8341354870604468,Late,False,812,684,128,0.1871345029239766,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-02-01,HIV,Patients on ART,394.0,391,DHIS2,435,418,394,0.953341047599363,On Time,False,435,394,41,0.10406091370558376,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-02-01,HIV,New ART Initiations,23.0,28,DHIS2,23,22,23,0.8733986534163896,On Time,False,23,22,1,0.045454545454545456,Consistent,False,No Major Issue
+Nyika Health Centre,2025-02-01,TB,New TB Cases,35.0,35,Paper Register,35,35,38,0.8003169288932681,On Time,False,38,35,3,0.08571428571428572,Consistent,False,No Major Issue
+Nyika Health Centre,2025-02-01,TB,TB Treatment Completions,31.0,44,Paper Register,31,35,32,0.9143657542365382,On Time,False,35,31,4,0.12903225806451613,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-02-01,Maternal Health,ANC Visits,207.0,190,Paper Register,207,216,201,0.6494638141669045,On Time,False,216,201,15,0.07462686567164178,Consistent,False,Low Completeness
+Nyika Health Centre,2025-02-01,Maternal Health,Facility Deliveries,64.0,81,EMR,67,64,73,0.8413674221233217,On Time,False,73,64,9,0.140625,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-02-01,Child Health,Immunisation Visits,181.0,288,DHIS2,196,182,181,0.927243765733869,Late,False,196,181,15,0.08287292817679558,Consistent,False,Late Reporting
+Nyika Health Centre,2025-02-01,Child Health,Under-5 Visits,573.0,589,EMR,546,573,560,0.99243718189836,On Time,False,573,546,27,0.04945054945054945,Consistent,False,No Major Issue
+Nyika Health Centre,2025-02-01,Outpatient,OPD Visits,942.0,1002,DHIS2,972,955,903,0.9928108260262979,On Time,False,972,903,69,0.07641196013289037,Consistent,False,No Major Issue
+Nyika Health Centre,2025-02-01,Outpatient,New Outpatient Cases,333.0,311,Paper Register,333,341,324,0.8783882379576875,Late,False,341,324,17,0.05246913580246913,Consistent,False,Late Reporting
+Nyika Health Centre,2025-03-01,HIV,Patients on ART,294.0,323,EMR,300,294,300,0.8463165982577999,On Time,False,300,294,6,0.02040816326530612,Consistent,False,No Major Issue
+Nyika Health Centre,2025-03-01,HIV,New ART Initiations,122.0,59,Paper Register,41,41,43,0.9738243228562069,Late,False,43,41,2,0.04878048780487805,Consistent,False,Late Reporting
+Nyika Health Centre,2025-03-01,TB,New TB Cases,23.0,25,DHIS2,25,23,23,0.9425202814596787,On Time,False,25,23,2,0.08695652173913043,Consistent,False,No Major Issue
+Nyika Health Centre,2025-03-01,TB,TB Treatment Completions,25.0,30,EMR,27,25,28,0.831352589519859,On Time,False,28,25,3,0.12,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-03-01,Maternal Health,ANC Visits,101.0,87,DHIS2,96,100,101,0.8036064019650461,Late,False,101,96,5,0.052083333333333336,Consistent,False,Late Reporting
+Nyika Health Centre,2025-03-01,Maternal Health,Facility Deliveries,73.0,91,DHIS2,68,69,73,0.9171704244866337,On Time,False,73,68,5,0.07352941176470588,Consistent,False,No Major Issue
+Nyika Health Centre,2025-03-01,Child Health,Immunisation Visits,,334,DHIS2,224,221,222,0.8231035800213965,Late,True,224,221,3,0.013574660633484163,Consistent,False,Missing Data
+Nyika Health Centre,2025-03-01,Child Health,Under-5 Visits,407.0,512,Paper Register,407,414,361,0.918741156590287,On Time,False,414,361,53,0.14681440443213298,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-03-01,Outpatient,OPD Visits,817.0,808,EMR,782,817,804,0.8158372818217252,On Time,False,817,782,35,0.04475703324808184,Consistent,False,No Major Issue
+Nyika Health Centre,2025-03-01,Outpatient,New Outpatient Cases,405.0,554,EMR,413,405,421,0.6371639137348579,On Time,False,421,405,16,0.03950617283950617,Consistent,False,Low Completeness
+Nyika Health Centre,2025-04-01,HIV,Patients on ART,552.0,752,Paper Register,552,553,541,0.8037293172829566,Late,False,553,541,12,0.022181146025878003,Consistent,False,Late Reporting
+Nyika Health Centre,2025-04-01,HIV,New ART Initiations,51.0,53,Paper Register,51,49,48,0.8805780062100097,On Time,False,51,48,3,0.0625,Consistent,False,No Major Issue
+Nyika Health Centre,2025-04-01,TB,New TB Cases,15.0,20,EMR,11,15,11,0.9428306292784348,On Time,False,15,11,4,0.36363636363636365,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-04-01,TB,TB Treatment Completions,36.0,34,DHIS2,37,40,36,0.8836263199587245,Late,False,40,36,4,0.1111111111111111,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-04-01,Maternal Health,ANC Visits,121.0,137,Paper Register,121,130,118,0.9689043062627309,Late,False,130,118,12,0.1016949152542373,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-04-01,Maternal Health,Facility Deliveries,182.0,195,EMR,175,182,173,0.9373511440563818,Late,False,182,173,9,0.05202312138728324,Consistent,False,Late Reporting
+Nyika Health Centre,2025-04-01,Child Health,Immunisation Visits,179.0,265,EMR,168,179,179,0.9213024450646438,On Time,False,179,168,11,0.06547619047619048,Consistent,False,No Major Issue
+Nyika Health Centre,2025-04-01,Child Health,Under-5 Visits,522.0,482,EMR,493,522,583,0.9854412929581662,On Time,False,583,493,90,0.18255578093306288,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-04-01,Outpatient,OPD Visits,557.0,648,EMR,520,557,508,0.8897823445185581,On Time,False,557,508,49,0.09645669291338582,Consistent,False,No Major Issue
+Nyika Health Centre,2025-04-01,Outpatient,New Outpatient Cases,2551.0,955,Paper Register,873,874,816,0.8127217992353002,On Time,False,874,816,58,0.07107843137254902,Consistent,True,Potential Outlier
+Nyika Health Centre,2025-05-01,HIV,Patients on ART,461.0,610,Paper Register,461,476,513,0.8018483176811029,On Time,False,513,461,52,0.11279826464208242,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-05-01,HIV,New ART Initiations,41.0,34,EMR,36,41,35,0.9212404507220664,On Time,False,41,35,6,0.17142857142857143,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-05-01,TB,New TB Cases,53.0,42,EMR,53,53,53,0.9146803251795408,On Time,False,53,53,0,0.0,Consistent,False,No Major Issue
+Nyika Health Centre,2025-05-01,TB,TB Treatment Completions,39.0,47,EMR,34,39,36,0.8135592791656225,On Time,False,39,34,5,0.14705882352941177,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-05-01,Maternal Health,ANC Visits,143.0,139,Paper Register,143,144,143,0.8063240076474928,Late,False,144,143,1,0.006993006993006993,Consistent,False,Late Reporting
+Nyika Health Centre,2025-05-01,Maternal Health,Facility Deliveries,85.0,85,DHIS2,87,88,85,0.9448844680538631,On Time,False,88,85,3,0.03529411764705882,Consistent,False,No Major Issue
+Nyika Health Centre,2025-05-01,Child Health,Immunisation Visits,195.0,251,EMR,205,195,187,0.9954850083378843,On Time,False,205,187,18,0.0962566844919786,Consistent,False,No Major Issue
+Nyika Health Centre,2025-05-01,Child Health,Under-5 Visits,333.0,279,Paper Register,333,303,299,0.9033093020778524,On Time,False,333,299,34,0.11371237458193979,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-05-01,Outpatient,OPD Visits,1481.0,1462,Paper Register,1481,1542,1532,0.9554591151678147,On Time,False,1542,1481,61,0.041188386225523295,Consistent,False,No Major Issue
+Nyika Health Centre,2025-05-01,Outpatient,New Outpatient Cases,665.0,878,Paper Register,665,693,643,0.9342736017793591,Late,False,693,643,50,0.07776049766718507,Consistent,False,Late Reporting
+Nyika Health Centre,2025-06-01,HIV,Patients on ART,535.0,534,Paper Register,535,520,505,0.8509441000915098,On Time,False,535,505,30,0.0594059405940594,Consistent,False,No Major Issue
+Nyika Health Centre,2025-06-01,HIV,New ART Initiations,34.0,31,EMR,36,34,35,0.9543177728935628,On Time,False,36,34,2,0.058823529411764705,Consistent,False,No Major Issue
+Nyika Health Centre,2025-06-01,TB,New TB Cases,27.0,35,Paper Register,27,29,29,0.8369852037545635,On Time,False,29,27,2,0.07407407407407407,Consistent,False,No Major Issue
+Nyika Health Centre,2025-06-01,TB,TB Treatment Completions,71.0,25,EMR,23,17,19,0.8253090622392755,On Time,False,23,17,6,0.35294117647058826,Review Required,True,Source Discrepancy
+Nyika Health Centre,2025-06-01,Maternal Health,ANC Visits,81.0,85,EMR,78,81,80,0.44301891388978576,On Time,False,81,78,3,0.038461538461538464,Consistent,False,Low Completeness
+Nyika Health Centre,2025-06-01,Maternal Health,Facility Deliveries,87.0,129,EMR,90,87,85,0.8919199099276447,On Time,False,90,85,5,0.058823529411764705,Consistent,False,No Major Issue
+Nyika Health Centre,2025-06-01,Child Health,Immunisation Visits,132.0,169,EMR,145,132,149,0.8524225944033593,On Time,False,149,132,17,0.12878787878787878,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-06-01,Child Health,Under-5 Visits,120.0,176,DHIS2,130,131,120,0.870460470875352,On Time,False,131,120,11,0.09166666666666666,Consistent,False,No Major Issue
+Nyika Health Centre,2025-06-01,Outpatient,OPD Visits,585.0,624,Paper Register,585,564,631,0.9840227626645257,On Time,False,631,564,67,0.11879432624113476,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-06-01,Outpatient,New Outpatient Cases,478.0,564,EMR,511,478,503,0.8477531788007947,On Time,False,511,478,33,0.06903765690376569,Consistent,False,No Major Issue
+Nyika Health Centre,2025-07-01,HIV,Patients on ART,957.0,807,DHIS2,867,872,957,0.8267949733499563,On Time,False,957,867,90,0.10380622837370242,Review Required,True,Source Discrepancy
+Nyika Health Centre,2025-07-01,HIV,New ART Initiations,66.0,94,DHIS2,68,69,66,0.9876723200592035,On Time,False,69,66,3,0.045454545454545456,Consistent,False,No Major Issue
+Nyika Health Centre,2025-07-01,TB,New TB Cases,57.0,53,Paper Register,57,53,58,0.8544934368066193,Late,False,58,53,5,0.09433962264150944,Consistent,False,Late Reporting
+Nyika Health Centre,2025-07-01,TB,TB Treatment Completions,41.0,41,DHIS2,37,39,41,0.9054451956500967,On Time,False,41,37,4,0.10810810810810811,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-07-01,Maternal Health,ANC Visits,217.0,205,DHIS2,210,219,217,0.9257442774051164,Late,False,219,210,9,0.04285714285714286,Consistent,False,Late Reporting
+Nyika Health Centre,2025-07-01,Maternal Health,Facility Deliveries,43.0,51,DHIS2,43,43,43,0.822096725593613,On Time,False,43,43,0,0.0,Consistent,False,No Major Issue
+Nyika Health Centre,2025-07-01,Child Health,Immunisation Visits,106.0,124,Paper Register,106,113,75,0.8246927147461472,On Time,False,113,75,38,0.5066666666666667,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-07-01,Child Health,Under-5 Visits,405.0,505,DHIS2,417,403,405,0.8125785244904974,On Time,False,417,403,14,0.034739454094292806,Consistent,False,No Major Issue
+Nyika Health Centre,2025-07-01,Outpatient,OPD Visits,396.0,735,DHIS2,391,431,396,0.9861615344689524,On Time,False,431,391,40,0.10230179028132992,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-07-01,Outpatient,New Outpatient Cases,575.0,763,DHIS2,544,576,575,0.8053205127193128,On Time,False,576,544,32,0.058823529411764705,Consistent,False,No Major Issue
+Nyika Health Centre,2025-08-01,HIV,Patients on ART,729.0,801,EMR,696,729,737,0.932304864829235,On Time,False,737,696,41,0.05890804597701149,Consistent,False,No Major Issue
+Nyika Health Centre,2025-08-01,HIV,New ART Initiations,65.0,57,EMR,58,65,66,0.8530626213991683,On Time,False,66,58,8,0.13793103448275862,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-08-01,TB,New TB Cases,21.0,31,DHIS2,25,24,21,0.8911232747933682,On Time,False,25,21,4,0.19047619047619047,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-08-01,TB,TB Treatment Completions,39.0,40,EMR,38,39,41,0.8407434786555333,On Time,False,41,38,3,0.07894736842105263,Consistent,False,No Major Issue
+Nyika Health Centre,2025-08-01,Maternal Health,ANC Visits,80.0,95,Paper Register,80,74,77,0.8501596670223925,On Time,False,80,74,6,0.08108108108108109,Consistent,False,No Major Issue
+Nyika Health Centre,2025-08-01,Maternal Health,Facility Deliveries,83.0,119,EMR,80,83,96,0.8573321162574046,On Time,False,96,80,16,0.2,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-08-01,Child Health,Immunisation Visits,420.0,484,EMR,417,420,413,0.9743091361416253,On Time,False,420,413,7,0.01694915254237288,Consistent,False,No Major Issue
+Nyika Health Centre,2025-08-01,Child Health,Under-5 Visits,178.0,191,Paper Register,178,168,180,0.8082998608771423,On Time,False,180,168,12,0.07142857142857142,Consistent,False,No Major Issue
+Nyika Health Centre,2025-08-01,Outpatient,OPD Visits,913.0,1030,DHIS2,938,876,913,0.9471435973556219,On Time,False,938,876,62,0.07077625570776255,Consistent,False,No Major Issue
+Nyika Health Centre,2025-08-01,Outpatient,New Outpatient Cases,391.0,563,EMR,321,391,330,0.9034865119625927,Late,False,391,321,70,0.21806853582554517,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-09-01,HIV,Patients on ART,521.0,563,EMR,545,521,518,0.9901187931862249,On Time,False,545,518,27,0.052123552123552123,Consistent,False,No Major Issue
+Nyika Health Centre,2025-09-01,HIV,New ART Initiations,76.0,81,Paper Register,76,83,83,0.9649362478455873,Late,False,83,76,7,0.09210526315789473,Consistent,False,Late Reporting
+Nyika Health Centre,2025-09-01,TB,New TB Cases,15.0,18,DHIS2,16,13,15,0.9672158550333677,On Time,False,16,13,3,0.23076923076923078,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-09-01,TB,TB Treatment Completions,17.0,24,EMR,19,17,13,0.9509880400316658,On Time,False,19,13,6,0.46153846153846156,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-09-01,Maternal Health,ANC Visits,273.0,284,Paper Register,273,268,264,0.8204149849532196,On Time,False,273,264,9,0.03409090909090909,Consistent,False,No Major Issue
+Nyika Health Centre,2025-09-01,Maternal Health,Facility Deliveries,134.0,165,EMR,134,134,139,0.9584006252260392,On Time,False,139,134,5,0.03731343283582089,Consistent,False,No Major Issue
+Nyika Health Centre,2025-09-01,Child Health,Immunisation Visits,413.0,425,EMR,416,413,442,0.853121891533283,On Time,False,442,413,29,0.07021791767554479,Consistent,False,No Major Issue
+Nyika Health Centre,2025-09-01,Child Health,Under-5 Visits,1530.0,580,DHIS2,341,405,335,0.9875529118636448,Late,False,405,335,70,0.208955223880597,Review Required,True,Source Discrepancy
+Nyika Health Centre,2025-09-01,Outpatient,OPD Visits,1372.0,1233,DHIS2,1286,1323,1372,0.9878218441465378,On Time,False,1372,1286,86,0.06687402799377916,Consistent,False,No Major Issue
+Nyika Health Centre,2025-09-01,Outpatient,New Outpatient Cases,696.0,999,DHIS2,641,648,696,0.8645802137155802,On Time,False,696,641,55,0.08580343213728549,Consistent,False,No Major Issue
+Nyika Health Centre,2025-10-01,HIV,Patients on ART,434.0,359,EMR,460,434,477,0.8125942817467401,On Time,False,477,434,43,0.09907834101382489,Consistent,False,No Major Issue
+Nyika Health Centre,2025-10-01,HIV,New ART Initiations,43.0,61,Paper Register,43,40,43,0.9865291434682335,On Time,False,43,40,3,0.075,Consistent,False,No Major Issue
+Nyika Health Centre,2025-10-01,TB,New TB Cases,34.0,46,Paper Register,34,33,35,0.8993099627203662,On Time,False,35,33,2,0.06060606060606061,Consistent,False,No Major Issue
+Nyika Health Centre,2025-10-01,TB,TB Treatment Completions,10.0,17,Paper Register,10,13,11,0.815219997796155,On Time,False,13,10,3,0.3,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-10-01,Maternal Health,ANC Visits,298.0,297,Paper Register,298,291,291,0.93438877716973,Late,False,298,291,7,0.024054982817869417,Consistent,False,Late Reporting
+Nyika Health Centre,2025-10-01,Maternal Health,Facility Deliveries,57.0,62,DHIS2,59,59,57,0.9357094682836321,Late,False,59,57,2,0.03508771929824561,Consistent,False,Late Reporting
+Nyika Health Centre,2025-10-01,Child Health,Immunisation Visits,317.0,391,DHIS2,345,348,317,0.9166037294888273,Late,False,348,317,31,0.09779179810725552,Consistent,False,Late Reporting
+Nyika Health Centre,2025-10-01,Child Health,Under-5 Visits,348.0,546,DHIS2,369,320,348,0.9269069866732216,On Time,False,369,320,49,0.153125,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-10-01,Outpatient,OPD Visits,1216.0,1216,DHIS2,1171,1174,1216,0.8767897788525946,On Time,False,1216,1171,45,0.03842869342442357,Consistent,False,No Major Issue
+Nyika Health Centre,2025-10-01,Outpatient,New Outpatient Cases,240.0,302,EMR,242,240,223,0.8252960513382619,On Time,False,242,223,19,0.08520179372197309,Consistent,False,No Major Issue
+Nyika Health Centre,2025-11-01,HIV,Patients on ART,702.0,641,EMR,700,702,679,0.8900530386993276,On Time,False,702,679,23,0.033873343151693665,Consistent,False,No Major Issue
+Nyika Health Centre,2025-11-01,HIV,New ART Initiations,58.0,79,EMR,56,58,52,0.8484391784026285,On Time,False,58,52,6,0.11538461538461539,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-11-01,TB,New TB Cases,46.0,47,Paper Register,46,44,46,0.9530664861869088,On Time,False,46,44,2,0.045454545454545456,Consistent,False,No Major Issue
+Nyika Health Centre,2025-11-01,TB,TB Treatment Completions,7.0,14,DHIS2,9,11,7,0.8762201027223628,Late,False,11,7,4,0.5714285714285714,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-11-01,Maternal Health,ANC Visits,102.0,127,DHIS2,106,105,102,0.9443023559686847,On Time,False,106,102,4,0.0392156862745098,Consistent,False,No Major Issue
+Nyika Health Centre,2025-11-01,Maternal Health,Facility Deliveries,90.0,85,DHIS2,96,99,90,0.9938075252605106,On Time,False,99,90,9,0.1,Consistent,False,No Major Issue
+Nyika Health Centre,2025-11-01,Child Health,Immunisation Visits,483.0,434,Paper Register,483,464,457,0.8052767236011077,On Time,False,483,457,26,0.05689277899343545,Consistent,False,No Major Issue
+Nyika Health Centre,2025-11-01,Child Health,Under-5 Visits,194.0,221,EMR,207,194,205,0.8695199628917303,On Time,False,207,194,13,0.06701030927835051,Consistent,False,No Major Issue
+Nyika Health Centre,2025-11-01,Outpatient,OPD Visits,1059.0,1309,DHIS2,1002,971,1059,0.9450779203323665,Late,False,1059,971,88,0.09062821833161688,Consistent,False,Late Reporting
+Nyika Health Centre,2025-11-01,Outpatient,New Outpatient Cases,201.0,304,DHIS2,212,207,201,0.9391355326430678,On Time,False,212,201,11,0.05472636815920398,Consistent,False,No Major Issue
+Nyika Health Centre,2025-12-01,HIV,Patients on ART,476.0,584,EMR,478,476,507,0.9390548265888834,On Time,False,507,476,31,0.06512605042016807,Consistent,False,No Major Issue
+Nyika Health Centre,2025-12-01,HIV,New ART Initiations,76.0,78,DHIS2,76,76,76,0.9712570256093525,On Time,False,76,76,0,0.0,Consistent,False,No Major Issue
+Nyika Health Centre,2025-12-01,TB,New TB Cases,7.0,10,Paper Register,7,15,10,0.9470046396356341,On Time,False,15,7,8,1.1428571428571428,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-12-01,TB,TB Treatment Completions,23.0,34,EMR,22,23,19,0.9611161652882467,On Time,False,23,19,4,0.21052631578947367,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-12-01,Maternal Health,ANC Visits,261.0,255,DHIS2,267,294,261,0.4103167232435567,On Time,False,294,261,33,0.12643678160919541,Review Required,False,Source Discrepancy
+Nyika Health Centre,2025-12-01,Maternal Health,Facility Deliveries,115.0,186,DHIS2,121,122,115,0.8531948129308224,On Time,False,122,115,7,0.06086956521739131,Consistent,False,No Major Issue
+Nyika Health Centre,2025-12-01,Child Health,Immunisation Visits,322.0,280,EMR,325,322,311,0.9528488442439623,On Time,False,325,311,14,0.04501607717041801,Consistent,False,No Major Issue
+Nyika Health Centre,2025-12-01,Child Health,Under-5 Visits,282.0,300,EMR,277,282,286,0.8464546729581002,On Time,False,286,277,9,0.032490974729241874,Consistent,False,No Major Issue
+Nyika Health Centre,2025-12-01,Outpatient,OPD Visits,673.0,729,DHIS2,671,701,673,0.9540262583857839,On Time,False,701,671,30,0.044709388971684055,Consistent,False,No Major Issue
+Nyika Health Centre,2025-12-01,Outpatient,New Outpatient Cases,405.0,432,Paper Register,405,438,457,0.8546657753331781,On Time,False,457,405,52,0.12839506172839507,Review Required,False,Source Discrepancy
