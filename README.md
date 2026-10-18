@@ -57,10 +57,10 @@ Raw Synthetic Data → Data Inspection → Data Cleaning → Data Validation
 
 ## Data Quality Dimensions
 
-- **Completeness** — are required fields/records available? (`Completeness_Score`)
-- **Consistency** — do the three reporting sources agree? (`Consistency_Flag`)
-- **Timeliness** — was reporting completed on time? (`Timeliness`)
-- **Validity** — do reported values fall within a reasonable range? (`Outlier_Flag`, per-indicator IQR rule)
+- **Completeness** — are required fields/records available? (`Calculated_Completeness`, calculated from actual field presence)
+- **Consistency** — do the three reporting sources agree? (`Consistency_Flag`, using 20% relative + 5 absolute threshold)
+- **Timeliness** — was reporting completed on time? (`Calculated_Timeliness`, based on reporting dates vs. due dates)
+- **Validity** — do reported values fall within a reasonable range? (`Outlier_Flag`, using IQR method grouped by indicator)
 
 ## Key Findings
 
@@ -68,7 +68,7 @@ Raw Synthetic Data → Data Inspection → Data Cleaning → Data Validation
 
 1. **Overall completeness is 87.0%**, timely reporting is **80.8%**, and **537 of 960 records (56%)** carry at least one data-quality flag — a useful reminder that "mostly fine" summary statistics can still sit on top of a majority-flagged dataset once every dimension is checked, not just one.
 
-2. **Source Discrepancy is the single largest issue category** (339 records, 35% of all records) — well above the 5% of records where a discrepancy was deliberately injected. Investigating why revealed an important methodological finding, not just a data problem: **the 10% discrepancy threshold is too strict relative to ordinary sampling noise for low-volume indicators.** An indicator like "New TB Cases" (target 10–60) swings much more in *relative* terms from a few units of natural noise than "OPD Visits" (target 500–1500) does — so the same flat 10% threshold catches far more low-volume indicators by chance. This is documented as a specific caveat in [`dashboard/powerbi_dashboard_documentation.md`](dashboard/powerbi_dashboard_documentation.md) (Section 6), because shipping a dashboard with a threshold this sensitive would flood an M&E Officer's worklist with false positives.
+2. **Source Discrepancy is the single largest issue category** — the notebook initially found that a simple 10% discrepancy threshold flagged a large majority of records as inconsistent due to natural random variation between the three independent sources. This was particularly problematic for low-volume indicators where small absolute differences resulted in large percentage swings. **The improved implementation uses a more realistic threshold: 20% relative difference OR 5 absolute count difference.** This dual threshold approach reduces false positives for both high-volume and low-volume indicators, better reflecting operational M&E practice. This is documented as a specific caveat in [`dashboard/powerbi_dashboard_documentation.md`](dashboard/powerbi_dashboard_documentation.md) (Section 6).
 
 3. **Kachulu and Rumphi Central Health Centres have the lowest reporting timeliness** (74.2% and 77.5% on-time respectively), while Katowo Health Centre is most timely (85.0%).
 
@@ -76,7 +76,7 @@ Raw Synthetic Data → Data Inspection → Data Cleaning → Data Validation
 
 5. **Chiweta Health Centre has the most source-discrepancy records** (53), followed by Bolero (50) and Kachulu (49) — Katowo has the fewest (33).
 
-6. **Kachulu Health Centre ranks highest on the combined risk score** (165.5), driven by a combination of below-average completeness, high discrepancy count, and high lateness — making it the top candidate for follow-up under this scoring approach. Katowo ranks lowest-risk (119.8) despite having the most source discrepancies, because its strong completeness and timeliness outweigh that in the combined score — illustrating why a single combined metric needs to be checked against its components before acting on it.
+6. **Facility risk scores are calculated using rate-based metrics** (normalized by reporting volume) rather than raw counts. This ensures fair comparison between facilities with different reporting volumes. The risk score (0-100 scale) combines five dimensions: missing rate, inconsistency rate, late rate, outlier rate, and completeness. This approach prevents high-volume facilities from being unfairly penalized simply because they report more data.
 
 Full facility-by-facility, programme-by-programme, and monthly breakdowns are in the notebook itself.
 
@@ -84,7 +84,7 @@ Full facility-by-facility, programme-by-programme, and monthly breakdowns are in
 
 The Power BI dashboard has been implemented and exported to the project dashboard folder:
 
-- Power BI file: [dashboard/power bi.pbix](dashboard/power%20bi.pbix)
+- Power BI file: [dashboard/health_facility_data_quality_dashboard.pbix](dashboard/health_facility_data_quality_dashboard.pbix)
 - Data Quality Overview: [dashboard/Data_Quality_Overview.png](dashboard/Data_Quality_Overview.png)
 - Facility Performance: [dashboard/Facility_Performance.png](dashboard/Facility_Performance.png)
 - Source Consistency: [dashboard/Source_Consistency.png](dashboard/Source_Consistency.png)
@@ -105,23 +105,28 @@ health-facility-data-quality/
 │   ├── raw/
 │   │   └── synthetic_health_facility_data.csv       # As generated, before cleaning
 │   └── processed/
-│       └── cleaned_health_facility_data.csv         # Cleaned + all quality flags added
+│       └── health_facility_data_processed.csv       # Cleaned + all quality flags added
 ├── notebooks/
 │   └── health_data_quality_analysis.ipynb           # Full workflow, executed with real outputs
 ├── dashboard/
-│   ├── power bi.pbix                                 # Finished Power BI dashboard
+│   ├── health_facility_data_quality_dashboard.pbix  # Finished Power BI dashboard
 │   ├── Data_Quality_Overview.png                     # Dashboard page export
 │   ├── Facility_Performance.png                      # Dashboard page export
 │   ├── Programme_Monitoring.png                      # Dashboard page export
 │   ├── Source_Consistency.png                        # Dashboard page export
 │   └── powerbi_dashboard_documentation.md           # Implementation and design guide
+├── src/
+│   ├── data_generator.py                             # Synthetic data generation module
+│   └── data_quality.py                              # Data quality assessment functions
+├── tests/
+│   └── test_data_quality.py                          # Automated tests for data quality rules
 ├── visuals/
-│   └── charts/                                       # 7 chart exports from the notebook
+│   └── charts/                                       # Chart exports from the notebook
 ├── requirements.txt
 └── README.md
 ```
 
-**What belongs where:** `data/` holds only the dataset and its two states (raw synthetic, cleaned); `notebooks/` is the analysis itself, meant to be read top-to-bottom; `dashboard/` contains the implemented Power BI report, its exported pages, and the supporting documentation; `visuals/charts/` holds static exports for embedding in documentation.
+**What belongs where:** `data/` holds only the dataset and its two states (raw synthetic, processed); `notebooks/` is the analysis itself, meant to be read top-to-bottom; `dashboard/` contains the implemented Power BI report, its exported pages, and the supporting documentation; `src/` contains modular Python code for data generation and quality assessment; `tests/` contains automated tests for data quality rules; `visuals/charts/` holds static exports for embedding in documentation.
 
 ## How to Run
 
@@ -133,6 +138,9 @@ pip install -r requirements.txt
 jupyter notebook notebooks/health_data_quality_analysis.ipynb
 # Run all cells — this regenerates the synthetic dataset (fixed seed = identical output),
 # performs the full data-quality assessment, and writes data/processed/ and visuals/charts/
+
+# Run automated tests
+python tests/test_data_quality.py
 ```
 
 ## Ethical Considerations
