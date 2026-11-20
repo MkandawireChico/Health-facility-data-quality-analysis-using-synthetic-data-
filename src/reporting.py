@@ -100,7 +100,10 @@ def facility_summary(assessed: pd.DataFrame) -> pd.DataFrame:
 
     risk = DataQualityAssessor(assessed).calculate_facility_risk().reset_index()
     risk["On_Time_Rate"] = 1 - risk["Late_Rate"]
-    risk["Consistency_Rate"] = 1 - risk["Source_Discrepancy_Rate"]
+    grouped = assessed.groupby("Facility")["Consistency_Flag"]
+    known = grouped.apply(lambda values: values.isin(["Consistent", "Review Required", "Inconsistent"]).sum())
+    consistent = grouped.apply(lambda values: values.eq("Consistent").sum())
+    risk["Consistency_Rate"] = consistent.div(known.replace(0, float("nan")))
     return risk.sort_values("Risk_Score", ascending=False)
 
 
