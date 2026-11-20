@@ -244,7 +244,7 @@ with tabs[2]:
         Late_Rate=("Issue_Late_Report", "mean"),
         Follow_Up_Rate=("Requires_Follow_Up", "mean"),
     )
-    programme_summary["Target attainment"] = programme_summary["Reported"] / programme_summary["Target"].replace(0, pd.NA)
+    programme_summary["Target attainment"] = programme_summary["Reported"].div(programme_summary["Target"].where(programme_summary["Target"].ne(0)))
     st.dataframe(programme_summary.style.format({
         "Completeness": "{:.1%}", "Late_Rate": "{:.1%}",
         "Follow_Up_Rate": "{:.1%}", "Target attainment": "{:.1%}",
