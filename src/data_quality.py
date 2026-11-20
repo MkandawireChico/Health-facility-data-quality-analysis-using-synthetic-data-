@@ -250,11 +250,25 @@ class DataQualityAssessor:
             is_outlier = (group["Reported_Value"] < lower) | (group["Reported_Value"] > upper)
             return is_outlier
         
-        # Apply IQR detection within each group
-        outlier_flags = self.df.groupby(groupby_cols, group_keys=False).apply(
-            lambda x: detect_outliers_group(x)
-        )
-        
+        # Use an explicit group loop rather than groupby.apply. This keeps the
+        # result a one-dimensional Series across pandas versions (including 3.x).
+        outlier_flags = pd.Series(False, index=self.df.index, dtype=bool)
+        for _, group in self.df.groupby(groupby_cols, group_keys=False, dropna=False, sort=False):
+            if len(group) < min_observations:
+                continue
+
+            values = pd.to_numeric(group["Reported_Value"], errors="coerce")
+            q1 = values.quantile(0.25)
+            q3 = values.quantile(0.75)
+            iqr = q3 - q1
+            if pd.isna(iqr) or iqr == 0:
+                continue
+
+            lower = q1 - iqr_multiplier * iqr
+            upper = q3 + iqr_multiplier * iqr
+            group_flags = ((values < lower) | (values > upper)).fillna(False)
+            outlier_flags.loc[group.index] = group_flags.astype(bool)
+
         self.df["Outlier_Flag"] = outlier_flags
         
         return self.df
