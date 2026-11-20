@@ -79,6 +79,15 @@ The notebook reproduces these calculations and provides the detailed facility, p
 
 The project includes two complementary dashboard experiences:
 
+<details>
+<summary>Open the live Streamlit dashboard</summary>
+
+[Launch Health Facility Data Quality Analysis](https://health-facility-data-quality-analysis.streamlit.app/)
+
+</details>
+
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://health-facility-data-quality-analysis.streamlit.app/)
+
 ### Streamlit companion
 
 The browser-based Streamlit app provides facility, programme, reporting-period and issue filters; summary metrics; completeness and issue charts; a facility comparison table; a record-level follow-up worklist; and CSV downloads.
