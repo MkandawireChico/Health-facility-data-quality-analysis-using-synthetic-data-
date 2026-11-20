@@ -52,9 +52,11 @@ if "Calculated_Completeness" not in df:
     if all(column in df.columns for column in completeness_fields):
         # Calculate completeness from actual field presence; do not substitute
         # the generator's simulated Completeness_Score.
-        df["Calculated_Completeness"] = (
-            df[completeness_fields].replace("", pd.NA).notna().mean(axis=1)
-        )
+        field_presence = df[completeness_fields].notna()
+        for column in completeness_fields:
+            if pd.api.types.is_object_dtype(df[column]) or pd.api.types.is_string_dtype(df[column]):
+                field_presence[column] &= df[column].astype("string").str.strip().ne("").fillna(False)
+        df["Calculated_Completeness"] = field_presence.mean(axis=1)
 if "Calculated_Timeliness" not in df and "Timeliness" in df:
     df["Calculated_Timeliness"] = df["Timeliness"]
 if "Consistency_Flag" not in df:
