@@ -233,10 +233,10 @@ class DataQualityAssessor:
         # result a one-dimensional Series across pandas versions (including 3.x).
         outlier_flags = pd.Series(False, index=self.df.index, dtype=bool)
         for _, group in self.df.groupby(groupby_cols, group_keys=False, dropna=False, sort=False):
-            if len(group) < min_observations:
+            values = pd.to_numeric(group["Reported_Value"], errors="coerce")
+            if values.notna().sum() < min_observations:
                 continue
 
-            values = pd.to_numeric(group["Reported_Value"], errors="coerce")
             q1 = values.quantile(0.25)
             q3 = values.quantile(0.75)
             iqr = q3 - q1
