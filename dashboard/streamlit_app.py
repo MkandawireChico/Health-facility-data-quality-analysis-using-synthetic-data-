@@ -1,14 +1,19 @@
 from __future__ import annotations
 
 from pathlib import Path
+import sys
+
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+from data_quality import DataQualityAssessor
+
 DATA_PATHS = [
-    ROOT / "data" / "processed" / "health_facility_data_processed.csv",
     ROOT / "data" / "raw" / "synthetic_health_facility_data.csv",
+    ROOT / "data" / "processed" / "health_facility_data_processed.csv",
 ]
 st.set_page_config(page_title="Health Data Quality Command Centre", page_icon="🏥", layout="wide")
 
@@ -44,27 +49,22 @@ if missing:
     st.stop()
 
 df["Month"] = pd.to_datetime(df.get("Month"), errors="coerce")
-if "Calculated_Completeness" not in df:
-    completeness_fields = [
-        "Reported_Value", "Target_Value", "Paper_Value",
-        "EMR_Value", "DHIS2_Value", "Data_Source"
-    ]
-    if all(column in df.columns for column in completeness_fields):
-        # Calculate completeness from actual field presence; do not substitute
-        # the generator's simulated Completeness_Score.
-        field_presence = df[completeness_fields].notna()
-        for column in completeness_fields:
-            if pd.api.types.is_object_dtype(df[column]) or pd.api.types.is_string_dtype(df[column]):
-                field_presence[column] &= df[column].astype("string").str.strip().ne("").fillna(False)
-        df["Calculated_Completeness"] = field_presence.mean(axis=1)
-if "Calculated_Timeliness" not in df and "Timeliness" in df:
-    df["Calculated_Timeliness"] = df["Timeliness"]
-if "Consistency_Flag" not in df:
-    df["Consistency_Flag"] = "Not available"
-if "Outlier_Flag" not in df:
-    df["Outlier_Flag"] = False
-if "Reported_Value_Missing" not in df:
-    df["Reported_Value_Missing"] = df["Reported_Value"].isna()
+df["Reported_Value_Missing"] = df["Reported_Value"].isna()
+
+# Recalculate all quality dimensions from the raw source fields on every app load.
+# This prevents stale processed exports or simulated completeness scores from
+# silently driving the dashboard.
+assessor = DataQualityAssessor(df)
+df = assessor.calculate_field_completeness()
+df = assessor.calculate_timeliness_from_dates()
+df = assessor.assess_source_consistency(
+    baseline_threshold=0.10,
+    improved_threshold=0.20,
+    absolute_tolerance=5,
+)
+df = assessor.detect_outliers_iqr(groupby_cols=["Indicator"])
+df = assessor.assign_primary_issue()
+df["Source_Discrepancy_Pct"] = df["Source_Discrepancy_Pct_Baseline"]
 
 st.sidebar.title("Health Data Quality")
 st.sidebar.caption("Rumphi District • Synthetic portfolio dataset")
