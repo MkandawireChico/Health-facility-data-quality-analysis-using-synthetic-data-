@@ -50,8 +50,8 @@ When both actual date columns are present, a submission on or before the deadlin
 | `Source_Discrepancy_Pct_Baseline` | Absolute discrepancy divided by minimum source value when minimum is positive; diagnostic only |
 | `Consistency_Flag` | Production hybrid source review status; see operational workflow |
 | `Outlier_Flag` | IQR-based statistical review flag grouped by programme and indicator |
-| `Primary_Issue` | One highest-priority issue label for quick triage |
-| `Issue_Count` | Count of all applicable issue flags for the record |
+| `Primary_Issue` | One highest-priority issue label for quick triage; insufficient source evidence is prioritised after missing reported values |
+| `Issue_Insufficient_Sources` | True when fewer than two of Paper, EMR and DHIS2 source values are available |\n| `Issue_Count` | Count of all applicable issue flags for the record |
 | `Requires_Follow_Up` | True when at least one issue flag is present |
 
 ## Interpretation
