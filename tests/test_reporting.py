@@ -26,7 +26,7 @@ def sample_data():
 
 def test_validate_dataset_reports_missing_columns_and_bad_values():
     data = sample_data()
-    data.loc[0, "Month"] = "not-a-date"
+    data["Month"] = data["Month"].astype(object)\n    data.loc[0, "Month"] = "not-a-date"
     data.loc[1, "Reported_Value"] = "not-numeric"
     data.loc[2, "Target_Value"] = -2
     data.loc[3, "Facility"] = ""
@@ -88,3 +88,15 @@ def test_real_submission_and_deadline_dates_override_simulated_timeliness():
     assert assessed.loc[0, "Calculated_Timeliness"] == "On Time"
     assert assessed.loc[1, "Calculated_Timeliness"] == "Late"
     assert assessed.loc[4, "Calculated_Timeliness"] == "Unknown"
+
+
+
+def test_facility_consistency_rate_excludes_unknown_source_records():
+    data = sample_data()
+    data.loc[0, ["Paper_Value", "DHIS2_Value"]] = np.nan
+    assessed = assess_dataset(data)
+    summary = facility_summary(assessed).set_index("Facility")
+    facility_a = assessed[assessed["Facility"] == "A"]
+    known = facility_a["Consistency_Flag"].isin(["Consistent", "Review Required", "Inconsistent"])
+    expected = facility_a.loc[known, "Consistency_Flag"].eq("Consistent").mean()
+    assert summary.loc["A", "Consistency_Rate"] == expected
