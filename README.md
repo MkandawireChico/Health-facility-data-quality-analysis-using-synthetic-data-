@@ -44,9 +44,9 @@ No real patient-level information is included anywhere in this project.
 
 ## Tools Used
 
-Python (Pandas, NumPy, Matplotlib, Seaborn) · Jupyter Notebook · Power BI (implementation guide)
+Python (Pandas, NumPy, Matplotlib, Seaborn, Plotly, Streamlit) · Jupyter Notebook · Power BI
 
-Python was used for data generation, cleaning, validation, data-quality assessment, and visualisation. Power BI is the target tool for the final interactive dashboard (see [`dashboard/`](dashboard/)).
+Python is used for reproducible data generation, validation, assessment and visualisation. The repository includes the implemented Power BI report and a Streamlit companion for browser-based exploration (see [`dashboard/`](dashboard/)).
 
 ## Project Workflow
 
@@ -82,7 +82,7 @@ Full facility-by-facility, programme-by-programme, and monthly breakdowns are in
 
 ## Dashboard and Outputs
 
-The Power BI dashboard has been implemented and exported to the project dashboard folder:
+The project provides two complementary dashboard experiences. The Power BI report is the primary multi-page report, while the Streamlit app offers an interactive browser-based companion for filtering facilities, programmes and reporting periods, inspecting quality dimensions, reviewing flagged records and downloading CSV worklists. Both use synthetic data only.\n\n**Streamlit app:** `dashboard/streamlit_app.py`\n\nRun locally:\n\n```bash\nstreamlit run dashboard/streamlit_app.py\n```\n\nThe app reads `data/processed/health_facility_data_processed.csv` when available and falls back to the raw synthetic CSV. It includes facility and programme filters, a reporting-period filter, quality issue filters, summary metrics, charts, a record-level worklist and CSV downloads.\n\nThe Power BI dashboard has been implemented and exported to the project dashboard folder:
 
 - Power BI file: [dashboard/health_facility_data_quality_dashboard.pbix](dashboard/health_facility_data_quality_dashboard.pbix)
 - Data Quality Overview: [dashboard/Data_Quality_Overview.png](dashboard/Data_Quality_Overview.png)
