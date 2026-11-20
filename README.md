@@ -91,7 +91,7 @@ The project provides two complementary dashboard experiences. The Power BI repor
 - Programme Monitoring: [dashboard/Programme_Monitoring.png](dashboard/Programme_Monitoring.png)
 - Dashboard documentation: [dashboard/powerbi_dashboard_documentation.md](dashboard/powerbi_dashboard_documentation.md)
 
-The Python analysis and data preparation workflow remains available in the notebook: [notebooks/health_data_quality_analysis.ipynb](notebooks/health_data_quality_analysis.ipynb)
+The Python analysis and data preparation workflow remains available in the notebook: [notebooks/health_data_quality_analysis.ipynb](notebooks/health_data_quality_analysis.ipynb)\n\n### Power BI dashboard screenshots\n\nThese are the existing exported Power BI report pages (not screenshots of the new Streamlit app):\n\n![Data Quality Overview](dashboard/Data_Quality_Overview.png)\n\n![Facility Performance](dashboard/Facility_Performance.png)\n\n![Source Consistency](dashboard/Source_Consistency.png)\n\n![Programme Monitoring](dashboard/Programme_Monitoring.png)
 
 ## Decision-Making Use Case
 
