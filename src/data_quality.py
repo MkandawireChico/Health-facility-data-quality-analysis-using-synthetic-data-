@@ -229,27 +229,6 @@ class DataQualityAssessor:
         Returns:
             DataFrame with Outlier_Flag field
         """
-        def detect_outliers_group(group):
-            # Skip if too few observations
-            if len(group) < min_observations:
-                return pd.Series([False] * len(group), index=group.index)
-            
-            # Calculate IQR bounds
-            q1 = group["Reported_Value"].quantile(0.25)
-            q3 = group["Reported_Value"].quantile(0.75)
-            iqr = q3 - q1
-            
-            # Handle cases where IQR is zero or undefined
-            if iqr == 0 or pd.isna(iqr):
-                return pd.Series([False] * len(group), index=group.index)
-            
-            lower = q1 - iqr_multiplier * iqr
-            upper = q3 + iqr_multiplier * iqr
-            
-            # Flag outliers
-            is_outlier = (group["Reported_Value"] < lower) | (group["Reported_Value"] > upper)
-            return is_outlier
-        
         # Use an explicit group loop rather than groupby.apply. This keeps the
         # result a one-dimensional Series across pandas versions (including 3.x).
         outlier_flags = pd.Series(False, index=self.df.index, dtype=bool)
