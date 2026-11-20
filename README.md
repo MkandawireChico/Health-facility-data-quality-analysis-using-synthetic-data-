@@ -85,6 +85,9 @@ The project includes two complementary dashboard experiences:
 
 ### Streamlit companion
 
+- [CSV data dictionary and upload contract](docs/data_dictionary.md)
+- [Operational workflow, quality rules and production-readiness gaps](docs/operational_workflow.md)
+
 The deployed Streamlit workspace supports bundled demonstration data and user-uploaded CSV assessment, schema/value intake checks, facility and programme filters, reporting-period filtering, executive quality metrics, volume-normalised facility risk prioritisation, programme/indicator monitoring, three-source reconciliation, a multi-issue record register, corrective-action ownership/status/notes, and CSV exports. Action assignments are session-scoped and can be preserved by downloading the register; persistent multi-user storage is not configured.
 
 Run locally from the repository root:
@@ -146,6 +149,9 @@ health-facility-data-quality/
 │       └── health_facility_data_processed.csv       # Cleaned + all quality flags added
 ├── notebooks/
 │   └── health_data_quality_analysis.ipynb           # Full reproducible analysis workflow
+├── docs/
+│   ├── data_dictionary.md                           # CSV schema and validation contract
+│   └── operational_workflow.md                      # Assessment rules and governance notes
 ├── dashboard/
 │   ├── health_facility_data_quality_dashboard.pbix  # Finished Power BI dashboard
 │   ├── streamlit_app.py                             # Interactive Streamlit companion
