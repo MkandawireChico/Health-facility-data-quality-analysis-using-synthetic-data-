@@ -62,6 +62,21 @@ def validate_dataset(df: pd.DataFrame) -> dict[str, Any]:
         result["warnings"].append("Negative values require review; they are not automatically changed.")
     if any(result["blank_dimensions"].values()):
         result["warnings"].append("Some facility or reporting dimensions are blank.")
+
+    date_pair = {"Submission_Date", "Deadline_Date"}
+    supplied_dates = date_pair.intersection(df.columns)
+    if supplied_dates and supplied_dates != date_pair:
+        result["warnings"].append(
+            "Submission_Date and Deadline_Date should be supplied together; otherwise the existing Timeliness field is used."
+        )
+    elif supplied_dates == date_pair:
+        for column in sorted(date_pair):
+            parsed = pd.to_datetime(df[column], errors="coerce")
+            invalid = df[column].notna() & parsed.isna()
+            if invalid.any():
+                result["warnings"].append(
+                    f"{int(invalid.sum())} values in {column} could not be parsed as dates."
+                )
     return result
 
 
