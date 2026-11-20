@@ -203,3 +203,29 @@ if __name__ == "__main__":
     print("✓ Trend aggregation test passed")
     
     print("\nAll tests passed!")
+
+
+def test_production_consistency_rule_uses_hybrid_threshold():
+    """The production flag uses the hybrid rule; the 10% baseline remains diagnostic."""
+    from pathlib import Path
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+    from data_quality import DataQualityAssessor
+
+    data = pd.DataFrame({
+        "Paper_Value": [100, 10, 100],
+        "EMR_Value": [110, 13, 100],
+        "DHIS2_Value": [105, 12, 130],
+    })
+    assessed = DataQualityAssessor(data).assess_source_consistency()
+
+    # A 10% difference is tolerated by the 20% hybrid rule.
+    # A low-volume absolute difference of 3 is within the 5-unit tolerance.
+    # A 30% difference at higher volume is flagged for review.
+    assert assessed["Consistency_Flag"].tolist() == [
+        "Consistent", "Consistent", "Review Required"
+    ]
+    assert assessed["Consistency_Flag_Baseline"].tolist() == [
+        "Consistent", "Review Required", "Review Required"
+    ]

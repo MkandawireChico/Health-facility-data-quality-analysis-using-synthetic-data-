@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-import sys
-
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -46,8 +44,19 @@ if missing:
     st.stop()
 
 df["Month"] = pd.to_datetime(df.get("Month"), errors="coerce")
-if "Calculated_Completeness" not in df and "Completeness_Score" in df:
-    df["Calculated_Completeness"] = pd.to_numeric(df["Completeness_Score"], errors="coerce")
+if "Calculated_Completeness" not in df:
+    completeness_fields = [
+        "Reported_Value", "Target_Value", "Paper_Value",
+        "EMR_Value", "DHIS2_Value", "Data_Source"
+    ]
+    if all(column in df.columns for column in completeness_fields):
+        # Calculate completeness from actual field presence; do not substitute
+        # the generator's simulated Completeness_Score.
+        field_presence = df[completeness_fields].notna()
+        for column in completeness_fields:
+            if pd.api.types.is_object_dtype(df[column]) or pd.api.types.is_string_dtype(df[column]):
+                field_presence[column] &= df[column].astype("string").str.strip().ne("").fillna(False)
+        df["Calculated_Completeness"] = field_presence.mean(axis=1)
 if "Calculated_Timeliness" not in df and "Timeliness" in df:
     df["Calculated_Timeliness"] = df["Timeliness"]
 if "Consistency_Flag" not in df:
@@ -97,7 +106,6 @@ def rate(series: pd.Series) -> float:
     return float(values.mean()) if len(values) else float("nan")
 
 total = len(filtered)
-missing_rate = filtered["Reported_Value"].isna().mean()
 late_rate = filtered.get("Calculated_Timeliness", pd.Series("Unknown", index=filtered.index)).eq("Late").mean()
 consistent_rate = filtered["Consistency_Flag"].eq("Consistent").mean()
 completeness = rate(filtered["Calculated_Completeness"]) if "Calculated_Completeness" in filtered else float("nan")

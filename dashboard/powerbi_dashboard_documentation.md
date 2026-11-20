@@ -13,7 +13,7 @@ All data behind this dashboard is synthetic (see the project [README](../README.
 Import `data/processed/health_facility_data_processed.csv`. This file contains all calculated data quality metrics including:
 - `Calculated_Completeness` (0-1 scale, based on actual field presence)
 - `Calculated_Timeliness` ("On Time" or "Late", based on reporting dates)
-- `Consistency_Flag` ("Consistent" or "Inconsistent", using 20% relative + 5 absolute threshold)
+- `Consistency_Flag` ("Consistent", "Review Required", or "Unknown Sources", using a 20% relative AND 5-unit absolute threshold)
 - `Outlier_Flag` (boolean, using IQR method grouped by indicator)
 - `Reported_Value_Missing` (boolean, ground truth from data generation)
 - Source comparison fields: `Source_Max`, `Source_Min`, `Source_Discrepancy`, `Source_Discrepancy_Pct`
@@ -109,7 +109,7 @@ The strongest page, since source reconciliation is the core data-quality questio
 
 The notebook initially found that using a simple 10% discrepancy threshold flagged a large majority of records as inconsistent due to natural random variation between the three independent sources. This was particularly problematic for low-volume indicators where small absolute differences resulted in large percentage swings.
 
-**The improved implementation uses a more realistic threshold: 20% relative difference OR 5 absolute count difference.** This dual threshold approach:
+**The production rule flags a record when the relative difference exceeds 20% AND the absolute difference exceeds 5 units** (when the minimum source value is zero, the 5-unit absolute threshold is used). The 10% relative-only baseline is retained separately for comparison. This dual threshold approach:
 - Reduces false positives for high-volume indicators (where 20% is meaningful)
 - Reduces false positives for low-volume indicators (where 5 absolute units is a meaningful threshold)
 - Better reflects operational M&E practice where thresholds are often volume-adjusted

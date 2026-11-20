@@ -191,17 +191,20 @@ class DataQualityAssessor:
                     "Review Required",
                     "Consistent"
                 ),
-                # Otherwise, use relative tolerance with higher threshold
+                # For positive values, require both a material relative
+                # difference and an absolute difference above tolerance.
                 np.where(
-                    self.df["Source_Discrepancy_Pct_Baseline"] > improved_threshold,
+                    (self.df["Source_Discrepancy_Pct_Baseline"] > improved_threshold)
+                    & (self.df["Source_Discrepancy_Abs"] > absolute_tolerance),
                     "Review Required",
                     "Consistent"
                 )
             )
         )
         
-        # Keep the baseline flag as the primary for backward compatibility
-        self.df["Consistency_Flag"] = self.df["Consistency_Flag_Baseline"]
+        # Use the volume-aware hybrid rule as the production flag.
+        # Preserve the 10% baseline in its separate diagnostic column for comparison.
+        self.df["Consistency_Flag"] = self.df["Consistency_Flag_Improved"]
         
         return self.df
     
@@ -281,51 +284,61 @@ class DataQualityAssessor:
     
     def calculate_facility_risk(self, weights: Dict[str, float] = None) -> pd.DataFrame:
         """
-        Calculate facility-level risk scores.
-        
-        Args:
-            weights: Dictionary of weights for each risk component.
-                    Defaults to: completeness_shortfall=100, late=1.5,
-                    discrepancy=2, missing=2, outlier=1.5
-        
-        Returns:
-            DataFrame with facility-level risk scores
+        Calculate comparable facility risk scores from issue rates.
+
+        Default weights allocate 20 points to each of five dimensions, producing
+        a 0-100 index. Scores are prioritisation aids, not clinical performance
+        ratings. Custom weights may be supplied using the same five keys.
         """
         if weights is None:
             weights = {
-                "completeness_shortfall": 100,
-                "late": 1.5,
-                "discrepancy": 2,
-                "missing": 2,
-                "outlier": 1.5,
+                "completeness_shortfall": 20,
+                "late": 20,
+                "discrepancy": 20,
+                "missing": 20,
+                "outlier": 20,
             }
-        
-        # Use calculated completeness if available, otherwise use simulated
-        completeness_col = "Calculated_Completeness" if "Calculated_Completeness" in self.df.columns else "Completeness_Score"
-        timeliness_col = "Calculated_Timeliness" if "Calculated_Timeliness" in self.df.columns else "Timeliness"
-        
+
+        completeness_col = (
+            "Calculated_Completeness"
+            if "Calculated_Completeness" in self.df.columns
+            else "Completeness_Score"
+        )
+        timeliness_col = (
+            "Calculated_Timeliness"
+            if "Calculated_Timeliness" in self.df.columns
+            else "Timeliness"
+        )
+        required = [completeness_col, timeliness_col, "Consistency_Flag",
+                    "Reported_Value", "Outlier_Flag"]
+        missing_columns = [column for column in required if column not in self.df.columns]
+        if missing_columns:
+            raise ValueError(
+                "Cannot calculate facility risk; missing columns: "
+                + ", ".join(missing_columns)
+            )
+
         facility_quality = self.df.groupby("Facility").agg(
             Average_Completeness=(completeness_col, "mean"),
-            Total_Records=(completeness_col, "count"),
-            Late_Reports=(timeliness_col, lambda x: (x == "Late").sum()),
-            Source_Discrepancies=("Consistency_Flag", lambda x: (x == "Review Required").sum()),
-            Missing_Records=("Reported_Value", lambda x: x.isna().sum()),
-            Outliers=("Outlier_Flag", "sum"),
+            Total_Records=("Facility", "size"),
+            Late_Rate=(timeliness_col, lambda x: (x == "Late").mean()),
+            Source_Discrepancy_Rate=(
+                "Consistency_Flag",
+                lambda x: x.isin(["Review Required", "Inconsistent"]).mean(),
+            ),
+            Missing_Rate=("Reported_Value", lambda x: x.isna().mean()),
+            Outlier_Rate=("Outlier_Flag", "mean"),
         )
-        
-        # Calculate risk score using raw counts (not rates, as in original)
+
         facility_quality["Risk_Score"] = (
             (1 - facility_quality["Average_Completeness"]) * weights["completeness_shortfall"]
-            + facility_quality["Late_Reports"] * weights["late"]
-            + facility_quality["Source_Discrepancies"] * weights["discrepancy"]
-            + facility_quality["Missing_Records"] * weights["missing"]
-            + facility_quality["Outliers"] * weights["outlier"]
+            + facility_quality["Late_Rate"] * weights["late"]
+            + facility_quality["Source_Discrepancy_Rate"] * weights["discrepancy"]
+            + facility_quality["Missing_Rate"] * weights["missing"]
+            + facility_quality["Outlier_Rate"] * weights["outlier"]
         )
-        
-        facility_quality = facility_quality.sort_values("Risk_Score", ascending=False)
-        
-        return facility_quality
-    
+        return facility_quality.sort_values("Risk_Score", ascending=False)
+
     def validate_against_injections(self, injection_ledger_path: Path) -> Dict[str, any]:
         """
         Validate detection rules against injected ground truth.
