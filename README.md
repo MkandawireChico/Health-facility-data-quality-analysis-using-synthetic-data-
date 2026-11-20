@@ -161,10 +161,12 @@ health-facility-data-quality/
 │   ├── Source_Consistency.png                        # Dashboard page export
 │   └── powerbi_dashboard_documentation.md           # Implementation and design guide
 ├── src/
+│   ├── reporting.py                                  # CSV intake and reusable reporting workflow
 │   ├── data_generator.py                             # Synthetic data generation module
 │   └── data_quality.py                              # Data quality assessment functions
 ├── tests/
 │   ├── test_data_quality.py                          # Automated tests for data quality rules
+│   ├── test_reporting.py                              # Intake and assessment pipeline tests
 │   └── test_streamlit_app.py                          # Streamlit rendering smoke test
 ├── visuals/
 │   └── charts/                                       # Chart exports from the notebook
@@ -174,7 +176,7 @@ health-facility-data-quality/
 └── README.md
 ```
 
-**What belongs where:** `data/` holds only the dataset and its two states (raw synthetic, processed); `notebooks/` is the analysis itself, meant to be read top-to-bottom; `dashboard/` contains the implemented Power BI report, its exported pages, supporting documentation, and Streamlit companion app; `src/` contains modular Python code for data generation and quality assessment; `tests/` contains automated tests for data quality rules; `visuals/charts/` holds static exports for embedding in documentation.
+**What belongs where:** `data/` holds the raw synthetic and processed datasets; `notebooks/` contains the reproducible analysis; `docs/` defines the upload contract and operational workflow; `dashboard/` contains the Power BI report, exports and Streamlit workspace; `src/` contains reusable data generation, assessment and reporting logic; `tests/` covers quality rules, intake/assessment behaviour and app rendering; `visuals/charts/` holds notebook chart exports.
 
 ## How to Run
 
