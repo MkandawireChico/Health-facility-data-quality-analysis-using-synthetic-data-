@@ -27,7 +27,7 @@ For records with at least two source values:
 
 - When the minimum source value is zero, a difference greater than 5 units is flagged.
 - When the minimum is positive, a record is flagged only when relative discrepancy exceeds 20% **and** absolute discrepancy exceeds 5 units.
-- Fewer than two available source values produce **Unknown Sources**.
+- Fewer than two available source values produce **Unknown Sources** and are included in the follow-up register as insufficient source evidence.
 - The 10% relative-only baseline is diagnostic and is not the production flag.
 
 This rule is a configurable portfolio assumption. A real programme should agree thresholds by indicator, source, reporting frequency and operational context with its data-governance owners.
