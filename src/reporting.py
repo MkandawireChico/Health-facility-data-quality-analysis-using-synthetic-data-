@@ -35,7 +35,7 @@ def validate_dataset(df: pd.DataFrame) -> dict[str, Any]:
         result["warnings"].append("The uploaded file contains no records.")
         return result
 
-    months = pd.to_datetime(df["Month"], errors="coerce")
+    months = pd.to_datetime(df["Month"], format="mixed", errors="coerce")
     result["invalid_months"] = int(months.isna().sum())
     keys = df[KEY_COLUMNS].copy()
     keys["Month"] = months
@@ -71,7 +71,7 @@ def validate_dataset(df: pd.DataFrame) -> dict[str, Any]:
         )
     elif supplied_dates == date_pair:
         for column in sorted(date_pair):
-            parsed = pd.to_datetime(df[column], errors="coerce")
+            parsed = pd.to_datetime(df[column], format="mixed", errors="coerce")
             invalid = df[column].notna() & parsed.isna()
             if invalid.any():
                 result["warnings"].append(
@@ -85,7 +85,7 @@ def assess_dataset(df: pd.DataFrame) -> pd.DataFrame:
     from data_quality import DataQualityAssessor
 
     work = df.copy()
-    work["Month"] = pd.to_datetime(work["Month"], errors="coerce")
+    work["Month"] = pd.to_datetime(work["Month"], format="mixed", errors="coerce")
     for column in NUMERIC_COLUMNS:
         work[column] = pd.to_numeric(work[column], errors="coerce")
     for column in ["Facility", "Programme", "Indicator", "Data_Source"]:
