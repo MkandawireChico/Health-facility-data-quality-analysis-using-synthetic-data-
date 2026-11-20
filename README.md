@@ -90,7 +90,17 @@ pip install -r requirements.txt
 streamlit run dashboard/streamlit_app.py
 ```
 
-The app prefers `data/raw/synthetic_health_facility_data.csv` and falls back to the processed export only if the raw file is unavailable. It recalculates completeness from actual field presence and applies the current timeliness, hybrid source-consistency and IQR outlier rules through the shared `DataQualityAssessor` module, so stale processed flags and simulated completeness scores do not silently drive the dashboard. It is a portfolio demonstration using synthetic data only.
+The app prefers `data/raw/synthetic_health_facility_data.csv` and falls back to the processed export only if the raw file is unavailable. It recalculates completeness from actual field presence and applies the current timeliness, hybrid source-consistency and IQR outlier rules through the shared `DataQualityAssessor` module, so stale processed flags and simulated completeness scores do not silently drive the dashboard. The source-reconciliation tab labels the 10% relative-only measure as a diagnostic baseline; the production review flag uses the documented hybrid threshold. It is a portfolio demonstration using synthetic data only.
+
+#### Deploy on Streamlit Community Cloud
+
+1. Sign in to [Streamlit Community Cloud](https://share.streamlit.io/) with the GitHub account that can access this repository.
+2. Select **Create app**, choose this repository and the `main` branch.
+3. Set the **Main file path** to `dashboard/streamlit_app.py`.
+4. Deploy. Streamlit installs packages from the repository `requirements.txt`.
+5. If deployment reports a missing file or dependency, use the app's **Manage app** logs to identify and resolve the issue before sharing the URL.
+
+The repository includes a Streamlit `AppTest` smoke test in CI. A successful automated test verifies that the app renders without a runtime exception; it is not a substitute for a visual browser review of the deployed app.
 
 ### Power BI report
 
@@ -189,7 +199,7 @@ Demonstrates skills relevant to: Data Technician · Data Analyst · Monitoring &
 
 ## Future Improvements
 
-- Capture and add screenshots of the Streamlit app after running it locally and completing a visual QA pass
+- Capture and add genuine screenshots of the deployed Streamlit app after completing a visual browser QA pass
 - Add a statistical process-control approach (for example, rolling mean and control limits) and compare it with the current per-indicator IQR outlier rule
 - Extend the automated tests to cover the production data-quality module and end-to-end dataset generation
 - If properly anonymised and aggregated operational reporting data ever becomes available for a comparable workflow, assess whether the synthetic patterns generalise
