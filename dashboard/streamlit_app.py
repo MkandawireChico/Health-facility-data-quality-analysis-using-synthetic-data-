@@ -135,6 +135,7 @@ issue_map = {
     "Requires follow-up": "Requires_Follow_Up",
     "Missing values": "Issue_Missing_Value",
     "Late reports": "Issue_Late_Report",
+    "Insufficient source data": "Issue_Insufficient_Sources",
     "Source discrepancies": "Issue_Source_Discrepancy",
     "Potential outliers": "Issue_Potential_Outlier",
     "Low completeness": "Issue_Low_Completeness",
@@ -171,10 +172,11 @@ with tabs[0]:
     st.subheader("Portfolio quality position")
     c1, c2 = st.columns(2)
     issue_summary = pd.DataFrame({
-        "Issue": ["Missing values", "Late reports", "Source discrepancies", "Potential outliers", "Low completeness"],
+        "Issue": ["Missing values", "Late reports", "Insufficient source data", "Source discrepancies", "Potential outliers", "Low completeness"],
         "Records": [
             int(filtered["Issue_Missing_Value"].sum()),
             int(filtered["Issue_Late_Report"].sum()),
+            int(filtered["Issue_Insufficient_Sources"].sum()),
             int(filtered["Issue_Source_Discrepancy"].sum()),
             int(filtered["Issue_Potential_Outlier"].sum()),
             int(filtered["Issue_Low_Completeness"].sum()),
