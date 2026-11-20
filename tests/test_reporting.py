@@ -138,3 +138,23 @@ def test_validation_warns_for_unparseable_optional_dates():
     data["Deadline_Date"] = pd.to_datetime(["2025-01-15"] * len(data))
     result = validate_dataset(data)
     assert any("Submission_Date" in warning for warning in result["warnings"])
+
+
+
+def test_mixed_reporting_date_formats_are_parsed_consistently():
+    data = sample_data()
+    data["Month"] = [
+        "2025-01-01", "02/01/2025", "2025-03",
+        "April 1, 2025", "2025-05-01T00:00:00", "06/01/2025",
+    ]
+    data["Submission_Date"] = [
+        "2025-01-10", "02/20/2025", "2025-03-10",
+        "April 10, 2025", "2025-05-10T00:00:00", "06/10/2025",
+    ]
+    data["Deadline_Date"] = ["2025-01-15"] * len(data)
+    result = validate_dataset(data)
+    assert result["invalid_months"] == 0
+    assert not any("could not be parsed as dates" in warning for warning in result["warnings"])
+    assessed = assess_dataset(data)
+    assert assessed["Month"].notna().all()
+    assert assessed.loc[1, "Calculated_Timeliness"] == "Late"
