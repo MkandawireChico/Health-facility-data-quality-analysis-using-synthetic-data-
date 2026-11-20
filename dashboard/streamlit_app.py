@@ -117,7 +117,7 @@ with st.sidebar:
     else:
         date_range = ()
     issue_types = [
-        "All records", "Requires follow-up", "Missing values", "Late reports",
+        "All records", "Requires follow-up", "Missing values", "Late reports", "Insufficient source data",
         "Source discrepancies", "Potential outliers", "Low completeness",
     ]
     issue_filter = st.selectbox("Record status", issue_types)
