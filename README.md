@@ -82,16 +82,45 @@ Full facility-by-facility, programme-by-programme, and monthly breakdowns are in
 
 ## Dashboard and Outputs
 
-The project provides two complementary dashboard experiences. The Power BI report is the primary multi-page report, while the Streamlit app offers an interactive browser-based companion for filtering facilities, programmes and reporting periods, inspecting quality dimensions, reviewing flagged records and downloading CSV worklists. Both use synthetic data only.\n\n**Streamlit app:** `dashboard/streamlit_app.py`\n\nRun locally:\n\n```bash\nstreamlit run dashboard/streamlit_app.py\n```\n\nThe app reads `data/processed/health_facility_data_processed.csv` when available and falls back to the raw synthetic CSV. It includes facility and programme filters, a reporting-period filter, quality issue filters, summary metrics, charts, a record-level worklist and CSV downloads.\n\nThe Power BI dashboard has been implemented and exported to the project dashboard folder:
+The project includes two complementary dashboard experiences:
+
+### Streamlit companion
+
+The browser-based Streamlit app provides facility, programme, reporting-period and issue filters; summary metrics; completeness and issue charts; a facility comparison table; a record-level follow-up worklist; and CSV downloads.
+
+Run locally from the repository root:
+
+```bash
+pip install -r requirements.txt
+streamlit run dashboard/streamlit_app.py
+```
+
+The app loads `data/processed/health_facility_data_processed.csv` when available and falls back to `data/raw/synthetic_health_facility_data.csv`. It is a portfolio demonstration using synthetic data only.
+
+### Power BI report
+
+The Power BI dashboard is implemented and included in the repository:
 
 - Power BI file: [dashboard/health_facility_data_quality_dashboard.pbix](dashboard/health_facility_data_quality_dashboard.pbix)
+- Dashboard documentation: [dashboard/powerbi_dashboard_documentation.md](dashboard/powerbi_dashboard_documentation.md)
 - Data Quality Overview: [dashboard/Data_Quality_Overview.png](dashboard/Data_Quality_Overview.png)
 - Facility Performance: [dashboard/Facility_Performance.png](dashboard/Facility_Performance.png)
 - Source Consistency: [dashboard/Source_Consistency.png](dashboard/Source_Consistency.png)
 - Programme Monitoring: [dashboard/Programme_Monitoring.png](dashboard/Programme_Monitoring.png)
-- Dashboard documentation: [dashboard/powerbi_dashboard_documentation.md](dashboard/powerbi_dashboard_documentation.md)
 
-The Python analysis and data preparation workflow remains available in the notebook: [notebooks/health_data_quality_analysis.ipynb](notebooks/health_data_quality_analysis.ipynb)\n\n### Power BI dashboard screenshots\n\nThese are the existing exported Power BI report pages (not screenshots of the new Streamlit app):\n\n![Data Quality Overview](dashboard/Data_Quality_Overview.png)\n\n![Facility Performance](dashboard/Facility_Performance.png)\n\n![Source Consistency](dashboard/Source_Consistency.png)\n\n![Programme Monitoring](dashboard/Programme_Monitoring.png)
+### Power BI report screenshots
+
+These are existing exports of the four Power BI report pages, not screenshots of the Streamlit app.
+
+![Data Quality Overview](dashboard/Data_Quality_Overview.png)
+
+![Facility Performance](dashboard/Facility_Performance.png)
+
+![Source Consistency](dashboard/Source_Consistency.png)
+
+![Programme Monitoring](dashboard/Programme_Monitoring.png)
+
+The Python analysis and data preparation workflow is available in [notebooks/health_data_quality_analysis.ipynb](notebooks/health_data_quality_analysis.ipynb).
 
 ## Decision-Making Use Case
 
@@ -130,17 +159,27 @@ health-facility-data-quality/
 
 ## How to Run
 
+Install dependencies and launch the Streamlit companion from the repository root:
+
+```bash
+pip install -r requirements.txt
+streamlit run dashboard/streamlit_app.py
+```
+
+To reproduce the analysis, launch Jupyter from the notebook directory so its relative data paths resolve correctly:
+
 ```bash
 git clone <this-repo>
 cd health-facility-data-quality
 pip install -r requirements.txt
+cd notebooks
+jupyter notebook health_data_quality_analysis.ipynb
+# Run all cells from top to bottom to regenerate the synthetic data,
+# calculate quality metrics and refresh the exported charts.
 
-jupyter notebook notebooks/health_data_quality_analysis.ipynb
-# Run all cells — this regenerates the synthetic dataset (fixed seed = identical output),
-# performs the full data-quality assessment, and writes data/processed/ and visuals/charts/
-
-# Run automated tests
-python tests/test_data_quality.py
+# Run the automated tests from the repository root:
+cd ..
+pytest -q
 ```
 
 ## Ethical Considerations
