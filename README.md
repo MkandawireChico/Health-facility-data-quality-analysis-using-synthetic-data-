@@ -44,15 +44,15 @@ No real patient-level information is included anywhere in this project.
 
 ## Tools Used
 
-Python (Pandas, NumPy, Matplotlib, Seaborn) · Jupyter Notebook · Power BI (implementation guide)
+Python (Pandas, NumPy, Matplotlib, Seaborn, Plotly, Streamlit) · Jupyter Notebook · Power BI
 
-Python was used for data generation, cleaning, validation, data-quality assessment, and visualisation. Power BI is the target tool for the final interactive dashboard (see [`dashboard/`](dashboard/)).
+Python is used for reproducible data generation, validation, assessment and visualisation. The repository includes the implemented Power BI report and a Streamlit companion for browser-based exploration (see [`dashboard/`](dashboard/)).
 
 ## Project Workflow
 
 ```
 Raw Synthetic Data → Data Inspection → Data Cleaning → Data Validation
-    → Data Quality Assessment → Exploratory Analysis → Key Findings → Power BI Dashboard
+    → Data Quality Assessment → Exploratory Analysis → Key Findings → Streamlit & Power BI Reporting
 ```
 
 ## Data Quality Dimensions
@@ -82,16 +82,45 @@ Full facility-by-facility, programme-by-programme, and monthly breakdowns are in
 
 ## Dashboard and Outputs
 
-The Power BI dashboard has been implemented and exported to the project dashboard folder:
+The project includes two complementary dashboard experiences:
+
+### Streamlit companion
+
+The browser-based Streamlit app provides facility, programme, reporting-period and issue filters; summary metrics; completeness and issue charts; a facility comparison table; a record-level follow-up worklist; and CSV downloads.
+
+Run locally from the repository root:
+
+```bash
+pip install -r requirements.txt
+streamlit run dashboard/streamlit_app.py
+```
+
+The app loads `data/processed/health_facility_data_processed.csv` when available and falls back to `data/raw/synthetic_health_facility_data.csv`. It is a portfolio demonstration using synthetic data only.
+
+### Power BI report
+
+The Power BI dashboard is implemented and included in the repository:
 
 - Power BI file: [dashboard/health_facility_data_quality_dashboard.pbix](dashboard/health_facility_data_quality_dashboard.pbix)
+- Dashboard documentation: [dashboard/powerbi_dashboard_documentation.md](dashboard/powerbi_dashboard_documentation.md)
 - Data Quality Overview: [dashboard/Data_Quality_Overview.png](dashboard/Data_Quality_Overview.png)
 - Facility Performance: [dashboard/Facility_Performance.png](dashboard/Facility_Performance.png)
 - Source Consistency: [dashboard/Source_Consistency.png](dashboard/Source_Consistency.png)
 - Programme Monitoring: [dashboard/Programme_Monitoring.png](dashboard/Programme_Monitoring.png)
-- Dashboard documentation: [dashboard/powerbi_dashboard_documentation.md](dashboard/powerbi_dashboard_documentation.md)
 
-The Python analysis and data preparation workflow remains available in the notebook: [notebooks/health_data_quality_analysis.ipynb](notebooks/health_data_quality_analysis.ipynb)
+### Power BI report screenshots
+
+These are existing exports of the four Power BI report pages, not screenshots of the Streamlit app.
+
+![Data Quality Overview](dashboard/Data_Quality_Overview.png)
+
+![Facility Performance](dashboard/Facility_Performance.png)
+
+![Source Consistency](dashboard/Source_Consistency.png)
+
+![Programme Monitoring](dashboard/Programme_Monitoring.png)
+
+The Python analysis and data preparation workflow is available in [notebooks/health_data_quality_analysis.ipynb](notebooks/health_data_quality_analysis.ipynb).
 
 ## Decision-Making Use Case
 
@@ -130,17 +159,27 @@ health-facility-data-quality/
 
 ## How to Run
 
+Install dependencies and launch the Streamlit companion from the repository root:
+
+```bash
+pip install -r requirements.txt
+streamlit run dashboard/streamlit_app.py
+```
+
+To reproduce the analysis, launch Jupyter from the notebook directory so its relative data paths resolve correctly:
+
 ```bash
 git clone <this-repo>
 cd health-facility-data-quality
 pip install -r requirements.txt
+cd notebooks
+jupyter notebook health_data_quality_analysis.ipynb
+# Run all cells from top to bottom to regenerate the synthetic data,
+# calculate quality metrics and refresh the exported charts.
 
-jupyter notebook notebooks/health_data_quality_analysis.ipynb
-# Run all cells — this regenerates the synthetic dataset (fixed seed = identical output),
-# performs the full data-quality assessment, and writes data/processed/ and visuals/charts/
-
-# Run automated tests
-python tests/test_data_quality.py
+# Run the automated tests from the repository root:
+cd ..
+pytest -q
 ```
 
 ## Ethical Considerations
@@ -153,10 +192,10 @@ Demonstrates skills relevant to: Data Technician · Data Analyst · Monitoring &
 
 ## Future Improvements
 
-- Rebuild the Power BI dashboard from the guide in `dashboard/` and add screenshots here
-- Replace the flat 10% consistency threshold with an indicator-relative or volume-scaled threshold, informed by Finding #2 above
-- Add a simple statistical control-chart approach (e.g. rolling mean ± 2 SD) as an alternative to the per-indicator IQR outlier rule, and compare which flags more sensibly
-- If real (properly anonymized/aggregated) reporting data ever becomes available for a similar workflow, validate whether the same data-quality patterns hold
+- Capture and add screenshots of the Streamlit app after running it locally and completing a visual QA pass
+- Add a statistical process-control approach (for example, rolling mean and control limits) and compare it with the current per-indicator IQR outlier rule
+- Extend the automated tests to cover the production data-quality module and end-to-end dataset generation
+- If properly anonymised and aggregated operational reporting data ever becomes available for a comparable workflow, assess whether the synthetic patterns generalise
 
 ## Author
 
