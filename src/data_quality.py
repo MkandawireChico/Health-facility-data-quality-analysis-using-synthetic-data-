@@ -271,6 +271,7 @@ class DataQualityAssessor:
         """
         conditions = [
             self.df["Reported_Value"].isna(),
+            self.df["Consistency_Flag"] == "Unknown Sources",
             self.df["Consistency_Flag"] == "Review Required",
             self.df.get("Calculated_Timeliness", self.df.get("Timeliness", pd.Series())) == "Late",
             self.df["Outlier_Flag"] == True,
@@ -279,6 +280,7 @@ class DataQualityAssessor:
         
         choices = [
             "Missing Data",
+            "Insufficient Source Data",
             "Source Discrepancy",
             "Late Reporting",
             "Potential Outlier",
