@@ -110,3 +110,14 @@ def test_duplicate_reporting_keys_are_reported_not_removed():
     result = validate_dataset(duplicated)
     assert result["duplicate_rows"] == 2
     assert result["row_count"] == len(data) + 1
+
+
+
+def test_insufficient_source_evidence_is_included_in_follow_up_register():
+    data = sample_data()
+    data.loc[0, ["Paper_Value", "DHIS2_Value"]] = np.nan
+    assessed = assess_dataset(data)
+    register = build_issue_register(assessed)
+    assert bool(register.loc[0, "Issue_Insufficient_Sources"])
+    assert register.loc[0, "Primary_Issue"] == "Insufficient Source Data"
+    assert bool(register.loc[0, "Requires_Follow_Up"])
