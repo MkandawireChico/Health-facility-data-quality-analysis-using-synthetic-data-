@@ -331,7 +331,12 @@ class DataQualityAssessor:
             Late_Rate=(timeliness_col, lambda x: (x == "Late").mean()),
             Source_Discrepancy_Rate=(
                 "Consistency_Flag",
-                lambda x: x.isin(["Review Required", "Inconsistent"]).mean(),
+                lambda x: (
+                    x[x.isin(["Consistent", "Review Required", "Inconsistent"])]
+                    .isin(["Review Required", "Inconsistent"]).mean()
+                    if x.isin(["Consistent", "Review Required", "Inconsistent"]).any()
+                    else 0.0
+                ),
             ),
             Missing_Rate=("Reported_Value", lambda x: x.isna().mean()),
             Outlier_Rate=("Outlier_Flag", "mean"),
