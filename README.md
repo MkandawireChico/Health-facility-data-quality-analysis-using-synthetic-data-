@@ -64,21 +64,16 @@ Raw Synthetic Data → Data Inspection → Data Cleaning → Data Validation
 
 ## Key Findings
 
-*(These describe what this specific synthetic dataset shows once generated and analysed — they demonstrate the type of insight the workflow produces, not real Rumphi District conditions. All figures are computed directly in `notebooks/health_data_quality_analysis.ipynb`.)*
+The following figures are calculated from the committed 960-row raw synthetic dataset using the current field-presence, timeliness, hybrid consistency and IQR rules. They describe this generated dataset only; they are not real Rumphi District or Ministry of Health results.
 
-1. **Overall completeness is 87.0%**, timely reporting is **80.8%**, and **537 of 960 records (56%)** carry at least one data-quality flag — a useful reminder that "mostly fine" summary statistics can still sit on top of a majority-flagged dataset once every dimension is checked, not just one.
+1. **Actual field completeness is 99.5%**, calculated from the presence of six required fields rather than the generator's simulated completeness score. Timely reporting is **80.8%** (776 of 960 records).
+2. **271 of 960 records (28.2%)** have at least one quality flag under the current rules. This is the distinct-record count; issue counts overlap. The individual counts are 28 missing reported values, 184 late reports, 64 source reviews and 14 IQR outliers.
+3. **Source consistency is 93.3%** (896 of 960 records) using the hybrid rule: for positive source minima, a review is raised only when the relative discrepancy exceeds 20% AND the absolute difference exceeds 5 units; when the minimum is zero, the absolute tolerance applies.
+4. **Timeliness varies across facilities.** Kachulu Health Centre has the lowest on-time rate (74.2%), followed by Rumphi Central Health Centre (77.5%); Katowo Health Centre has the highest (85.0%).
+5. **Calculated completeness is consistently high across facilities**, ranging from approximately 99.3% to 99.7%. Chiweta and Katowo are lowest; Rumphi Central and Nyika are highest. This illustrates why completeness should be calculated from actual required-field presence rather than a separate simulated score.
+6. **The rate-normalised facility risk index** ranks Kachulu highest (8.1/100), followed by Rumphi Central (6.7) and Chitimba (6.6). The score gives equal weight to completeness shortfall, late reporting, source reviews, missing values and outliers. It is a follow-up prioritisation aid, not a validated facility-performance or clinical score.
 
-2. **Source Discrepancy is the single largest issue category** — the notebook initially found that a simple 10% discrepancy threshold flagged a large majority of records as inconsistent due to natural random variation between the three independent sources. This was particularly problematic for low-volume indicators where small absolute differences resulted in large percentage swings. **The production rule flags a record when the relative difference exceeds 20% AND the absolute difference exceeds 5 units** (when the minimum source value is zero, the 5-unit absolute threshold is used). This dual threshold reduces false positives caused by small absolute differences on low-volume indicators. The 10% relative-only baseline remains available separately for comparison. This is documented as a specific caveat in [`dashboard/powerbi_dashboard_documentation.md`](dashboard/powerbi_dashboard_documentation.md) (Section 6).
-
-3. **Kachulu and Rumphi Central Health Centres have the lowest reporting timeliness** (74.2% and 77.5% on-time respectively), while Katowo Health Centre is most timely (85.0%).
-
-4. **Katowo and Bolero Health Centres have the lowest average completeness** (84.7% and 85.3%), while Rumphi Central is highest (88.6%) — notably the facility with the *worst* timeliness has the *best* completeness, showing these two dimensions don't necessarily move together and both need tracking independently.
-
-5. **Chiweta Health Centre has the most source-discrepancy records** (53), followed by Bolero (50) and Kachulu (49) — Katowo has the fewest (33).
-
-6. **Facility risk scores are calculated using rate-based metrics** (normalized by reporting volume) rather than raw counts. This ensures fair comparison between facilities with different reporting volumes. The risk score (0-100 scale) combines five dimensions: missing rate, inconsistency rate, late rate, outlier rate, and completeness. This approach prevents high-volume facilities from being unfairly penalized simply because they report more data.
-
-Full facility-by-facility, programme-by-programme, and monthly breakdowns are in the notebook itself.
+The notebook reproduces these calculations and provides the detailed facility, programme and monthly breakdowns.
 
 ## Dashboard and Outputs
 
