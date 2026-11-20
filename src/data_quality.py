@@ -263,8 +263,8 @@ class DataQualityAssessor:
         """
         Assign a primary issue label to each record based on priority.
         
-        Priority order: Missing Data > Source Discrepancy > Late Reporting >
-        Potential Outlier > Low Completeness > No Major Issue
+        Priority order: Missing Data > Insufficient Source Data > Source Discrepancy >
+        Late Reporting > Potential Outlier > Low Completeness > No Major Issue
         
         Returns:
             DataFrame with Primary_Issue field
