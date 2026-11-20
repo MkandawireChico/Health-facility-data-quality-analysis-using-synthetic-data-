@@ -172,16 +172,23 @@ class DataQualityAssessor:
             np.nan
         )
         
+        source_count = self.df[source_columns].notna().sum(axis=1)
+        insufficient_sources = source_count < 2
+
         self.df["Consistency_Flag_Baseline"] = np.where(
-            self.df["Source_Discrepancy_Pct_Baseline"] > baseline_threshold,
-            "Review Required",
-            "Consistent"
+            insufficient_sources,
+            "Unknown Sources",
+            np.where(
+                self.df["Source_Discrepancy_Pct_Baseline"] > baseline_threshold,
+                "Review Required",
+                "Consistent"
+            )
         )
         
         # Improved rule: hybrid absolute + relative
         self.df["Consistency_Flag_Improved"] = np.where(
             # If all sources are missing, mark as unknown
-            (self.df["Paper_Value"].isna() & self.df["EMR_Value"].isna() & self.df["DHIS2_Value"].isna()),
+            insufficient_sources,
             "Unknown Sources",
             np.where(
                 # If minimum is zero, use absolute tolerance
@@ -222,32 +229,25 @@ class DataQualityAssessor:
         Returns:
             DataFrame with Outlier_Flag field
         """
-        def detect_outliers_group(group):
-            # Skip if too few observations
-            if len(group) < min_observations:
-                return pd.Series([False] * len(group), index=group.index)
-            
-            # Calculate IQR bounds
-            q1 = group["Reported_Value"].quantile(0.25)
-            q3 = group["Reported_Value"].quantile(0.75)
+        # Use an explicit group loop rather than groupby.apply. This keeps the
+        # result a one-dimensional Series across pandas versions (including 3.x).
+        outlier_flags = pd.Series(False, index=self.df.index, dtype=bool)
+        for _, group in self.df.groupby(groupby_cols, group_keys=False, dropna=False, sort=False):
+            values = pd.to_numeric(group["Reported_Value"], errors="coerce")
+            if values.notna().sum() < min_observations:
+                continue
+
+            q1 = values.quantile(0.25)
+            q3 = values.quantile(0.75)
             iqr = q3 - q1
-            
-            # Handle cases where IQR is zero or undefined
-            if iqr == 0 or pd.isna(iqr):
-                return pd.Series([False] * len(group), index=group.index)
-            
+            if pd.isna(iqr) or iqr == 0:
+                continue
+
             lower = q1 - iqr_multiplier * iqr
             upper = q3 + iqr_multiplier * iqr
-            
-            # Flag outliers
-            is_outlier = (group["Reported_Value"] < lower) | (group["Reported_Value"] > upper)
-            return is_outlier
-        
-        # Apply IQR detection within each group
-        outlier_flags = self.df.groupby(groupby_cols, group_keys=False).apply(
-            lambda x: detect_outliers_group(x)
-        )
-        
+            group_flags = ((values < lower) | (values > upper)).fillna(False)
+            outlier_flags.loc[group.index] = group_flags.astype(bool)
+
         self.df["Outlier_Flag"] = outlier_flags
         
         return self.df
@@ -256,14 +256,15 @@ class DataQualityAssessor:
         """
         Assign a primary issue label to each record based on priority.
         
-        Priority order: Missing Data > Source Discrepancy > Late Reporting >
-        Potential Outlier > Low Completeness > No Major Issue
+        Priority order: Missing Data > Insufficient Source Data > Source Discrepancy >
+        Late Reporting > Potential Outlier > Low Completeness > No Major Issue
         
         Returns:
             DataFrame with Primary_Issue field
         """
         conditions = [
             self.df["Reported_Value"].isna(),
+            self.df["Consistency_Flag"] == "Unknown Sources",
             self.df["Consistency_Flag"] == "Review Required",
             self.df.get("Calculated_Timeliness", self.df.get("Timeliness", pd.Series())) == "Late",
             self.df["Outlier_Flag"] == True,
@@ -272,6 +273,7 @@ class DataQualityAssessor:
         
         choices = [
             "Missing Data",
+            "Insufficient Source Data",
             "Source Discrepancy",
             "Late Reporting",
             "Potential Outlier",
@@ -324,7 +326,12 @@ class DataQualityAssessor:
             Late_Rate=(timeliness_col, lambda x: (x == "Late").mean()),
             Source_Discrepancy_Rate=(
                 "Consistency_Flag",
-                lambda x: x.isin(["Review Required", "Inconsistent"]).mean(),
+                lambda x: (
+                    x[x.isin(["Consistent", "Review Required", "Inconsistent"])]
+                    .isin(["Review Required", "Inconsistent"]).mean()
+                    if x.isin(["Consistent", "Review Required", "Inconsistent"]).any()
+                    else 0.0
+                ),
             ),
             Missing_Rate=("Reported_Value", lambda x: x.isna().mean()),
             Outlier_Rate=("Outlier_Flag", "mean"),

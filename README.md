@@ -79,9 +79,16 @@ The notebook reproduces these calculations and provides the detailed facility, p
 
 The project includes two complementary dashboard experiences:
 
+[![Open the live Streamlit workspace](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://health-facility-data-quality-analysis.streamlit.app/)
+
+**Live application:** [Health Facility Data Quality Workspace](https://health-facility-data-quality-analysis.streamlit.app/)
+
 ### Streamlit companion
 
-The browser-based Streamlit app provides facility, programme, reporting-period and issue filters; summary metrics; completeness and issue charts; a facility comparison table; a record-level follow-up worklist; and CSV downloads.
+- [CSV data dictionary and upload contract](docs/data_dictionary.md)
+- [Operational workflow, quality rules and production-readiness gaps](docs/operational_workflow.md)
+
+The deployed Streamlit workspace supports bundled demonstration data, a downloadable CSV upload template and user-uploaded CSV assessment with schema/value intake checks, facility and programme filters, reporting-period filtering, executive quality metrics, volume-normalised facility risk prioritisation, programme/indicator monitoring, three-source reconciliation, a multi-issue record register, corrective-action ownership/status/notes, and CSV exports. Action assignments are session-scoped and can be preserved by downloading the register; persistent multi-user storage is not configured.
 
 Run locally from the repository root:
 
@@ -90,7 +97,7 @@ pip install -r requirements.txt
 streamlit run dashboard/streamlit_app.py
 ```
 
-The app prefers `data/raw/synthetic_health_facility_data.csv` and falls back to the processed export only if the raw file is unavailable. It recalculates completeness from actual field presence and applies the current timeliness, hybrid source-consistency and IQR outlier rules through the shared `DataQualityAssessor` module, so stale processed flags and simulated completeness scores do not silently drive the dashboard. The source-reconciliation tab labels the 10% relative-only measure as a diagnostic baseline; the production review flag uses the documented hybrid threshold. It is a portfolio demonstration using synthetic data only.
+The app prefers `data/raw/synthetic_health_facility_data.csv` and falls back to the processed export only if the raw file is unavailable. Uploaded CSVs must include Facility, Programme, Indicator, Month, Reported_Value, Target_Value, Data_Source, Paper_Value, EMR_Value and DHIS2_Value. The shared `src/reporting.py` pipeline validates the intake, normalises numeric/date fields, recalculates completeness from field presence, applies the hybrid source-consistency and IQR outlier rules, and builds facility and issue summaries. If both `Submission_Date` and `Deadline_Date` are supplied, timeliness is calculated from those actual dates; otherwise the bundled synthetic `Timeliness` field is used. Records with fewer than two available source values are marked `Unknown Sources`, not silently counted as consistent. The source-reconciliation tab explains the production hybrid threshold and its limitations. The risk index is a transparent prioritisation aid, not a validated facility-performance score. This is a synthetic-data portfolio implementation, not a production health-information system.
 
 #### Deploy on Streamlit Community Cloud
 
@@ -100,7 +107,7 @@ The app prefers `data/raw/synthetic_health_facility_data.csv` and falls back to 
 4. Deploy. Streamlit installs packages from the repository `requirements.txt`.
 5. If deployment reports a missing file or dependency, use the app's **Manage app** logs to identify and resolve the issue before sharing the URL.
 
-The repository includes a Streamlit `AppTest` smoke test in CI. A successful automated test verifies that the app renders without a runtime exception; it is not a substitute for a visual browser review of the deployed app.
+The repository includes automated tests for the reporting intake pipeline and a Streamlit `AppTest` smoke test in CI. These verify core logic and that the app renders without a runtime exception; they are not a substitute for a visual browser review of the deployed app.
 
 ### Power BI report
 
@@ -142,6 +149,9 @@ health-facility-data-quality/
 │       └── health_facility_data_processed.csv       # Cleaned + all quality flags added
 ├── notebooks/
 │   └── health_data_quality_analysis.ipynb           # Full reproducible analysis workflow
+├── docs/
+│   ├── data_dictionary.md                           # CSV schema and validation contract
+│   └── operational_workflow.md                      # Assessment rules and governance notes
 ├── dashboard/
 │   ├── health_facility_data_quality_dashboard.pbix  # Finished Power BI dashboard
 │   ├── streamlit_app.py                             # Interactive Streamlit companion
@@ -151,10 +161,12 @@ health-facility-data-quality/
 │   ├── Source_Consistency.png                        # Dashboard page export
 │   └── powerbi_dashboard_documentation.md           # Implementation and design guide
 ├── src/
+│   ├── reporting.py                                  # CSV intake and reusable reporting workflow
 │   ├── data_generator.py                             # Synthetic data generation module
 │   └── data_quality.py                              # Data quality assessment functions
 ├── tests/
 │   ├── test_data_quality.py                          # Automated tests for data quality rules
+│   ├── test_reporting.py                              # Intake and assessment pipeline tests
 │   └── test_streamlit_app.py                          # Streamlit rendering smoke test
 ├── visuals/
 │   └── charts/                                       # Chart exports from the notebook
@@ -164,7 +176,7 @@ health-facility-data-quality/
 └── README.md
 ```
 
-**What belongs where:** `data/` holds only the dataset and its two states (raw synthetic, processed); `notebooks/` is the analysis itself, meant to be read top-to-bottom; `dashboard/` contains the implemented Power BI report, its exported pages, supporting documentation, and Streamlit companion app; `src/` contains modular Python code for data generation and quality assessment; `tests/` contains automated tests for data quality rules; `visuals/charts/` holds static exports for embedding in documentation.
+**What belongs where:** `data/` holds the raw synthetic and processed datasets; `notebooks/` contains the reproducible analysis; `docs/` defines the upload contract and operational workflow; `dashboard/` contains the Power BI report, exports and Streamlit workspace; `src/` contains reusable data generation, assessment and reporting logic; `tests/` covers quality rules, intake/assessment behaviour and app rendering; `visuals/charts/` holds notebook chart exports.
 
 ## How to Run
 
