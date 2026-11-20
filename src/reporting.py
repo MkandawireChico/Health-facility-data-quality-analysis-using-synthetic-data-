@@ -78,7 +78,10 @@ def assess_dataset(df: pd.DataFrame) -> pd.DataFrame:
 
     assessor = DataQualityAssessor(work)
     assessor.calculate_field_completeness()
-    assessor.calculate_timeliness_from_dates()
+    if {"Submission_Date", "Deadline_Date"}.issubset(work.columns):
+        assessor.calculate_timeliness_from_dates("Submission_Date", "Deadline_Date")
+    else:
+        assessor.calculate_timeliness_from_dates()
     assessor.assess_source_consistency(
         baseline_threshold=0.10,
         improved_threshold=0.20,
