@@ -42,7 +42,8 @@ except Exception as exc:
     st.error(f"Unable to load project data: {exc}")
     st.stop()
 
-required = {"Facility", "Programme", "Indicator", "Reported_Value", "Target_Value"}
+required = {"Facility", "Programme", "Indicator", "Reported_Value", "Target_Value", "Month", "Data_Source",
+    "Paper_Value", "EMR_Value", "DHIS2_Value"}
 missing = required.difference(df.columns)
 if missing:
     st.error(f"The selected dataset is missing required columns: {', '.join(sorted(missing))}")
@@ -64,7 +65,7 @@ df = assessor.assess_source_consistency(
 )
 df = assessor.detect_outliers_iqr(groupby_cols=["Indicator"])
 df = assessor.assign_primary_issue()
-df["Source_Discrepancy_Pct"] = df["Source_Discrepancy_Pct_Baseline"]
+
 
 st.sidebar.title("Health Data Quality")
 st.sidebar.caption("Rumphi District • Synthetic portfolio dataset")
@@ -151,10 +152,10 @@ with tab3:
     if {"Paper_Value","EMR_Value","DHIS2_Value"}.issubset(filtered.columns):
         source_long=filtered.melt(id_vars=["Facility","Programme"],value_vars=["Paper_Value","EMR_Value","DHIS2_Value"],var_name="Source",value_name="Reported value")
         st.plotly_chart(px.box(source_long,x="Source",y="Reported value",color="Source",title="Distribution of values across reporting sources"),use_container_width=True)
-    if "Source_Discrepancy_Pct" in filtered:
-        discrepancy=filtered.groupby("Facility",as_index=False)["Source_Discrepancy_Pct"].mean().sort_values("Source_Discrepancy_Pct",ascending=False)
-        st.plotly_chart(px.bar(discrepancy,x="Source_Discrepancy_Pct",y="Facility",orientation="h",title="Average source discrepancy by facility",labels={"Source_Discrepancy_Pct":"Mean relative discrepancy"}),use_container_width=True)
-    st.info("Consistency flags depend on the documented rule and thresholds. Review low-volume indicators and source context before treating a discrepancy as an error.")
+    if "Source_Discrepancy_Pct_Baseline" in filtered:
+        discrepancy=filtered.groupby("Facility",as_index=False)["Source_Discrepancy_Pct_Baseline"].mean().sort_values("Source_Discrepancy_Pct_Baseline",ascending=False)
+        st.plotly_chart(px.bar(discrepancy,x="Source_Discrepancy_Pct_Baseline",y="Facility",orientation="h",title="Baseline relative discrepancy by facility (10% diagnostic)",labels={"Source_Discrepancy_Pct_Baseline":"Mean baseline relative discrepancy"}),use_container_width=True)
+    st.info("The production review flag uses the hybrid rule: relative discrepancy above 20% AND absolute discrepancy above 5 units for positive source minima; when the minimum is zero, the 5-unit absolute tolerance applies. The 10% relative-only baseline above is diagnostic only. Review low-volume indicators and source context before treating a discrepancy as an error.")
 with tab4:
     columns=[c for c in ["Facility","Month","Programme","Indicator","Reported_Value","Target_Value","Data_Source","Consistency_Flag","Calculated_Timeliness","Outlier_Flag","Primary_Issue"] if c in filtered.columns]
     worklist=filtered.loc[issue_mask,columns].sort_values(["Facility","Month"],na_position="last")
