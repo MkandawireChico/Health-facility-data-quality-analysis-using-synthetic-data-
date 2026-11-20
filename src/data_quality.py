@@ -172,16 +172,23 @@ class DataQualityAssessor:
             np.nan
         )
         
+        source_count = self.df[source_columns].notna().sum(axis=1)
+        insufficient_sources = source_count < 2
+
         self.df["Consistency_Flag_Baseline"] = np.where(
-            self.df["Source_Discrepancy_Pct_Baseline"] > baseline_threshold,
-            "Review Required",
-            "Consistent"
+            insufficient_sources,
+            "Unknown Sources",
+            np.where(
+                self.df["Source_Discrepancy_Pct_Baseline"] > baseline_threshold,
+                "Review Required",
+                "Consistent"
+            )
         )
         
         # Improved rule: hybrid absolute + relative
         self.df["Consistency_Flag_Improved"] = np.where(
             # If all sources are missing, mark as unknown
-            (self.df["Paper_Value"].isna() & self.df["EMR_Value"].isna() & self.df["DHIS2_Value"].isna()),
+            insufficient_sources,
             "Unknown Sources",
             np.where(
                 # If minimum is zero, use absolute tolerance
