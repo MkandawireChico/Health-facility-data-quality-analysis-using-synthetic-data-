@@ -139,6 +139,7 @@ health-facility-data-quality/
 │   └── health_data_quality_analysis.ipynb           # Full workflow, executed with real outputs
 ├── dashboard/
 │   ├── health_facility_data_quality_dashboard.pbix  # Finished Power BI dashboard
+│   ├── streamlit_app.py                             # Interactive Streamlit companion
 │   ├── Data_Quality_Overview.png                     # Dashboard page export
 │   ├── Facility_Performance.png                      # Dashboard page export
 │   ├── Programme_Monitoring.png                      # Dashboard page export
@@ -151,11 +152,13 @@ health-facility-data-quality/
 │   └── test_data_quality.py                          # Automated tests for data quality rules
 ├── visuals/
 │   └── charts/                                       # Chart exports from the notebook
+├── .github/workflows/quality-checks.yml             # Automated CI checks
+├── .streamlit/config.toml                            # Accessible light theme
 ├── requirements.txt
 └── README.md
 ```
 
-**What belongs where:** `data/` holds only the dataset and its two states (raw synthetic, processed); `notebooks/` is the analysis itself, meant to be read top-to-bottom; `dashboard/` contains the implemented Power BI report, its exported pages, and the supporting documentation; `src/` contains modular Python code for data generation and quality assessment; `tests/` contains automated tests for data quality rules; `visuals/charts/` holds static exports for embedding in documentation.
+**What belongs where:** `data/` holds only the dataset and its two states (raw synthetic, processed); `notebooks/` is the analysis itself, meant to be read top-to-bottom; `dashboard/` contains the implemented Power BI report, its exported pages, supporting documentation, and Streamlit companion app; `src/` contains modular Python code for data generation and quality assessment; `tests/` contains automated tests for data quality rules; `visuals/charts/` holds static exports for embedding in documentation.
 
 ## How to Run
 
