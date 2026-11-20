@@ -101,3 +101,12 @@ def test_facility_consistency_rate_excludes_unknown_source_records():
     known = facility_a["Consistency_Flag"].isin(["Consistent", "Review Required", "Inconsistent"])
     expected = facility_a.loc[known, "Consistency_Flag"].eq("Consistent").mean()
     assert summary.loc["A", "Consistency_Rate"] == expected
+
+
+
+def test_duplicate_reporting_keys_are_reported_not_removed():
+    data = sample_data()
+    duplicated = pd.concat([data, data.iloc[[0]]], ignore_index=True)
+    result = validate_dataset(duplicated)
+    assert result["duplicate_rows"] == 2
+    assert result["row_count"] == len(data) + 1
