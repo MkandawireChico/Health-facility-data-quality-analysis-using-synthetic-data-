@@ -52,7 +52,7 @@ Python is used for reproducible data generation, validation, assessment and visu
 
 ```
 Raw Synthetic Data → Data Inspection → Data Cleaning → Data Validation
-    → Data Quality Assessment → Exploratory Analysis → Key Findings → Power BI Dashboard
+    → Data Quality Assessment → Exploratory Analysis → Key Findings → Streamlit & Power BI Reporting
 ```
 
 ## Data Quality Dimensions
@@ -192,10 +192,10 @@ Demonstrates skills relevant to: Data Technician · Data Analyst · Monitoring &
 
 ## Future Improvements
 
-- Rebuild the Power BI dashboard from the guide in `dashboard/` and add screenshots here
-- Replace the flat 10% consistency threshold with an indicator-relative or volume-scaled threshold, informed by Finding #2 above
-- Add a simple statistical control-chart approach (e.g. rolling mean ± 2 SD) as an alternative to the per-indicator IQR outlier rule, and compare which flags more sensibly
-- If real (properly anonymized/aggregated) reporting data ever becomes available for a similar workflow, validate whether the same data-quality patterns hold
+- Capture and add screenshots of the Streamlit app after running it locally and completing a visual QA pass
+- Add a statistical process-control approach (for example, rolling mean and control limits) and compare it with the current per-indicator IQR outlier rule
+- Extend the automated tests to cover the production data-quality module and end-to-end dataset generation
+- If properly anonymised and aggregated operational reporting data ever becomes available for a comparable workflow, assess whether the synthetic patterns generalise
 
 ## Author
 
