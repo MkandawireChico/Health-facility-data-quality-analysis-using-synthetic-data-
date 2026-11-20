@@ -352,6 +352,14 @@ with tabs[4]:
 with tabs[5]:
     st.subheader("Data intake and quality assurance")
     st.write("These checks describe structural and value issues found in the selected source file.")
+    template_columns = REQUIRED_COLUMNS + ["Submission_Date", "Deadline_Date"]
+    template = pd.DataFrame(columns=template_columns)
+    st.download_button(
+        "Download CSV upload template",
+        data=template.to_csv(index=False).encode("utf-8"),
+        file_name="health_facility_reporting_template.csv",
+        mime="text/csv",
+    )
     q1, q2, q3, q4 = st.columns(4)
     q1.metric("Rows loaded", f"{validation['row_count']:,}")
     q2.metric("Duplicate key rows", f"{validation['duplicate_rows']:,}")
