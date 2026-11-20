@@ -103,7 +103,7 @@ def facility_summary(assessed: pd.DataFrame) -> pd.DataFrame:
     grouped = assessed.groupby("Facility")["Consistency_Flag"]
     known = grouped.apply(lambda values: values.isin(["Consistent", "Review Required", "Inconsistent"]).sum())
     consistent = grouped.apply(lambda values: values.eq("Consistent").sum())
-    risk["Consistency_Rate"] = consistent.div(known.replace(0, float("nan")))
+    consistency_rate = consistent.div(known.replace(0, float("nan")))\n    risk["Consistency_Rate"] = risk["Facility"].map(consistency_rate)
     return risk.sort_values("Risk_Score", ascending=False)
 
 
