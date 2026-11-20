@@ -166,19 +166,17 @@ pip install -r requirements.txt
 streamlit run dashboard/streamlit_app.py
 ```
 
-To reproduce the analysis, launch Jupyter from the notebook directory so its relative data paths resolve correctly:
+To reproduce the analysis, launch Jupyter from the repository root. The notebook resolves the project paths automatically whether it is opened from the root or the `notebooks/` directory:
 
 ```bash
-git clone <this-repo>
-cd health-facility-data-quality
+git clone https://github.com/MkandawireChico/Health-facility-data-quality-analysis-using-synthetic-data-.git
+cd Health-facility-data-quality-analysis-using-synthetic-data-
 pip install -r requirements.txt
-cd notebooks
-jupyter notebook health_data_quality_analysis.ipynb
+jupyter notebook notebooks/health_data_quality_analysis.ipynb
 # Run all cells from top to bottom to regenerate the synthetic data,
 # calculate quality metrics and refresh the exported charts.
 
 # Run the automated tests from the repository root:
-cd ..
 pytest -q
 ```
 
