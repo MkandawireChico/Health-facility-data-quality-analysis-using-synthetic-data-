@@ -58,7 +58,7 @@ Raw Synthetic Data → Data Inspection → Data Cleaning → Data Validation
 ## Data Quality Dimensions
 
 - **Completeness** — are required fields/records available? (`Calculated_Completeness`, calculated from actual field presence)
-- **Consistency** — do the three reporting sources agree? (`Consistency_Flag`, using 20% relative + 5 absolute threshold)
+- **Consistency** — do the three reporting sources agree? (`Consistency_Flag`, using a 20% relative difference AND a 5-unit absolute difference threshold)
 - **Timeliness** — was reporting completed on time? (`Calculated_Timeliness`, based on reporting dates vs. due dates)
 - **Validity** — do reported values fall within a reasonable range? (`Outlier_Flag`, using IQR method grouped by indicator)
 
@@ -68,7 +68,7 @@ Raw Synthetic Data → Data Inspection → Data Cleaning → Data Validation
 
 1. **Overall completeness is 87.0%**, timely reporting is **80.8%**, and **537 of 960 records (56%)** carry at least one data-quality flag — a useful reminder that "mostly fine" summary statistics can still sit on top of a majority-flagged dataset once every dimension is checked, not just one.
 
-2. **Source Discrepancy is the single largest issue category** — the notebook initially found that a simple 10% discrepancy threshold flagged a large majority of records as inconsistent due to natural random variation between the three independent sources. This was particularly problematic for low-volume indicators where small absolute differences resulted in large percentage swings. **The improved implementation uses a more realistic threshold: 20% relative difference OR 5 absolute count difference.** This dual threshold approach reduces false positives for both high-volume and low-volume indicators, better reflecting operational M&E practice. This is documented as a specific caveat in [`dashboard/powerbi_dashboard_documentation.md`](dashboard/powerbi_dashboard_documentation.md) (Section 6).
+2. **Source Discrepancy is the single largest issue category** — the notebook initially found that a simple 10% discrepancy threshold flagged a large majority of records as inconsistent due to natural random variation between the three independent sources. This was particularly problematic for low-volume indicators where small absolute differences resulted in large percentage swings. **The production rule flags a record when the relative difference exceeds 20% AND the absolute difference exceeds 5 units** (when the minimum source value is zero, the 5-unit absolute threshold is used). This dual threshold reduces false positives caused by small absolute differences on low-volume indicators. The 10% relative-only baseline remains available separately for comparison. This is documented as a specific caveat in [`dashboard/powerbi_dashboard_documentation.md`](dashboard/powerbi_dashboard_documentation.md) (Section 6).
 
 3. **Kachulu and Rumphi Central Health Centres have the lowest reporting timeliness** (74.2% and 77.5% on-time respectively), while Katowo Health Centre is most timely (85.0%).
 
