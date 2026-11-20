@@ -26,7 +26,8 @@ def sample_data():
 
 def test_validate_dataset_reports_missing_columns_and_bad_values():
     data = sample_data()
-    data["Month"] = data["Month"].astype(object)\n    data.loc[0, "Month"] = "not-a-date"
+    data["Month"] = data["Month"].astype(object)
+    data.loc[0, "Month"] = "not-a-date"
     data.loc[1, "Reported_Value"] = "not-numeric"
     data.loc[2, "Target_Value"] = -2
     data.loc[3, "Facility"] = ""
