@@ -229,3 +229,32 @@ def test_production_consistency_rule_uses_hybrid_threshold():
     assert assessed["Consistency_Flag_Baseline"].tolist() == [
         "Consistent", "Review Required", "Review Required"
     ]
+
+
+def test_production_facility_risk_is_normalized_by_reporting_volume():
+    """Facilities with equal issue rates receive equal risk scores despite volume."""
+    from pathlib import Path
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+    from data_quality import DataQualityAssessor
+
+    rows = []
+    for facility, repeats in [("Small", 1), ("Large", 2)]:
+        pattern = [
+            (0.5, "Late", "Review Required", np.nan, True),
+            (1.0, "On Time", "Consistent", 100.0, False),
+        ]
+        for completeness, timeliness, consistency, value, outlier in pattern * repeats:
+            rows.append({
+                "Facility": facility,
+                "Calculated_Completeness": completeness,
+                "Calculated_Timeliness": timeliness,
+                "Consistency_Flag": consistency,
+                "Reported_Value": value,
+                "Outlier_Flag": outlier,
+            })
+
+    scores = DataQualityAssessor(pd.DataFrame(rows)).calculate_facility_risk()
+    assert scores.loc["Small", "Risk_Score"] == pytest.approx(scores.loc["Large", "Risk_Score"])
+    assert 0 <= scores["Risk_Score"].max() <= 100
