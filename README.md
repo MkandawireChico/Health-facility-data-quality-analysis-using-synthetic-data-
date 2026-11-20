@@ -79,6 +79,10 @@ The notebook reproduces these calculations and provides the detailed facility, p
 
 The project includes two complementary dashboard experiences:
 
+[![Open the live Streamlit workspace](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://health-facility-data-quality-analysis.streamlit.app/)
+
+**Live application:** [Health Facility Data Quality Workspace](https://health-facility-data-quality-analysis.streamlit.app/)
+
 ### Streamlit companion
 
 The deployed Streamlit workspace supports bundled demonstration data and user-uploaded CSV assessment, schema/value intake checks, facility and programme filters, reporting-period filtering, executive quality metrics, volume-normalised facility risk prioritisation, programme/indicator monitoring, three-source reconciliation, a multi-issue record register, corrective-action ownership/status/notes, and CSV exports. Action assignments are session-scoped and can be preserved by downloading the register; persistent multi-user storage is not configured.
