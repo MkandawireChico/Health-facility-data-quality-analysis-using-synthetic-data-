@@ -95,7 +95,7 @@ pip install -r requirements.txt
 streamlit run dashboard/streamlit_app.py
 ```
 
-The app loads `data/processed/health_facility_data_processed.csv` when available and falls back to `data/raw/synthetic_health_facility_data.csv`. It is a portfolio demonstration using synthetic data only.
+The app prefers `data/raw/synthetic_health_facility_data.csv` and falls back to the processed export only if the raw file is unavailable. It recalculates completeness from actual field presence and applies the current timeliness, hybrid source-consistency and IQR outlier rules through the shared `DataQualityAssessor` module, so stale processed flags and simulated completeness scores do not silently drive the dashboard. It is a portfolio demonstration using synthetic data only.
 
 ### Power BI report
 
