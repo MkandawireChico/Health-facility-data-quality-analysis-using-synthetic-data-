@@ -131,7 +131,7 @@ health-facility-data-quality/
 │   └── processed/
 │       └── health_facility_data_processed.csv       # Cleaned + all quality flags added
 ├── notebooks/
-│   └── health_data_quality_analysis.ipynb           # Full workflow, executed with real outputs
+│   └── health_data_quality_analysis.ipynb           # Full reproducible analysis workflow
 ├── dashboard/
 │   ├── health_facility_data_quality_dashboard.pbix  # Finished Power BI dashboard
 │   ├── streamlit_app.py                             # Interactive Streamlit companion
@@ -144,7 +144,8 @@ health-facility-data-quality/
 │   ├── data_generator.py                             # Synthetic data generation module
 │   └── data_quality.py                              # Data quality assessment functions
 ├── tests/
-│   └── test_data_quality.py                          # Automated tests for data quality rules
+│   ├── test_data_quality.py                          # Automated tests for data quality rules
+│   └── test_streamlit_app.py                          # Streamlit rendering smoke test
 ├── visuals/
 │   └── charts/                                       # Chart exports from the notebook
 ├── .github/workflows/quality-checks.yml             # Automated CI checks
