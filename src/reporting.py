@@ -113,11 +113,13 @@ def build_issue_register(assessed: pd.DataFrame) -> pd.DataFrame:
     work = assessed.copy()
     work["Issue_Missing_Value"] = work["Reported_Value"].isna()
     work["Issue_Late_Report"] = work["Calculated_Timeliness"].eq("Late")
+    source_columns = ["Paper_Value", "EMR_Value", "DHIS2_Value"]
+    work["Issue_Insufficient_Sources"] = work[source_columns].notna().sum(axis=1).lt(2)
     work["Issue_Source_Discrepancy"] = work["Consistency_Flag"].eq("Review Required")
     work["Issue_Potential_Outlier"] = work["Outlier_Flag"].fillna(False).astype(bool)
     work["Issue_Low_Completeness"] = work["Calculated_Completeness"].lt(0.80)
     flag_columns = [
-        "Issue_Missing_Value", "Issue_Late_Report", "Issue_Source_Discrepancy",
+        "Issue_Missing_Value", "Issue_Late_Report", "Issue_Insufficient_Sources", "Issue_Source_Discrepancy",
         "Issue_Potential_Outlier", "Issue_Low_Completeness",
     ]
     work["Issue_Count"] = work[flag_columns].sum(axis=1)
