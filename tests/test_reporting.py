@@ -121,3 +121,19 @@ def test_insufficient_source_evidence_is_included_in_follow_up_register():
     assert bool(register.loc[0, "Issue_Insufficient_Sources"])
     assert register.loc[0, "Primary_Issue"] == "Insufficient Source Data"
     assert bool(register.loc[0, "Requires_Follow_Up"])
+
+
+
+def test_validation_warns_when_only_one_timeliness_date_column_is_supplied():
+    data = sample_data()
+    data["Submission_Date"] = pd.Timestamp("2025-01-10")
+    result = validate_dataset(data)
+    assert any("should be supplied together" in warning for warning in result["warnings"])
+
+
+def test_validation_warns_for_unparseable_optional_dates():
+    data = sample_data()
+    data["Submission_Date"] = ["bad-date"] * len(data)
+    data["Deadline_Date"] = pd.to_datetime(["2025-01-15"] * len(data))
+    result = validate_dataset(data)
+    assert any("Submission_Date" in warning for warning in result["warnings"])
