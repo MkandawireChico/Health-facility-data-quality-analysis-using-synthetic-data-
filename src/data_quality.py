@@ -200,8 +200,9 @@ class DataQualityAssessor:
             )
         )
         
-        # Keep the baseline flag as the primary for backward compatibility
-        self.df["Consistency_Flag"] = self.df["Consistency_Flag_Baseline"]
+        # Use the volume-aware hybrid rule as the production flag.
+        # Preserve the 10% baseline in its separate diagnostic column for comparison.
+        self.df["Consistency_Flag"] = self.df["Consistency_Flag_Improved"]
         
         return self.df
     
