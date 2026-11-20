@@ -81,7 +81,7 @@ The project includes two complementary dashboard experiences:
 
 ### Streamlit companion
 
-The browser-based Streamlit app provides facility, programme, reporting-period and issue filters; summary metrics; completeness and issue charts; a facility comparison table; a record-level follow-up worklist; and CSV downloads.
+The deployed Streamlit workspace supports bundled demonstration data and user-uploaded CSV assessment, schema/value intake checks, facility and programme filters, reporting-period filtering, executive quality metrics, volume-normalised facility risk prioritisation, programme/indicator monitoring, three-source reconciliation, a multi-issue record register, corrective-action ownership/status/notes, and CSV exports. Action assignments are session-scoped and can be preserved by downloading the register; persistent multi-user storage is not configured.
 
 Run locally from the repository root:
 
@@ -90,7 +90,7 @@ pip install -r requirements.txt
 streamlit run dashboard/streamlit_app.py
 ```
 
-The app prefers `data/raw/synthetic_health_facility_data.csv` and falls back to the processed export only if the raw file is unavailable. It recalculates completeness from actual field presence and applies the current timeliness, hybrid source-consistency and IQR outlier rules through the shared `DataQualityAssessor` module, so stale processed flags and simulated completeness scores do not silently drive the dashboard. The source-reconciliation tab labels the 10% relative-only measure as a diagnostic baseline; the production review flag uses the documented hybrid threshold. It is a portfolio demonstration using synthetic data only.
+The app prefers `data/raw/synthetic_health_facility_data.csv` and falls back to the processed export only if the raw file is unavailable. Uploaded CSVs must include Facility, Programme, Indicator, Month, Reported_Value, Target_Value, Data_Source, Paper_Value, EMR_Value and DHIS2_Value. The shared `src/reporting.py` pipeline validates the intake, normalises numeric/date fields, recalculates completeness from field presence, applies timeliness, hybrid source-consistency and IQR outlier rules, and builds facility and issue summaries. The source-reconciliation tab explains the production hybrid threshold and its limitations. The risk index is a transparent prioritisation aid, not a validated facility-performance score. This is a synthetic-data portfolio implementation, not a production health-information system.
 
 #### Deploy on Streamlit Community Cloud
 
@@ -100,7 +100,7 @@ The app prefers `data/raw/synthetic_health_facility_data.csv` and falls back to 
 4. Deploy. Streamlit installs packages from the repository `requirements.txt`.
 5. If deployment reports a missing file or dependency, use the app's **Manage app** logs to identify and resolve the issue before sharing the URL.
 
-The repository includes a Streamlit `AppTest` smoke test in CI. A successful automated test verifies that the app renders without a runtime exception; it is not a substitute for a visual browser review of the deployed app.
+The repository includes automated tests for the reporting intake pipeline and a Streamlit `AppTest` smoke test in CI. These verify core logic and that the app renders without a runtime exception; they are not a substitute for a visual browser review of the deployed app.
 
 ### Power BI report
 
