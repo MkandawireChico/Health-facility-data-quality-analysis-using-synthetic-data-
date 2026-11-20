@@ -47,7 +47,7 @@ class DataQualityAssessor:
         
         # Check date range
         if "Month" in self.df.columns:
-            self.df["Month"] = pd.to_datetime(self.df["Month"], errors="coerce")
+            self.df["Month"] = pd.to_datetime(self.df["Month"], format="mixed", errors="coerce")
             invalid_dates = self.df["Month"].isna().sum()
             date_range = (
                 self.df["Month"].min(),
@@ -114,8 +114,8 @@ class DataQualityAssessor:
         """
         if submission_date_col and deadline_col:
             if submission_date_col in self.df.columns and deadline_col in self.df.columns:
-                self.df[submission_date_col] = pd.to_datetime(self.df[submission_date_col], errors="coerce")
-                self.df[deadline_col] = pd.to_datetime(self.df[deadline_col], errors="coerce")
+                self.df[submission_date_col] = pd.to_datetime(self.df[submission_date_col], format="mixed", errors="coerce")
+                self.df[deadline_col] = pd.to_datetime(self.df[deadline_col], format="mixed", errors="coerce")
                 
                 # On time if submission <= deadline (submission on deadline counts as on time)
                 self.df["Calculated_Timeliness"] = np.where(
