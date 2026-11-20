@@ -88,7 +88,7 @@ The project includes two complementary dashboard experiences:
 - [CSV data dictionary and upload contract](docs/data_dictionary.md)
 - [Operational workflow, quality rules and production-readiness gaps](docs/operational_workflow.md)
 
-The deployed Streamlit workspace supports bundled demonstration data and user-uploaded CSV assessment, schema/value intake checks, facility and programme filters, reporting-period filtering, executive quality metrics, volume-normalised facility risk prioritisation, programme/indicator monitoring, three-source reconciliation, a multi-issue record register, corrective-action ownership/status/notes, and CSV exports. Action assignments are session-scoped and can be preserved by downloading the register; persistent multi-user storage is not configured.
+The deployed Streamlit workspace supports bundled demonstration data, a downloadable CSV upload template and user-uploaded CSV assessment with schema/value intake checks, facility and programme filters, reporting-period filtering, executive quality metrics, volume-normalised facility risk prioritisation, programme/indicator monitoring, three-source reconciliation, a multi-issue record register, corrective-action ownership/status/notes, and CSV exports. Action assignments are session-scoped and can be preserved by downloading the register; persistent multi-user storage is not configured.
 
 Run locally from the repository root:
 
