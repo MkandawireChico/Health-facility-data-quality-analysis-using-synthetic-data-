@@ -191,9 +191,11 @@ class DataQualityAssessor:
                     "Review Required",
                     "Consistent"
                 ),
-                # Otherwise, use relative tolerance with higher threshold
+                # For positive values, require both a material relative
+                # difference and an absolute difference above tolerance.
                 np.where(
-                    self.df["Source_Discrepancy_Pct_Baseline"] > improved_threshold,
+                    (self.df["Source_Discrepancy_Pct_Baseline"] > improved_threshold)
+                    & (self.df["Source_Discrepancy_Abs"] > absolute_tolerance),
                     "Review Required",
                     "Consistent"
                 )
