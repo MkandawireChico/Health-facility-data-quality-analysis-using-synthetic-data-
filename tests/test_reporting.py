@@ -57,3 +57,34 @@ def test_facility_risk_is_bounded_and_volume_normalised():
     summary = facility_summary(assessed)
     assert summary["Risk_Score"].between(0, 100).all()
     assert set(summary["Facility"]) == {"A", "B"}
+
+
+
+def test_source_consistency_requires_at_least_two_available_sources():
+    from data_quality import DataQualityAssessor
+
+    data = pd.DataFrame({
+        "Paper_Value": [100, np.nan, np.nan],
+        "EMR_Value": [105, 105, np.nan],
+        "DHIS2_Value": [102, np.nan, np.nan],
+    })
+    result = DataQualityAssessor(data).assess_source_consistency()
+    assert result["Consistency_Flag"].tolist() == [
+        "Consistent", "Unknown Sources", "Unknown Sources"
+    ]
+    assert result["Consistency_Flag_Baseline"].tolist() == [
+        "Consistent", "Unknown Sources", "Unknown Sources"
+    ]
+
+
+def test_real_submission_and_deadline_dates_override_simulated_timeliness():
+    data = sample_data()
+    data["Submission_Date"] = pd.to_datetime([
+        "2025-01-10", "2025-02-20", "2025-03-10",
+        "2025-04-10", None, "2025-06-10",
+    ])
+    data["Deadline_Date"] = pd.to_datetime(["2025-01-15"] * 6)
+    assessed = assess_dataset(data)
+    assert assessed.loc[0, "Calculated_Timeliness"] == "On Time"
+    assert assessed.loc[1, "Calculated_Timeliness"] == "Late"
+    assert assessed.loc[4, "Calculated_Timeliness"] == "Unknown"
