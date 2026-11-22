@@ -324,3 +324,20 @@ smaller or alternate run. The end-to-end unit test uses a small cohort; the
 separate GitHub Actions **Expanded platform build** workflow runs the full
 default cohort and publishes generated validation artefacts as a short-lived
 workflow artifact.
+
+
+### Expanded Power BI semantic model pack
+
+The expanded platform includes a separate Power BI build specification:
+[`dashboard/powerbi_expanded_model.md`](dashboard/powerbi_expanded_model.md).
+It documents the star schema, relationship design, report-page plan and
+synthetic-data governance. Reusable DAX measures are in
+[`dashboard/dax/health_data_quality_measures.dax`](dashboard/dax/health_data_quality_measures.dax)
+and calculated dimensions in
+[`dashboard/dax/dimension_tables.dax`](dashboard/dax/dimension_tables.dax).
+Power Query templates for the reporting fact, facility dimension and
+source-observation fact are in `dashboard/powerquery/`.
+
+This is an implementation pack for rebuilding the expanded semantic model in
+Power BI Desktop. The existing PBIX remains the original 960-row report until
+the new model and pages are applied and exported from Power BI Desktop.
