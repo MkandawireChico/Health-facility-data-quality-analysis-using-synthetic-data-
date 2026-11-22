@@ -96,11 +96,14 @@ class ScaledHealthDataGenerator:
         dhis2[discrepancy_mask]=np.rint(dhis2[discrepancy_mask]*self.rng.choice([.55,.65,1.35,1.5],discrepancy_mask.sum())).astype(int)
         reported[masks["missing"]]=np.nan
         report_months=self.months.to_numpy()[midx]
-        deadlines=pd.to_datetime(report_months)+pd.offsets.MonthEnd(0)+pd.Timedelta(days=10)
+        month_ends=pd.to_datetime(report_months)+pd.offsets.MonthEnd(0)
+        deadlines=month_ends+pd.Timedelta(days=10)
+        # Most reports arrive during the first nine days after month-end.
+        # Injected late reports arrive 11–25 days after month-end.
         offsets=self.rng.integers(0,9,n)
         late_mask=masks["late"]
-        offsets[late_mask]=self.rng.integers(1,16,late_mask.sum())
-        submissions=deadlines+pd.to_timedelta(offsets,unit="D")
+        offsets[late_mask]=self.rng.integers(11,26,late_mask.sum())
+        submissions=month_ends+pd.to_timedelta(offsets,unit="D")
         fact=pd.DataFrame({
             "Record_ID":[f"R{x:07d}" for x in range(1,n+1)],
             "Facility_ID":facilities["Facility_ID"].to_numpy()[fidx],

@@ -66,3 +66,38 @@ schema are version controlled.
 - Synthetic target values are scenario parameters, not official service-delivery targets.
 - Risk scores and anomaly thresholds require domain validation before operational use.
 - Ground-truth labels are retained to measure detection performance and must not leak into operational scoring.
+
+
+## Implemented staging pipeline
+
+The repository now includes a staging layer in `src/etl_pipeline.py`.
+It reads the generated reporting fact and facility dimension, normalizes reporting
+months and numeric/date fields, and enriches records from the authoritative
+facility dimension using `Facility_ID`.
+
+Structural integrity failures are quarantined rather than silently repaired:
+missing or duplicated record identifiers, missing/unknown facility identifiers,
+invalid reporting months, blank programme/indicator values and duplicate
+facility-month-programme-indicator keys. All duplicate natural-key members are
+quarantined so the surviving row is not chosen arbitrarily.
+
+Analytical quality defects remain in the staged dataset with explicit flags:
+missing reported values, invalid numeric text, negative values, invalid source
+labels, incomplete source evidence, late submissions and material source spread.
+This distinction prevents potentially useful but imperfect reporting records
+from disappearing before analysis.
+
+Run after generating the raw data:
+
+    python src/scale_data_generator.py
+    python src/etl_pipeline.py
+
+Outputs are written to `data/warehouse/staged/`:
+- `facility_reporting_staged.csv`
+- `facility_reporting_quarantine.csv`
+- `staging_quality_report.json`
+
+The quality report summarizes input volume, staging yield, quarantine reasons
+and issue counts. Ground-truth injection labels are not used by the staging
+rules. The test suite exercises valid ingestion, structural quarantine,
+duplicate handling, quality flags and persisted outputs.
