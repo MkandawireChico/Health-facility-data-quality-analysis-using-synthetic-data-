@@ -163,3 +163,20 @@ The generator also prevents a missing reported value from simultaneously
 receiving an injected reported-value outlier label. Other defect categories
 may overlap, so issue counts are not additive. All monitoring outputs exclude
 ground-truth fields from their operational calculations.
+
+
+## Streamlit expanded-platform workspace
+
+The Streamlit app includes an **Expanded platform** workspace for staged
+multi-year extracts. Upload the output of the ETL staging step
+(`data/warehouse/staged/facility_reporting_staged.csv`) to run peer-group
+anomaly detection, monthly issue-rate monitoring, facility/programme profiling
+and optional detector evaluation when the synthetic ground-truth labels are
+present. The app reports when evaluation labels are absent rather than
+fabricating precision/recall metrics.
+
+The uploaded analysis is session-scoped. The app does not persist the uploaded
+data or analysis to a shared database. The 288,000-row generated dataset is
+intentionally excluded from Git; generate it locally with the documented CLI
+and upload the staged CSV when using this workspace. Streamlit browser QA and
+performance testing on the deployed service remain separate validation tasks.
