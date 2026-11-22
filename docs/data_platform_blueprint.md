@@ -180,3 +180,17 @@ data or analysis to a shared database. The 288,000-row generated dataset is
 intentionally excluded from Git; generate it locally with the documented CLI
 and upload the staged CSV when using this workspace. Streamlit browser QA and
 performance testing on the deployed service remain separate validation tasks.
+
+
+## Expanded analytical notebook
+
+`notebooks/health_data_quality_analysis.ipynb` has been rebuilt around the
+288,000-record platform. It runs the generator, validates the fact grain,
+stages and quarantines records, evaluates operational detectors, creates
+facility/programme/monthly profiles, applies statistical peer anomaly checks,
+and exports reproducible warehouse artefacts. It includes an explicit
+ground-truth isolation check by comparing operational predictions with and
+without all `Ground_Truth_*` columns. Run from the repository root after
+installing `requirements.txt`; a full run processes the complete synthetic
+cohort and writes generated outputs under the ignored `data/warehouse/`
+directory.
