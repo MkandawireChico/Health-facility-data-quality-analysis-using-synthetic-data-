@@ -101,3 +101,35 @@ The quality report summarizes input volume, staging yield, quarantine reasons
 and issue counts. Ground-truth injection labels are not used by the staging
 rules. The test suite exercises valid ingestion, structural quarantine,
 duplicate handling, quality flags and persisted outputs.
+
+
+## Implemented detector evaluation and operational analytics
+
+The analytics layer is implemented in `src/quality_analytics.py`. Run it after staging:
+
+    python src/quality_analytics.py
+
+It evaluates four detectors (missing reported values, cross-source discrepancy,
+reported-value outliers and late submissions) against the synthetic generator's
+separate ground-truth labels. Each defect receives a confusion matrix and
+precision, recall, F1, specificity, false-positive rate, accuracy, support and
+predicted-positive count. The outlier detector uses a transparent
+Reported_Value / Target_Value > 1.5 rule, aligned to the generator's injected
+2–3x target outliers.
+
+The same run produces operational profiles by month, facility and
+programme/indicator. Facility rates are volume-normalised and ranked to support
+follow-up prioritisation. Crucially, operational predictions and profiles are
+constructed without reading ground-truth columns; those labels are used only
+inside the evaluation step. Synthetic-label metrics measure recovery of known
+injected defects in this controlled dataset, not validated real-world accuracy.
+
+Outputs are written to `data/warehouse/analytics/`:
+- `detector_evaluation_metrics.csv`
+- `monthly_quality_trends.csv`
+- `facility_quality_benchmark.csv`
+- `programme_indicator_quality_profile.csv`
+- `quality_analytics_report.json`
+
+The module includes tests for confusion-matrix calculations, outlier detection,
+ground-truth isolation, volume-normalised profiles and output persistence.
