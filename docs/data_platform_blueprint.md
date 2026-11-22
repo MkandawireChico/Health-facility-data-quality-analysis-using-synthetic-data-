@@ -214,3 +214,18 @@ The `Expanded platform build` GitHub Actions workflow runs the full default
 cohort on relevant pull requests and main-branch changes, then publishes
 generated warehouse artefacts for seven days. These outputs are validation
 artefacts, not committed operational data.
+
+
+## District-level quality benchmarking
+
+The operational analytics layer now exports
+`district_quality_benchmark.csv`. Each row represents one synthetic district
+group and includes distinct facility count, reporting-record volume, distinct
+records with detected issues, overlapping issue events, defect-category
+counts, volume-normalised detected issue rate, issue events per 100 records
+and follow-up rank. The profile is generated from operational flags only and
+does not read any `Ground_Truth_*` columns.
+
+The Streamlit Expanded Platform workspace visualises and exports this profile.
+District names are geographic labels for synthetic groupings only; the rates
+must not be interpreted as actual district or health-facility performance.
