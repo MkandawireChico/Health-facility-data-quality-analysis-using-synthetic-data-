@@ -241,3 +241,21 @@ After generating the raw cohort, run `python src/etl_pipeline.py` to normalize a
 Outputs: `data/warehouse/staged/facility_reporting_staged.csv`, `facility_reporting_quarantine.csv` and `staging_quality_report.json`.
 
 The pipeline implementation is in [src/etl_pipeline.py](src/etl_pipeline.py), with automated coverage in [tests/test_etl_pipeline.py](tests/test_etl_pipeline.py).
+
+
+### Detector evaluation and longitudinal analytics
+
+Run `python src/quality_analytics.py` after staging to evaluate the missing-value, source-discrepancy, outlier and timeliness detectors against the generator's synthetic ground-truth labels. The evaluation reports confusion counts, precision, recall, F1, specificity, false-positive rate and accuracy. The same command writes monthly trends, facility benchmarks and programme/indicator profiles under `data/warehouse/analytics/`.
+
+Ground-truth labels are used only to calculate evaluation metrics. Operational predictions, monthly trends and facility/programme profiles do not use those labels. Metrics describe performance against controlled synthetic defects, not validated performance on real health reporting data. The outlier rule is Reported_Value / Target_Value > 1.5.
+
+Implementation: [src/quality_analytics.py](src/quality_analytics.py). Tests: [tests/test_quality_analytics.py](tests/test_quality_analytics.py).
+
+Full local workflow:
+
+```bash
+python src/scale_data_generator.py
+python src/etl_pipeline.py
+python src/quality_analytics.py
+pytest -q
+```
