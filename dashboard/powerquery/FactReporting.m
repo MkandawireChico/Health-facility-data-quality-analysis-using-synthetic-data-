@@ -30,7 +30,13 @@ let
             {"Quality_Source_Discrepancy", type logical},
             {"Quality_Late_Submission", type logical},
             {"Quality_Insufficient_Source_Count", type logical},
-            {"Quality_Source_Spread", type number}
+            {"Quality_Source_Spread", type number},
+            {"Quality_Invalid_Numeric_Count", Int64.Type},
+            {"Quality_Negative_Value_Count", Int64.Type},
+            {"Quality_Invalid_Source_Label", type logical},
+            {"Quality_Missing_Submission_Date", type logical},
+            {"Quality_Missing_Deadline_Date", type logical},
+            {"Structural_Error_Count", Int64.Type}
         },
         "en-US"
     ),
@@ -52,6 +58,14 @@ let
         "Indicator_Key",
         each [Programme] & "|" & [Indicator],
         type text
+    ),
+    AddedOperationalOutlier = Table.AddColumn(
+        AddedIndicatorKey,
+        "Operational_Detected_Outlier",
+        each if [Target_Value] = null or [Target_Value] <= 0 or [Reported_Value] = null
+            then false
+            else [Reported_Value] / [Target_Value] > 1.5,
+        type logical
     )
 in
-    AddedIndicatorKey
+    AddedOperationalOutlier
