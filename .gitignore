@@ -4,3 +4,6 @@ __pycache__/
 .DS_Store
 .venv/
 venv/
+
+# Generated expanded-platform warehouse extracts and analytics
+/data/warehouse/
