@@ -235,6 +235,7 @@ def run_quality_analytics(staged_path: Path, output_dir: Path) -> dict[str, Any]
         "outputs": [
             "detector_evaluation_metrics.csv", "monthly_quality_trends.csv",
             "facility_quality_benchmark.csv", "programme_indicator_quality_profile.csv",
+            "district_quality_benchmark.csv",
         ],
     }
     (output_dir / "quality_analytics_report.json").write_text(json.dumps(report, indent=2))
