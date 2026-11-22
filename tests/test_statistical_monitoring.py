@@ -1,0 +1,64 @@
+"""Tests for statistical quality monitoring."""
+import sys
+from pathlib import Path
+import numpy as np
+import pandas as pd
+import pytest
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from statistical_monitoring import detect_peer_anomalies, build_monthly_control_chart
+
+
+def peer_data(values):
+    n = len(values)
+    return pd.DataFrame({
+        "Month": pd.date_range("2024-01-01", periods=n, freq="MS"),
+        "District": ["Lilongwe"] * n, "Programme": ["HIV"] * n,
+        "Indicator": ["ART clients"] * n, "Reported_Value": values,
+        "Facility_ID": [f"F{i}" for i in range(n)],
+        "Quality_Missing_Reported_Value": [False] * n,
+        "Quality_Source_Discrepancy": [False] * n,
+        "Quality_Late_Submission": [False] * n,
+    })
+
+
+def test_mad_detector_flags_extreme_peer_value():
+    result = detect_peer_anomalies(peer_data([100, 102, 99, 101, 98, 103, 100, 101, 900]))
+    assert result["Statistical_Anomaly"].sum() == 1
+    assert result.loc[result["Statistical_Anomaly"], "Reported_Value"].iloc[0] == 900
+    assert result["Statistical_Method"].eq("MAD robust z-score").all()
+
+
+def test_insufficient_peer_group_is_not_flagged():
+    result = detect_peer_anomalies(peer_data([10, 11, 12, 100]), min_group_size=8)
+    assert not result["Statistical_Anomaly"].any()
+    assert result["Statistical_Method"].eq("Insufficient peer observations").all()
+
+
+def test_iqr_fallback_when_mad_is_zero():
+    result = detect_peer_anomalies(peer_data([10, 10, 10, 10, 10, 10, 10, 10, 100]))
+    assert result["Statistical_Method"].eq("IQR fallback").all()
+    assert result["Statistical_Anomaly"].sum() == 1
+
+
+def test_monthly_control_chart_has_descriptive_limits():
+    data = peer_data([10] * 12)
+    data.loc[0, "Quality_Late_Submission"] = True
+    result = build_monthly_control_chart(data)
+    assert len(result) == 12
+    assert result["Centre_Line"].notna().all()
+    assert result["Control_Status"].isin(["Within descriptive limits", "Review signal"]).all()
+
+
+def test_short_history_does_not_create_limits():
+    result = build_monthly_control_chart(peer_data([10] * 5))
+    assert result["Centre_Line"].isna().all()
+    assert result["Control_Status"].eq("Insufficient baseline").all()
+
+
+def test_ground_truth_columns_are_not_required_or_used():
+    data = peer_data([100, 101, 99, 102, 98, 100, 101, 99, 500])
+    data["Ground_Truth_Outlier"] = [False] * 8 + [True]
+    a = detect_peer_anomalies(data)
+    data["Ground_Truth_Outlier"] = False
+    b = detect_peer_anomalies(data)
+    pd.testing.assert_series_equal(a["Statistical_Anomaly"], b["Statistical_Anomaly"])
