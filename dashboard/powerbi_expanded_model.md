@@ -19,7 +19,8 @@ Use these outputs from `data/warehouse/`:
 - `staged/facility_reporting_staged.csv`
 - `analytics/detector_evaluation_metrics.csv`
 - `analytics/monthly_quality_trends.csv`
-- `analytics/facility_quality_benchmark.csv`\n- `analytics/district_quality_benchmark.csv`
+- `analytics/facility_quality_benchmark.csv`
+- `analytics/district_quality_benchmark.csv`
 - `analytics/programme_indicator_quality_profile.csv`
 - `analytics/statistical_peer_anomalies.csv`
 - `analytics/monthly_issue_control_chart.csv`
@@ -45,12 +46,14 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | FactSourceObservation | Record × source | Normalized paper, EMR and DHIS2 source values for reconciliation |
 | FactDetectorEvaluation | Defect × evaluation run | Synthetic-only precision, recall, F1 and confusion counts |
 | FactMonthlyQualityTrend | Month | Operational issue volumes and rates |
-| FactPeerAnomaly | Anomalous reporting record | Statistical review queue and peer score |\n| FactDistrictQualityBenchmark | One row per synthetic district | Volume-normalised detected issue rate and follow-up rank |
+| FactPeerAnomaly | Anomalous reporting record | Statistical review queue and peer score |
+| FactDistrictQualityBenchmark | One row per synthetic district | Volume-normalised detected issue rate and follow-up rank |
 
 ### Relationships
 
 - DimDistrict[District] 1 → * DimFacility[District]
-- DimDistrict[District] 1 → * FactDistrictQualityBenchmark[District]\n- DimFacility[Facility_ID] 1 → * FactReporting[Facility_ID]
+- DimDistrict[District] 1 → * FactDistrictQualityBenchmark[District]
+- DimFacility[Facility_ID] 1 → * FactReporting[Facility_ID]
 - DimDate[MonthStart] 1 → * FactReporting[Month]
 - DimIndicator[Indicator_Key] 1 → * FactReporting[Indicator_Key]
 - DimFacility[Facility_ID] 1 → * FactSourceObservation[Facility_ID]
