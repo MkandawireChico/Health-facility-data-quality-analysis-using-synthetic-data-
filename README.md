@@ -212,7 +212,7 @@ Demonstrates skills relevant to: Data Technician · Data Analyst · Monitoring &
 ## Future Improvements
 
 - Capture and add genuine screenshots of the deployed Streamlit app after completing a visual browser QA pass
-- Add a statistical process-control approach (for example, rolling mean and control limits) and compare it with the current per-indicator IQR outlier rule
+- Validate the statistical thresholds and peer-group assumptions against appropriately governed operational data before any real-world use
 - Extend the automated tests to cover the production data-quality module and end-to-end dataset generation
 - If properly anonymised and aggregated operational reporting data ever becomes available for a comparable workflow, assess whether the synthetic patterns generalise
 
@@ -294,3 +294,14 @@ Then upload `data/warehouse/staged/facility_reporting_staged.csv` in the app.
 The upload and resulting analysis remain session-scoped; shared database
 persistence is not configured. The expanded generated data is not committed
 to the repository.
+
+
+### Expanded analytical notebook
+
+The Jupyter notebook now follows the expanded data platform end to end:
+generation, source validation, staging/quarantine, detector evaluation,
+longitudinal profiles, statistical peer anomalies and monthly monitoring.
+It exports reproducible artefacts under `data/warehouse/` (ignored by Git)
+and explicitly checks that operational predictions are unchanged when
+synthetic ground-truth columns are removed. Run it from the repository root
+after installing dependencies; the default run processes all 288,000 records.
