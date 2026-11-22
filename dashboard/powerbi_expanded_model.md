@@ -49,7 +49,8 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 
 ### Relationships
 
-- DimDistrict[District] 1 → * DimFacility[District]\n- DimDistrict[District] 1 → * FactDistrictQualityBenchmark[District]\n- DimFacility[Facility_ID] 1 → * FactReporting[Facility_ID]
+- DimDistrict[District] 1 → * DimFacility[District]
+- DimDistrict[District] 1 → * FactDistrictQualityBenchmark[District]\n- DimFacility[Facility_ID] 1 → * FactReporting[Facility_ID]
 - DimDate[MonthStart] 1 → * FactReporting[Month]
 - DimIndicator[Indicator_Key] 1 → * FactReporting[Indicator_Key]
 - DimFacility[Facility_ID] 1 → * FactSourceObservation[Facility_ID]
