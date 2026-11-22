@@ -69,7 +69,8 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 1. **Executive quality overview** — record volume, reporting-value availability, on-time rate, source review rate, distinct records requiring follow-up, monthly trend.
 2. **District and facility intelligence** — facility rates, volume context, follow-up ranking and district comparisons. Avoid presenting synthetic rankings as actual district performance.
 3. **Programme and indicator monitoring** — programme/indicator volume, reporting completeness and issue rates.
-4. **District quality benchmarking** — volume-normalised issue rates and facility counts across the synthetic district groups.\n5. **Source reconciliation** — source value distributions, absolute spread and source review queue.
+4. **District quality benchmarking** — volume-normalised issue rates and facility counts across the synthetic district groups.
+5. **Source reconciliation** — source value distributions, absolute spread and source review queue.
 6. **Statistical monitoring** — MAD/IQR peer anomalies and retrospective monthly issue-rate limits. Signals are review prompts, not proof of error.
 7. **Detector governance** — precision, recall, F1 and confusion counts on synthetic injected defects; display a persistent synthetic-evaluation disclaimer.
 
