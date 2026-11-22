@@ -1,0 +1,135 @@
+// Expanded Health Facility Data Intelligence — DAX measure library
+// Apply after creating the documented star schema.
+// All measures describe synthetic portfolio data.
+
+Total Reporting Records =
+COUNTROWS ( FactReporting )
+
+Facilities Represented =
+DISTINCTCOUNT ( FactReporting[Facility_ID] )
+
+Reporting Months =
+DISTINCTCOUNT ( DimDate[MonthStart] )
+
+Reported Value Availability Rate =
+VAR EligibleRows =
+    FILTER (
+        FactReporting,
+        NOT ISBLANK ( FactReporting[Reported_Value] )
+            && NOT ISBLANK ( FactReporting[Target_Value] )
+            && NOT ISBLANK ( FactReporting[Data_Source] )
+    )
+RETURN
+    DIVIDE ( COUNTROWS ( EligibleRows ), [Total Reporting Records] )
+
+Known Timeliness Records =
+COUNTROWS (
+    FILTER (
+        FactReporting,
+        NOT ISBLANK ( FactReporting[Submission_Date] )
+            && NOT ISBLANK ( FactReporting[Deadline_Date] )
+    )
+)
+
+On-Time Reporting Records =
+COUNTROWS (
+    FILTER (
+        FactReporting,
+        NOT ISBLANK ( FactReporting[Submission_Date] )
+            && NOT ISBLANK ( FactReporting[Deadline_Date] )
+            && FactReporting[Submission_Date] <= FactReporting[Deadline_Date]
+    )
+)
+
+On-Time Reporting Rate =
+DIVIDE ( [On-Time Reporting Records], [Known Timeliness Records] )
+
+Late Reporting Records =
+CALCULATE (
+    [Total Reporting Records],
+    FactReporting[Quality_Late_Submission] = TRUE ()
+)
+
+Late Reporting Rate =
+DIVIDE ( [Late Reporting Records], [Known Timeliness Records] )
+
+Missing Reported Value Records =
+CALCULATE (
+    [Total Reporting Records],
+    FactReporting[Quality_Missing_Reported_Value] = TRUE ()
+)
+
+Source Reconciliation Review Records =
+CALCULATE (
+    [Total Reporting Records],
+    FactReporting[Quality_Source_Discrepancy] = TRUE ()
+)
+
+Source Reconciliation Review Rate =
+DIVIDE ( [Source Reconciliation Review Records], [Total Reporting Records] )
+
+Insufficient Source Evidence Records =
+CALCULATE (
+    [Total Reporting Records],
+    FactReporting[Quality_Insufficient_Source_Count] = TRUE ()
+)
+
+Potential Outlier Records =
+CALCULATE (
+    [Total Reporting Records],
+    FactReporting[Operational_Detected_Outlier] = TRUE ()
+)
+
+Records Requiring Follow-Up =
+COUNTROWS (
+    FILTER (
+        FactReporting,
+        FactReporting[Quality_Missing_Reported_Value] = TRUE ()
+            || FactReporting[Quality_Source_Discrepancy] = TRUE ()
+            || FactReporting[Quality_Late_Submission] = TRUE ()
+            || FactReporting[Operational_Detected_Outlier] = TRUE ()
+            || FactReporting[Quality_Insufficient_Source_Count] = TRUE ()
+            || FactReporting[Quality_Invalid_Numeric_Count] > 0
+            || FactReporting[Quality_Negative_Value_Count] > 0
+            || FactReporting[Quality_Invalid_Source_Label] = TRUE ()
+            || FactReporting[Quality_Missing_Submission_Date] = TRUE ()
+            || FactReporting[Quality_Missing_Deadline_Date] = TRUE ()
+    )
+)
+
+Distinct Follow-Up Rate =
+DIVIDE ( [Records Requiring Follow-Up], [Total Reporting Records] )
+
+Average Source Spread =
+AVERAGE ( FactReporting[Quality_Source_Spread] )
+
+Peer Anomaly Records =
+CALCULATE (
+    COUNTROWS ( FactPeerAnomaly ),
+    FactPeerAnomaly[Statistical_Anomaly] = TRUE ()
+)
+
+Monthly Issue Rate =
+DIVIDE (
+    SUM ( FactMonthlyQualityTrend[detected_issue_records] ),
+    SUM ( FactMonthlyQualityTrend[records] )
+)
+
+Synthetic Evaluation Macro Precision =
+AVERAGE ( FactDetectorEvaluation[precision] )
+
+Synthetic Evaluation Macro Recall =
+AVERAGE ( FactDetectorEvaluation[recall] )
+
+Synthetic Evaluation Macro F1 =
+AVERAGE ( FactDetectorEvaluation[f1] )
+
+Synthetic Evaluation False Positive Rate =
+AVERAGE ( FactDetectorEvaluation[false_positive_rate] )
+
+// Interpretation notes:
+// - Issue categories overlap; follow-up counts above count each fact row once.
+// - On-time rate excludes rows with missing submission/deadline dates.
+// - Reported Value Availability Rate is not a clinical completeness measure.
+// - Macro detector metrics describe injected synthetic defects only.
+// - Do not use synthetic metrics to claim real-world detector performance.
