@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import os
 import sys
 
 import pandas as pd
@@ -9,6 +10,7 @@ import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+from action_store import ActionRegisterStore
 from reporting import (
     REQUIRED_COLUMNS, assess_dataset, build_issue_register, facility_summary,
     validate_dataset,
@@ -296,6 +298,14 @@ with tabs[4]:
     if flagged_rows.empty:
         st.success("No flagged records in the current selection.")
     else:
+        database_path = os.getenv("HEALTH_DATA_ACTION_DB", str(ROOT / "data" / "warehouse" / "corrective_actions.sqlite"))
+        try:
+            action_store = ActionRegisterStore(database_path)
+            persisted_actions = action_store.get_actions()
+        except Exception as exc:
+            action_store = None
+            persisted_actions = {}
+            st.warning(f"SQLite action persistence is unavailable in this environment: {exc}. Session-only editing remains available.")
         key_cols = ["Facility", "Month", "Programme", "Indicator"]
         flagged_rows["Record_ID"] = flagged_rows[key_cols].astype(str).agg("|".join, axis=1)
         flagged_rows["Record_ID"] += "|" + flagged_rows.index.astype(str)
@@ -304,7 +314,7 @@ with tabs[4]:
         action_rows = []
         for _, row in flagged_rows.iterrows():
             rid = row["Record_ID"]
-            saved = st.session_state.action_register.get(rid, {})
+            saved = st.session_state.action_register.get(rid, persisted_actions.get(rid, {}))
             action_rows.append({
                 "Record_ID": rid,
                 "Facility": row["Facility"],
@@ -315,7 +325,9 @@ with tabs[4]:
                 "Issue count": int(row["Issue_Count"]),
                 "Status": saved.get("Status", "Open"),
                 "Assigned owner": saved.get("Assigned owner", ""),
+                "Root cause": saved.get("Root cause", ""),
                 "Corrective action / notes": saved.get("Corrective action / notes", ""),
+                "Due date": saved.get("Due date", ""),
             })
         action_df = pd.DataFrame(action_rows)
         edited = st.data_editor(
@@ -326,15 +338,28 @@ with tabs[4]:
             column_config={
                 "Status": st.column_config.SelectboxColumn("Status", options=["Open", "In progress", "Resolved", "Escalated"], required=True),
                 "Assigned owner": st.column_config.TextColumn("Assigned owner"),
+                "Root cause": st.column_config.TextColumn("Root cause", width="medium"),
                 "Corrective action / notes": st.column_config.TextColumn("Corrective action / notes", width="large"),
+                "Due date": st.column_config.TextColumn("Due date (YYYY-MM-DD)"),
             },
             key="action_editor",
         )
+        if action_store is not None:
+            try:
+                save_result = action_store.upsert_actions(edited.to_dict(orient="records"))
+                st.caption(
+                    f"SQLite save: {save_result['inserted']:,} new · "
+                    f"{save_result['updated']:,} updated · {save_result['unchanged']:,} unchanged"
+                )
+            except Exception as exc:
+                st.warning(f"Could not save the action register to SQLite: {exc}")
         st.session_state.action_register = {
             row["Record_ID"]: {
                 "Status": row["Status"],
                 "Assigned owner": row["Assigned owner"],
+                "Root cause": row["Root cause"],
                 "Corrective action / notes": row["Corrective action / notes"],
+                "Due date": row["Due date"],
             }
             for _, row in edited.iterrows()
         }
@@ -348,7 +373,27 @@ with tabs[4]:
             file_name="health_facility_corrective_action_register.csv",
             mime="text/csv",
         )
-        st.caption("Action assignments are held in this browser session only. Download the register to preserve and share the work; persistent multi-user storage is not configured.")
+        if action_store is not None:
+            st.caption(
+                f"Actions are persisted locally in SQLite at {database_path}. "
+                "Set HEALTH_DATA_ACTION_DB to change the path. Streamlit Community Cloud "
+                "storage is ephemeral and is not a shared multi-user database; download regular backups."
+            )
+            with st.expander("Action audit history"):
+                history_options = edited["Record_ID"].head(500).tolist()
+                selected_history_id = st.selectbox(
+                    "Record to inspect", history_options, key="action_history_record"
+                )
+                history = action_store.history(selected_history_id)
+                if history.empty:
+                    st.caption("No field changes have been recorded yet.")
+                else:
+                    st.dataframe(history, use_container_width=True, hide_index=True)
+        else:
+            st.caption(
+                "Action assignments are session-scoped because local SQLite persistence is unavailable. "
+                "Download the register to preserve the work."
+            )
 
 with tabs[5]:
     st.subheader("Data intake and quality assurance")
