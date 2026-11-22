@@ -104,7 +104,10 @@ Average Source Spread =
 AVERAGE ( FactReporting[Quality_Source_Spread] )
 
 Peer Anomaly Records =
-COUNTROWS ( FactPeerAnomaly )
+CALCULATE (
+    COUNTROWS ( FactPeerAnomaly ),
+    FactPeerAnomaly[Statistical_Anomaly] = TRUE ()
+)
 
 Monthly Issue Rate =
 DIVIDE (
