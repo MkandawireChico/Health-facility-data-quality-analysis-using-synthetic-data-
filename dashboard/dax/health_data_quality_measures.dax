@@ -89,6 +89,11 @@ COUNTROWS (
             || FactReporting[Quality_Late_Submission] = TRUE ()
             || FactReporting[Operational_Detected_Outlier] = TRUE ()
             || FactReporting[Quality_Insufficient_Source_Count] = TRUE ()
+            || FactReporting[Quality_Invalid_Numeric_Count] > 0
+            || FactReporting[Quality_Negative_Value_Count] > 0
+            || FactReporting[Quality_Invalid_Source_Label] = TRUE ()
+            || FactReporting[Quality_Missing_Submission_Date] = TRUE ()
+            || FactReporting[Quality_Missing_Deadline_Date] = TRUE ()
     )
 )
 
