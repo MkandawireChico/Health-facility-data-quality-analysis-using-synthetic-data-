@@ -73,3 +73,19 @@ This repository is a portfolio prototype, not a production health-information sy
 - validation against real, approved aggregate reporting extracts
 - user acceptance testing with M&E and health-information staff
 - monitoring, versioned releases and documented support ownership
+
+
+## Corrective-action persistence
+
+The Streamlit corrective-action register stores action details in a local
+SQLite database using `src/action_store.py`. Each action can record an owner,
+root cause, corrective action, due date and status. Changes are written to a
+field-level history table with timestamps so users can inspect how an action
+record evolved.
+
+The default path is `data/warehouse/corrective_actions.sqlite`; set
+`HEALTH_DATA_ACTION_DB` to use another path. The database is local to the
+application host. Streamlit Community Cloud storage is ephemeral and is not a
+shared multi-user database, so the CSV export remains an important backup.
+Production use requires a managed database, authentication, role-based access,
+backup/retention policy and audit governance.

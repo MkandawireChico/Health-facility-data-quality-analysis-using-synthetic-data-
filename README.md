@@ -88,7 +88,7 @@ The project includes two complementary dashboard experiences:
 - [CSV data dictionary and upload contract](docs/data_dictionary.md)
 - [Operational workflow, quality rules and production-readiness gaps](docs/operational_workflow.md)
 
-The deployed Streamlit workspace supports bundled demonstration data, a downloadable CSV upload template and user-uploaded CSV assessment with schema/value intake checks, facility and programme filters, reporting-period filtering, executive quality metrics, volume-normalised facility risk prioritisation, programme/indicator monitoring, three-source reconciliation, a multi-issue record register, corrective-action ownership/status/notes, and CSV exports. Action assignments are session-scoped and can be preserved by downloading the register; persistent multi-user storage is not configured.
+The deployed Streamlit workspace supports bundled demonstration data, a downloadable CSV upload template and user-uploaded CSV assessment with schema/value intake checks, facility and programme filters, reporting-period filtering, executive quality metrics, volume-normalised facility risk prioritisation, programme/indicator monitoring, three-source reconciliation, a multi-issue record register, corrective-action ownership/status/notes, and CSV exports. Corrective-action assignments are persisted to a local SQLite database with field-level audit history. On Streamlit Community Cloud the local filesystem is ephemeral and not shared across instances, so the register should be downloaded regularly; managed multi-user persistence is not configured.
 
 Run locally from the repository root:
 
@@ -341,3 +341,19 @@ source-observation fact are in `dashboard/powerquery/`.
 This is an implementation pack for rebuilding the expanded semantic model in
 Power BI Desktop. The existing PBIX remains the original 960-row report until
 the new model and pages are applied and exported from Power BI Desktop.
+
+
+### Corrective action persistence and audit trail
+
+The action register uses `src/action_store.py` to persist owners, root causes,
+corrective actions, due dates and statuses in SQLite. Every changed field is
+recorded in an audit-history table. The default local database path is
+`data/warehouse/corrective_actions.sqlite`; override it with the
+`HEALTH_DATA_ACTION_DB` environment variable. The warehouse directory is
+Git-ignored.
+
+This provides durable local persistence when running the app on a persistent
+machine. Streamlit Community Cloud's local filesystem is ephemeral and does
+not provide shared multi-user storage, so download backups regularly. A
+production deployment should use a managed database, authentication,
+role-based permissions and retention controls.
