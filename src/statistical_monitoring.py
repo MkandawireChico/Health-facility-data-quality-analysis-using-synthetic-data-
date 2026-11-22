@@ -53,10 +53,15 @@ def detect_peer_anomalies(data: pd.DataFrame, min_group_size: int = 8,
             q1, q3 = sample.quantile([0.25, 0.75])
             iqr = float(q3 - q1)
             if iqr <= 0:
-                continue
-            lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
-            scores = (sample - median) / iqr
-            flags = (sample < lower) | (sample > upper)
+                # Degenerate IQR: use a scale-aware tolerance around the median.
+                scale = max(abs(median) * 0.05, 1.0)
+                lower, upper = median - scale, median + scale
+                scores = (sample - median) / scale
+                flags = (sample < lower) | (sample > upper)
+            else:
+                lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+                scores = (sample - median) / iqr
+                flags = (sample < lower) | (sample > upper)
             method = "IQR fallback"
         out.loc[valid_idx, "Statistical_Anomaly_Score"] = scores.astype(float)
         out.loc[valid_idx, "Statistical_Anomaly"] = flags.astype(bool)

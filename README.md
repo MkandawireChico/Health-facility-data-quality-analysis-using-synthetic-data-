@@ -257,5 +257,18 @@ Full local workflow:
 python src/scale_data_generator.py
 python src/etl_pipeline.py
 python src/quality_analytics.py
+python src/statistical_monitoring.py
 pytest -q
 ```
+
+
+### Statistical anomaly and process monitoring
+
+The additional statistical monitoring layer is available in
+[`src/statistical_monitoring.py`](src/statistical_monitoring.py). It applies
+MAD robust-z and IQR fallback checks within district/programme/indicator peer
+groups, then builds retrospective monthly issue-rate control limits. Run it
+after staging with `python src/statistical_monitoring.py`. Statistical signals
+are verification prompts, not proof of errors; the control limits are
+retrospective descriptive limits, not a prospective alerting service. The
+monitoring code does not use synthetic ground-truth labels.

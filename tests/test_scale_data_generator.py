@@ -46,3 +46,11 @@ def test_invalid_configuration_rejected(kwargs):
 
 def test_invalid_injection_rate_rejected():
     with pytest.raises(ValueError): small_generator().generate({"missing":1.2})
+
+
+def test_missing_report_is_not_also_labelled_as_reported_value_outlier():
+    fact, _, _ = ScaledHealthDataGenerator(seed=19, facility_count=30, periods=12).generate(
+        {"missing": 0.25, "outlier": 0.25}
+    )
+    assert not (fact["Ground_Truth_Missing"] & fact["Ground_Truth_Outlier"]).any()
+    assert fact.loc[fact["Ground_Truth_Outlier"], "Reported_Value"].notna().all()
