@@ -272,3 +272,25 @@ after staging with `python src/statistical_monitoring.py`. Statistical signals
 are verification prompts, not proof of errors; the control limits are
 retrospective descriptive limits, not a prospective alerting service. The
 monitoring code does not use synthetic ground-truth labels.
+
+
+### Expanded platform Streamlit workspace
+
+The Streamlit app now includes an **Expanded platform** tab. Upload a staged
+multi-year reporting CSV to view monthly issue trends, facility follow-up rates,
+programme/indicator profiles, MAD/IQR peer anomalies and retrospective monthly
+issue-rate monitoring. If synthetic ground-truth labels are present, the page
+also reports detector evaluation metrics; without those labels it deliberately
+does not invent precision or recall values.
+
+Generate the staged cohort locally before uploading:
+
+```bash
+python src/scale_data_generator.py
+python src/etl_pipeline.py
+```
+
+Then upload `data/warehouse/staged/facility_reporting_staged.csv` in the app.
+The upload and resulting analysis remain session-scoped; shared database
+persistence is not configured. The expanded generated data is not committed
+to the repository.
