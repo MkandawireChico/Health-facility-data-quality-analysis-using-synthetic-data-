@@ -80,7 +80,7 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 3. Use the Power Query templates in `dashboard/powerquery/`.
 4. Create the relationships listed above and mark DimDate as the date table.
 5. Add the measures in `dashboard/dax/health_data_quality_measures.dax`.
-6. Build the six report pages using the layout plan.
+6. Build the seven report pages using the layout plan.
 7. Validate filter behaviour at facility, district, month, programme and indicator levels.
 8. Keep the synthetic-data disclaimer visible on every report page and in exported PDFs.
 
