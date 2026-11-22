@@ -1,0 +1,41 @@
+// DAX calculated table — DimSource
+DimSource =
+DATATABLE (
+    "Source", STRING,
+    "Source Display", STRING,
+    {
+        { "Paper", "Paper Register" },
+        { "EMR", "Electronic Medical Record" },
+        { "DHIS2", "DHIS2" }
+    }
+)
+
+// DAX calculated table — DimIndicator
+DimIndicator =
+DISTINCT (
+    SELECTCOLUMNS (
+        FactReporting,
+        "Indicator_Key", FactReporting[Indicator_Key],
+        "Programme", FactReporting[Programme],
+        "Indicator", FactReporting[Indicator]
+    )
+)
+
+// DAX calculated table — DimDate
+DimDate =
+VAR FirstMonth =
+    MINX ( ALL ( FactReporting ), FactReporting[Month] )
+VAR LastMonth =
+    MAXX ( ALL ( FactReporting ), FactReporting[Month] )
+RETURN
+    DISTINCT (
+        SELECTCOLUMNS (
+            CALENDAR ( FirstMonth, LastMonth ),
+            "MonthStart", DATE ( YEAR ( [Date] ), MONTH ( [Date] ), 1 ),
+            "Year", YEAR ( [Date] ),
+            "Quarter", "Q" & FORMAT ( [Date], "Q" ),
+            "MonthNumber", MONTH ( [Date] ),
+            "MonthName", FORMAT ( [Date], "MMMM" ),
+            "YearMonth", FORMAT ( [Date], "YYYY-MM" )
+        )
+    )
