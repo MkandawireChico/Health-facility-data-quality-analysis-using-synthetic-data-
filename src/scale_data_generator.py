@@ -88,6 +88,8 @@ class ScaledHealthDataGenerator:
         source_choice=self.rng.choice(3,n,p=[.25,.35,.40])
         reported=np.column_stack([paper,emr,dhis2])[np.arange(n),source_choice].astype(float)
         masks={name:self.rng.random(n)<rate for name,rate in rates.items()}
+        # Missing values cannot simultaneously carry an observable reported-value outlier.
+        masks["outlier"] &= ~masks["missing"]
         original_reported=reported.copy()
         original_dhis2=dhis2.copy()
         outlier_mask=masks["outlier"]
