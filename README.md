@@ -232,3 +232,12 @@ The project is being expanded beyond the original 960-row demonstration into a r
 - [Generator test suite](tests/test_scale_data_generator.py)
 
 Generate the expanded cohort locally with `python src/scale_data_generator.py`. The generated fact table, facility dimension and run manifest are written under `data/warehouse/raw/`. Generated CSVs are reproducible from the fixed seed and configuration and are intentionally not committed as large generated files. All records are synthetic and do not represent actual facility performance.
+
+
+### Staging and data-quality pipeline
+
+After generating the raw cohort, run `python src/etl_pipeline.py` to normalize and stage the reporting fact against the facility dimension. Structural failures (such as unknown facilities, invalid periods and duplicate natural keys) are written to quarantine; analytical quality issues remain in the staged data with explicit flags. A JSON quality report summarizes staging yield and issue counts.
+
+Outputs: `data/warehouse/staged/facility_reporting_staged.csv`, `facility_reporting_quarantine.csv` and `staging_quality_report.json`.
+
+The pipeline implementation is in [src/etl_pipeline.py](src/etl_pipeline.py), with automated coverage in [tests/test_etl_pipeline.py](tests/test_etl_pipeline.py).
