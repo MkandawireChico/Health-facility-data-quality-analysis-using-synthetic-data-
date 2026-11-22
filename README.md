@@ -221,3 +221,14 @@ Demonstrates skills relevant to: Data Technician · Data Analyst · Monitoring &
 Chico Mkandawire
 MSc Data Science, Malawi University of Science and Technology (in progress)
 BSc Management Information Systems, Malawi University of Business and Applied Sciences
+
+
+## Expanded Health Data Intelligence Platform
+
+The project is being expanded beyond the original 960-row demonstration into a reproducible, multi-year synthetic health reporting platform. The target cohort is 120 synthetic facilities across six Malawi-oriented district labels, 60 monthly periods, eight programme areas and 40 indicators — **288,000 facility-month-indicator records**.
+
+- [Expanded platform build blueprint](docs/data_platform_blueprint.md)
+- [Scalable synthetic data generator](src/scale_data_generator.py)
+- [Generator test suite](tests/test_scale_data_generator.py)
+
+Generate the expanded cohort locally with `python src/scale_data_generator.py`. The generated fact table, facility dimension and run manifest are written under `data/warehouse/raw/`. Generated CSVs are reproducible from the fixed seed and configuration and are intentionally not committed as large generated files. All records are synthetic and do not represent actual facility performance.
