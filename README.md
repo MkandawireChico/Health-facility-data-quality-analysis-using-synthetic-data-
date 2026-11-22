@@ -305,3 +305,22 @@ It exports reproducible artefacts under `data/warehouse/` (ignored by Git)
 and explicitly checks that operational predictions are unchanged when
 synthetic ground-truth columns are removed. Run it from the repository root
 after installing dependencies; the default run processes all 288,000 records.
+
+
+### One-command full platform build
+
+The repository includes an orchestration command that runs generation,
+staging/quarantine, detector evaluation, operational profiling and statistical
+monitoring in sequence:
+
+```bash
+python src/build_platform.py
+```
+
+By default it builds the full 288,000-record cohort and writes reproducible
+outputs under the Git-ignored `data/warehouse/` directory. Use
+`--facilities`, `--periods`, `--seed` and `--output-dir` to configure a
+smaller or alternate run. The end-to-end unit test uses a small cohort; the
+separate GitHub Actions **Expanded platform build** workflow runs the full
+default cohort and publishes generated validation artefacts as a short-lived
+workflow artifact.

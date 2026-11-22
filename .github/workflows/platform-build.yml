@@ -1,0 +1,46 @@
+name: Expanded platform build
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "notebooks/**"
+      - ".github/workflows/platform-build.yml"
+      - "requirements.txt"
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - ".github/workflows/platform-build.yml"
+      - "requirements.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-platform-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Build full synthetic platform
+        run: python src/build_platform.py
+      - name: Publish generated validation artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: expanded-health-platform-build
+          path: data/warehouse/
+          if-no-files-found: warn
+          retention-days: 7

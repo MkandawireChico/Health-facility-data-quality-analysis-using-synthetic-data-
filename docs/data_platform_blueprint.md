@@ -194,3 +194,23 @@ without all `Ground_Truth_*` columns. Run from the repository root after
 installing `requirements.txt`; a full run processes the complete synthetic
 cohort and writes generated outputs under the ignored `data/warehouse/`
 directory.
+
+
+## One-command end-to-end build
+
+Run the complete source-to-analytics pipeline with:
+
+    python src/build_platform.py
+
+The orchestrator writes raw fact/dimension tables and a generation manifest,
+runs staging and structural quarantine, evaluates the operational detectors,
+builds longitudinal profiles, and runs statistical peer anomaly/monthly
+monitoring. It validates generated row counts and staging reconciliation and
+writes `platform_build_summary.json`. The default configuration creates
+288,000 records. Smaller builds can be configured with `--facilities`,
+`--periods`, `--seed` and `--output-dir`.
+
+The `Expanded platform build` GitHub Actions workflow runs the full default
+cohort on relevant pull requests and main-branch changes, then publishes
+generated warehouse artefacts for seven days. These outputs are validation
+artefacts, not committed operational data.
