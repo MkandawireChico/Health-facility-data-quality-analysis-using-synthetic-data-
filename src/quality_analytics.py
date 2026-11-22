@@ -167,16 +167,65 @@ def build_operational_profiles(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.Dat
     return monthly, facility, programme
 
 
+
+def build_district_profile(data: pd.DataFrame) -> pd.DataFrame:
+    """Build district-level operational issue rates without ground-truth labels."""
+    predicted = add_operational_predictions(data)
+    required = {"District", "Facility_ID"}
+    missing = sorted(required - set(predicted.columns))
+    if missing:
+        raise ValueError(f"Staged data missing district dimensions: {missing}")
+
+    issue_columns = [
+        "Quality_Missing_Reported_Value",
+        "Quality_Source_Discrepancy",
+        "Operational_Detected_Outlier",
+        "Quality_Late_Submission",
+    ]
+    for column in issue_columns:
+        predicted[column] = _as_bool(predicted[column])
+    predicted["Operational_Issue_Count"] = predicted[issue_columns].sum(axis=1)
+    predicted["Operational_Any_Detected_Issue"] = predicted[issue_columns].any(axis=1)
+
+    district = predicted.groupby("District", dropna=False).agg(
+        facilities=("Facility_ID", "nunique"),
+        records=("Facility_ID", "size"),
+        detected_issue_records=("Operational_Any_Detected_Issue", "sum"),
+        issue_events=("Operational_Issue_Count", "sum"),
+        missing_records=("Quality_Missing_Reported_Value", "sum"),
+        source_discrepancy_records=("Quality_Source_Discrepancy", "sum"),
+        outlier_records=("Operational_Detected_Outlier", "sum"),
+        late_records=("Quality_Late_Submission", "sum"),
+    ).reset_index()
+    district["detected_issue_rate_pct"] = (
+        100 * district["detected_issue_records"]
+        / district["records"].replace(0, np.nan)
+    ).round(2)
+    district["issue_events_per_100_records"] = (
+        100 * district["issue_events"]
+        / district["records"].replace(0, np.nan)
+    ).round(2)
+    district = district.sort_values(
+        ["detected_issue_rate_pct", "records", "District"],
+        ascending=[False, False, True],
+        na_position="last",
+    ).reset_index(drop=True)
+    district["follow_up_rank"] = np.arange(1, len(district) + 1)
+    assert not any(column.startswith("Ground_Truth_") for column in district.columns)
+    return district
+
 def run_quality_analytics(staged_path: Path, output_dir: Path) -> dict[str, Any]:
     """Evaluate synthetic detector performance and write operational profiles."""
     data = pd.read_csv(staged_path)
     metrics = evaluate_detectors(data)
     monthly, facility, programme = build_operational_profiles(data)
+    district = build_district_profile(data)
     output_dir.mkdir(parents=True, exist_ok=True)
     metrics.to_csv(output_dir / "detector_evaluation_metrics.csv", index=False)
     monthly.to_csv(output_dir / "monthly_quality_trends.csv", index=False)
     facility.to_csv(output_dir / "facility_quality_benchmark.csv", index=False)
     programme.to_csv(output_dir / "programme_indicator_quality_profile.csv", index=False)
+    district.to_csv(output_dir / "district_quality_benchmark.csv", index=False)
     report = {
         "input_records": int(len(data)),
         "evaluation_scope": "Synthetic ground-truth labels; not real-world detector validation",
