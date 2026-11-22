@@ -37,6 +37,7 @@ def test_staging_preserves_valid_grain_and_joins_authoritative_facility_dimensio
 def test_structural_failures_are_quarantined_with_reasons():
     fact, facilities = sample_tables()
     fact.loc[0, "Facility_ID"] = "UNKNOWN-FACILITY"
+    fact["Month"] = fact["Month"].astype("object")
     fact.loc[1, "Month"] = "not-a-date"
     fact.loc[2, "Programme"] = " "
     staged, quarantine, report = stage_reporting_data(fact, facilities)
