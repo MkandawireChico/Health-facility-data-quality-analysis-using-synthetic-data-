@@ -133,3 +133,33 @@ Outputs are written to `data/warehouse/analytics/`:
 
 The module includes tests for confusion-matrix calculations, outlier detection,
 ground-truth isolation, volume-normalised profiles and output persistence.
+
+
+## Statistical monitoring and peer anomaly detection
+
+The statistical layer is implemented in `src/statistical_monitoring.py` and runs
+after staging:
+
+    python src/statistical_monitoring.py
+
+It compares reported values within district × programme × indicator peer groups.
+The primary detector uses the median absolute deviation (MAD) robust z-score;
+when MAD is zero, it falls back to an IQR fence and then a scale-aware median
+tolerance for degenerate distributions. Groups below the minimum observation
+count are not flagged. These are review prompts, not proof of reporting error.
+
+A monthly issue-rate control view combines missing-value, source-discrepancy and
+late-submission flags. Its three-sigma limits are calculated retrospectively
+from the full observed period, so they are descriptive and must not be treated
+as prospective alerting limits or a validated statistical process-control
+system.
+
+Outputs:
+- `statistical_peer_anomalies.csv`
+- `monthly_issue_control_chart.csv`
+- `statistical_monitoring_report.json`
+
+The generator also prevents a missing reported value from simultaneously
+receiving an injected reported-value outlier label. Other defect categories
+may overlap, so issue counts are not additive. All monitoring outputs exclude
+ground-truth fields from their operational calculations.
