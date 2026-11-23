@@ -94,6 +94,7 @@ def build_platform(
             "facility_resource_capacity": str(analytics_dir / "facility_resource_capacity.csv"),
             "resource_allocation_scenarios": str(analytics_dir / "resource_allocation_scenarios.csv"),
             "resource_allocation_summary": str(analytics_dir / "resource_allocation_scenario_summary.csv"),
+            "resource_planning_report": str(analytics_dir / "resource_planning_report.json"),
         },
     }
     (output_dir / "platform_build_summary.json").write_text(json.dumps(summary, indent=2))
