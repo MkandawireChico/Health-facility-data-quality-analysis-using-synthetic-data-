@@ -85,6 +85,14 @@ Abstract credits are not MWK. The scenario outputs are not clinical, procurement
 
 No files were deleted during this audit. The baseline CSVs, PBIX, report-page images and original charts remain useful as the historical baseline and visual comparison set. Expanded warehouse extracts are generated locally and ignored by Git. Removing baseline assets before the expanded Power BI report is built and visually checked would reduce traceability without improving release readiness.
 
+## Latest post-audit workflow check
+
+After the audit and README link were committed, GitHub triggered fresh workflows on PR #26 head `e9888a5f4686bbd977667631b202ea908839c1da`:
+- Project quality checks run #190 (`45192187822`): failed.
+- Expanded platform build run #164 (`45192187836`): failed.
+
+Both jobs returned no step summaries. The job-log download endpoint returned 404, so the underlying failure reason remains unavailable; no claim is made that test or build steps executed.
+
 ## Release decision
 
 **Status: NOT READY TO MERGE OR RELEASE.**
