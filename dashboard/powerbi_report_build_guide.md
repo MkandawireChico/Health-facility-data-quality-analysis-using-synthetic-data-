@@ -138,7 +138,23 @@ Interactions:
 - Treat 80% as an illustrative review band, not an official service standard.
 - Do not describe these ratios as population coverage or unique people served.
 
-## Optional page 8 — Facility detail
+## Page 8 — Resource allocation scenarios
+
+**Decision question:** How do alternative allocation heuristics distribute a fixed pool of abstract resources across synthetic facility capacity gaps?
+
+Layout:
+- Resource pool size, total illustrative baseline gap and remaining gap after allocation.
+- Side-by-side residual-gap comparison for largest-gap priority, rural-weighted equity and equal-share rounds.
+- Facility-level allocation matrix with requirement, synthetic availability, allocated units and residual gap.
+- Scenario slicer and facility/district filters.
+
+Interpretation:
+- Resource units are abstract synthetic planning units, not staffing headcounts, equipment quantities or currency.
+- Requirements and availability are generated from explicit assumptions; they are not official Malawi staffing norms.
+- Catchment population is only a planning proxy, not patient volume or service coverage.
+- Allocation methods are heuristics, not validated optima or operational recommendations.
+
+## Optional page 9 — Facility detail
 
 Only add this page if the report remains readable:
 - facility profile and synthetic catchment attributes;
@@ -174,6 +190,6 @@ Avoid exposing patient-level data. The current dataset has no patient-level reco
 
 ## Companion Streamlit analysis export
 
-The Expanded Platform workspace provides a ZIP handover package alongside its individual CSV downloads. The package contains the management summary JSON, monthly quality trends, facility benchmark, programme/indicator profile, district and district-month profiles, statistical peer anomalies and monthly issue-control output. Detector evaluation metrics are included only when synthetic ground-truth labels are present. The summary carries an explicit synthetic-data disclaimer and records whether synthetic evaluation was performed.
+The Expanded Platform workspace provides a ZIP handover package alongside its individual CSV downloads. The package contains the management summary JSON, monthly quality trends, facility benchmark, programme/indicator profile, district and district-month profiles, statistical peer anomalies, monthly issue-control output, target-attainment facts and resource-capacity/allocation scenario tables. Detector evaluation metrics are included only when synthetic ground-truth labels are present. The summary carries an explicit synthetic-data disclaimer and records whether synthetic evaluation was performed.
 
 The guide does not substitute for a completed Power BI Desktop refresh and visual review.

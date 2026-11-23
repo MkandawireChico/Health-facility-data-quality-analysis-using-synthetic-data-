@@ -40,6 +40,10 @@ def test_small_end_to_end_platform_build(tmp_path):
         "analytics/programme_indicator_target_attainment.csv",
         "analytics/monthly_indicator_target_attainment.csv",
         "analytics/target_attainment_report.json",
+        "analytics/facility_resource_capacity.csv",
+        "analytics/resource_allocation_scenarios.csv",
+        "analytics/resource_allocation_scenario_summary.csv",
+        "analytics/resource_planning_report.json",
         "platform_build_summary.json",
     ]
     for relative in expected_files:

@@ -11,6 +11,7 @@ from etl_pipeline import run_pipeline
 from quality_analytics import run_quality_analytics
 from statistical_monitoring import run_statistical_monitoring
 from target_attainment import run_target_attainment
+from resource_planning import run_resource_planning
 
 
 def build_platform(
@@ -46,6 +47,7 @@ def build_platform(
     quality_report = run_quality_analytics(staged_path, analytics_dir)
     statistical_report = run_statistical_monitoring(staged_path, analytics_dir)
     attainment_report = run_target_attainment(staged_path, analytics_dir)
+    resource_report = run_resource_planning(facility_path, analytics_dir, seed=seed)
 
     if manifest["actual_record_count"] != generator.expected_record_count:
         raise RuntimeError("Generated record count does not match configured fact grain")
@@ -68,6 +70,8 @@ def build_platform(
         "peer_anomaly_records": statistical_report["peer_anomaly_records"],
         "target_attainment_outputs": attainment_report["outputs"],
         "target_attainment_method": attainment_report["method"],
+        "resource_planning_outputs": resource_report["outputs"],
+        "resource_planning_assumptions": resource_report["limitations"],
         "months_monitored": statistical_report["months_monitored"],
         "ground_truth_used_for_operational_monitoring": False,
         "outputs": {
@@ -87,6 +91,10 @@ def build_platform(
             "district_indicator_attainment": str(analytics_dir / "district_indicator_target_attainment.csv"),
             "programme_indicator_attainment": str(analytics_dir / "programme_indicator_target_attainment.csv"),
             "monthly_indicator_attainment": str(analytics_dir / "monthly_indicator_target_attainment.csv"),
+            "facility_resource_capacity": str(analytics_dir / "facility_resource_capacity.csv"),
+            "resource_allocation_scenarios": str(analytics_dir / "resource_allocation_scenarios.csv"),
+            "resource_allocation_summary": str(analytics_dir / "resource_allocation_scenario_summary.csv"),
+            "resource_planning_report": str(analytics_dir / "resource_planning_report.json"),
         },
     }
     (output_dir / "platform_build_summary.json").write_text(json.dumps(summary, indent=2))

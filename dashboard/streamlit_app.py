@@ -540,6 +540,7 @@ with tabs[6]:
         )
     else:
         st.caption(f"Selected file: {platform_file.name} · {platform_file.size / (1024 * 1024):.1f} MB")
+        resource_pool_input = st.number_input("Illustrative resource pool (abstract units)", min_value=0, max_value=10000, value=120, step=10, help="Scenario input only; units are not staff headcounts or a monetary budget.")
         if st.button("Analyse expanded reporting platform", type="primary", key="run_platform_analysis"):
             try:
                 platform_data = pd.read_csv(platform_file)
@@ -549,6 +550,7 @@ with tabs[6]:
                 else:
                     from quality_analytics import add_operational_predictions, build_operational_profiles, build_district_profiles, evaluate_detectors
                     from statistical_monitoring import detect_peer_anomalies, build_monthly_control_chart
+                    from resource_planning import build_resource_planning_profiles
 
                     with st.spinner("Running peer anomaly detection and longitudinal monitoring..."):
                         predicted = add_operational_predictions(platform_data)
@@ -557,6 +559,9 @@ with tabs[6]:
                         attainment = build_target_attainment_profiles(platform_data)
                         peer = detect_peer_anomalies(platform_data)
                         control = build_monthly_control_chart(platform_data)
+                        resource_columns = ["Facility_ID", "Facility", "District", "Facility_Type", "Urban_Rural", "Catchment_Population"]
+                        resource_facilities = platform_data[resource_columns].drop_duplicates("Facility_ID").rename(columns={"Facility": "Facility_Name"})
+                        resource = build_resource_planning_profiles(resource_facilities, resource_pool=int(resource_pool_input))
                         metrics = None
                         if set(truth_required).issubset(platform_data.columns):
                             metrics = evaluate_detectors(platform_data)
@@ -582,6 +587,7 @@ with tabs[6]:
                             "district_monthly": district_monthly,
                             "attainment": attainment,
                             "control": control,
+                            "resource": resource,
                             "metrics": metrics,
                             "synthetic_truth_available": metrics is not None,
                         }
@@ -639,6 +645,9 @@ with tabs[6]:
             "district_indicator_target_attainment.csv": result["attainment"]["district_indicator"],
             "programme_indicator_target_attainment.csv": result["attainment"]["programme_indicator"],
             "monthly_indicator_target_attainment.csv": result["attainment"]["monthly_indicator"],
+            "facility_resource_capacity.csv": result["resource"]["facility_capacity"],
+            "resource_allocation_scenarios.csv": result["resource"]["scenario_allocations"],
+            "resource_allocation_scenario_summary.csv": result["resource"]["scenario_summary"],
         }
         if result["metrics"] is not None:
             export_tables["synthetic_detector_evaluation_metrics.csv"] = result["metrics"]
@@ -792,6 +801,46 @@ with tabs[6]:
                 data=monthly_attainment.to_csv(index=False).encode("utf-8"),
                 file_name="monthly_indicator_target_attainment.csv", mime="text/csv",
             )
+
+        st.markdown("**Resource capacity and allocation scenario laboratory**")
+        st.caption(
+            "All resource requirements and available units are synthetic planning abstractions. "
+            "They are not official staffing norms, budgets, clinical standards, or operational recommendations. "
+            "Catchment population is a configurable planning proxy, not observed patient volume or service coverage."
+        )
+        resource_summary = result["resource"]["scenario_summary"]
+        resource_facility = result["resource"]["facility_capacity"]
+        resource_allocations = result["resource"]["scenario_allocations"]
+        r1, r2, r3 = st.columns(3)
+        r1.metric("Facilities with a baseline gap", int(resource_facility["Baseline_Gap_Units"].gt(0).sum()))
+        r2.metric("Total illustrative gap units", int(resource_facility["Baseline_Gap_Units"].sum()))
+        r3.metric("Scenario resource pool", int(resource_summary["resource_pool"].iloc[0]) if not resource_summary.empty else 0)
+        st.plotly_chart(
+            px.bar(
+                resource_summary, x="Scenario", y="residual_gap_units", color="Scenario",
+                title="Residual capacity gap after each allocation strategy",
+                labels={"residual_gap_units": "Unfilled illustrative units"},
+            ),
+            use_container_width=True,
+        )
+        st.dataframe(resource_summary, use_container_width=True, hide_index=True)
+        scenario_choice = st.selectbox(
+            "Inspect facility allocations",
+            ["gap_priority", "equity", "equal"],
+            format_func=lambda value: {"gap_priority": "Largest capacity gap first", "equity": "Rural-weighted equity", "equal": "Equal-share rounds"}[value],
+            key="resource_scenario_choice",
+        )
+        selected_allocations = resource_allocations[resource_allocations["Scenario"].eq(scenario_choice)].sort_values(
+            ["Residual_Gap_Units", "Facility_ID"], ascending=[False, True]
+        )
+        st.dataframe(selected_allocations, use_container_width=True, hide_index=True)
+        st.download_button(
+            "Download selected allocation scenario",
+            data=selected_allocations.to_csv(index=False).encode("utf-8"),
+            file_name=f"resource_allocation_{scenario_choice}.csv",
+            mime="text/csv",
+            key="download_resource_scenario",
+        )
 
         st.markdown("**Programme and indicator quality profile**")
         st.dataframe(result["programme"], use_container_width=True, hide_index=True)
