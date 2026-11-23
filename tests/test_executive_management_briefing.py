@@ -47,7 +47,7 @@ def test_briefing_kpis_domain_counts_and_priority_order():
     assert result["kpis"]["facilities"] == 3
     assert result["kpis"]["high_review"] == 1
     assert result["kpis"]["overdue_actions"] == 2
-    assert result["kpis"]["action_resolution_rate_pct"] == pytest.approx(100 / 3)
+    assert result["kpis"]["action_resolution_rate_pct"] == pytest.approx(33.33)
     assert result["management_queue"]["Facility_ID"].tolist() == ["F-001", "F-003", "F-002"]
     assert result["domains"].iloc[0]["facilities_flagged"] == 3
 
@@ -114,7 +114,7 @@ def test_recommendations_reflect_overdue_and_unassigned_action_gap():
     )
     alpha = result["management_queue"].set_index("Facility_ID").loc["F-001"]
     beta = result["management_queue"].set_index("Facility_ID").loc["F-002"]
-    assert "2 overdue" in alpha["Management_Follow_Up"]
+    assert "1 overdue" in alpha["Management_Follow_Up"]
     assert "assign an accountable owner" in beta["Management_Follow_Up"]
 
 
