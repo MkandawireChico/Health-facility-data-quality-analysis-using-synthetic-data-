@@ -567,6 +567,12 @@ with tabs[6]:
                     from equipment_maintenance import build_equipment_maintenance_profiles
                     from infrastructure_reliability import build_infrastructure_profiles
                     from workforce_planning import build_workforce_profiles
+                    from build_platform import (
+                        _build_integrated_facility_priority,
+                        _build_operational_resilience_views,
+                        _build_supply_cold_chain_resilience_view,
+                    )
+                    import tempfile
 
                     with st.spinner("Running quality, statistical, resource and commodity supply-chain analytics..."):
                         predicted = add_operational_predictions(platform_data)
@@ -596,6 +602,32 @@ with tabs[6]:
                             resource_facilities, periods=24, start_month="2025-01-01", seed=42,
                             recruitment_budget_credits=int(workforce_budget_input),
                         )
+                        with tempfile.TemporaryDirectory() as integration_dir:
+                            integration_path = Path(integration_dir)
+                            _build_operational_resilience_views(
+                                resource_facilities,
+                                equipment["facility_monthly_summary"],
+                                infrastructure["monthly_infrastructure_reliability"],
+                                workforce["monthly_workforce"],
+                                integration_path,
+                            )
+                            _build_supply_cold_chain_resilience_view(
+                                resource_facilities,
+                                supply["inventory_ledger"],
+                                cold_chain["expiry_risk_summary"],
+                                integration_path,
+                            )
+                            integrated_priority_summary = _build_integrated_facility_priority(
+                                resource_facilities,
+                                pd.read_csv(integration_path / "facility_latest_operational_resilience.csv"),
+                                pd.read_csv(integration_path / "facility_latest_supply_cold_chain_resilience.csv"),
+                                facility_profile.rename(columns={"Facility": "Facility_Name"}),
+                                resource["facility_capacity"],
+                                integration_path,
+                            )
+                            integrated_priority_register = pd.read_csv(
+                                integration_path / "integrated_facility_priority_register.csv"
+                            )
                         metrics = None
                         if set(truth_required).issubset(platform_data.columns):
                             metrics = evaluate_detectors(platform_data)
@@ -627,6 +659,8 @@ with tabs[6]:
                             "equipment": equipment,
                             "infrastructure": infrastructure,
                             "workforce": workforce,
+                            "integrated_priority_summary": integrated_priority_summary,
+                            "integrated_priority_register": integrated_priority_register,
                             "metrics": metrics,
                             "synthetic_truth_available": metrics is not None,
                         }
@@ -698,6 +732,12 @@ with tabs[6]:
                 "Workload is a catchment-based proxy, not patient volume or service utilisation.",
                 "Role mixes are not official staffing norms; recruitment credits are not MWK.",
             ],
+            "integrated_facility_priority": result["integrated_priority_summary"],
+            "integrated_priority_interpretation": (
+                "Equal-weighted synthetic screening across data quality, resource capacity, "
+                "operational resilience and supply/cold-chain review flags. The quality benchmark "
+                "covers all reporting periods; operational and supply snapshots use the latest simulated month."
+            ),
             "facility_indicator_combinations_with_valid_targets": int(len(valid_attainment_summary)),
             "facility_indicator_combinations_below_80_pct": int(valid_attainment_summary["attainment_pct"].lt(80).sum()),
             "facility_indicator_combinations_at_or_above_100_pct": int(valid_attainment_summary["attainment_pct"].ge(100).sum()),
@@ -751,6 +791,7 @@ with tabs[6]:
             "facility_monthly_workforce_capacity.csv": result["workforce"]["monthly_workforce"],
             "facility_latest_workforce_capacity.csv": result["workforce"]["latest_facility_workforce"],
             "workforce_recruitment_scenario.csv": result["workforce"]["role_recruitment_scenario"],
+            "integrated_facility_priority_register.csv": result["integrated_priority_register"],
         }
         if result["metrics"] is not None:
             export_tables["synthetic_detector_evaluation_metrics.csv"] = result["metrics"]
@@ -765,6 +806,37 @@ with tabs[6]:
             mime="application/zip",
             key="download_expanded_analysis_pack",
         )
+        st.markdown("**Integrated facility priority and management queue**")
+        st.caption(
+            "Facilities are ranked using four equally weighted synthetic domain scores: "
+            "all-period data-quality issue rate, illustrative resource-capacity gap, "
+            "latest-month operational review flag and latest-month supply/cold-chain review flag. "
+            "The score is a triage aid, not a validated clinical or official facility rating."
+        )
+        priority_summary = result["integrated_priority_summary"]
+        q1, q2, q3, q4 = st.columns(4)
+        q1.metric("Facilities ranked", priority_summary["facilities_prioritised"])
+        q2.metric("High review", priority_summary["high_review_facilities"])
+        q3.metric("Focused review", priority_summary["focused_review_facilities"])
+        q4.metric("Mean priority score", f'{priority_summary["mean_integrated_priority_score"]:.1f}/100')
+        priority_columns = [
+            "Integrated_Priority_Rank", "Facility_ID", "Facility_Name", "District",
+            "Priority_Band", "Integrated_Priority_Score", "Review_Domains",
+            "Data_Quality_Priority_Score", "Resource_Gap_Priority_Score",
+            "Operational_Priority_Score", "Supply_Cold_Chain_Priority_Score",
+        ]
+        st.dataframe(
+            result["integrated_priority_register"][priority_columns],
+            use_container_width=True, hide_index=True,
+        )
+        st.download_button(
+            "Download integrated facility priority register",
+            data=result["integrated_priority_register"].to_csv(index=False).encode("utf-8"),
+            file_name="integrated_facility_priority_register.csv",
+            mime="text/csv",
+            key="download_integrated_facility_priority_register",
+        )
+
         p1, p2, p3, p4, p5 = st.columns(5)
         p1.metric("Staged records", f"{result['records']:,}")
         p2.metric("Facilities", f"{result['facilities']:,}")
