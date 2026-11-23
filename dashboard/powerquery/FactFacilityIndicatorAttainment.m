@@ -7,6 +7,7 @@ let
     Types = Table.TransformColumnTypes(Headers, {
         {"Facility_ID", type text}, {"Facility", type text}, {"District", type text},
         {"Programme", type text}, {"Indicator", type text},
+        {"Indicator_Key", type text},
         {"reporting_records", Int64.Type}, {"valid_attainment_records", Int64.Type},
         {"reported_total", type number}, {"target_total", type number},
         {"facilities", Int64.Type}, {"attainment_pct", type number},
