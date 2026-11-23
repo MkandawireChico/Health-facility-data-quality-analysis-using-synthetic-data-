@@ -58,7 +58,10 @@ def test_scenario_budget_is_never_exceeded_and_facility_pairs_complete():
     scenarios = result["upgrade_scenarios"]
     assert len(scenarios) == 3 * 4
     assert scenarios["Synthetic_Cost_Credits"].gt(0).all()
-    assert scenarios["Within_Illustrative_Budget"].sum() * 500 <= 1800 or scenarios["Within_Illustrative_Budget"].sum() >= 0
+    funded = scenarios.loc[scenarios["Within_Illustrative_Budget"]]
+    assert funded["Synthetic_Cost_Credits"].sum() <= 1800
+    assert scenarios["Selected_Package_For_Facility"].sum() == 3
+    assert not scenarios.loc[~scenarios["Selected_Package_For_Facility"], "Within_Illustrative_Budget"].any()
     assert scenarios["Facility_ID"].nunique() == 3
     assert scenarios["Synthetic_Data"].all()
 
