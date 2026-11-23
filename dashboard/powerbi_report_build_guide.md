@@ -145,6 +145,7 @@ Avoid exposing patient-level data. The current dataset has no patient-level reco
 - Check district, facility, month, programme and indicator cross-filtering.
 - Confirm no Ground_Truth_* fields appear in operational tables or report visuals.
 - Confirm detector evaluation is visibly synthetic and isolated from operational metrics.
+- Target attainment is compared only within matching programme-indicator pairs; show valid-data denominators and do not describe it as population coverage.
 - Export each page to PDF and review clipping, labels and synthetic disclaimers.
 - Save the final PBIX only after the model refresh and all page-level checks pass.
 
