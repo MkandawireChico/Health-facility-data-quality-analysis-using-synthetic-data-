@@ -23,6 +23,10 @@ Use these outputs from `data/warehouse/`:
 - `analytics/programme_indicator_quality_profile.csv`
 - `analytics/statistical_peer_anomalies.csv`
 - `analytics/monthly_issue_control_chart.csv`
+- `analytics/facility_indicator_target_attainment.csv`
+- `analytics/district_indicator_target_attainment.csv`
+- `analytics/programme_indicator_target_attainment.csv`
+- `analytics/monthly_indicator_target_attainment.csv`
 
 Generated files are Git-ignored. Set Power Query parameters to the local paths on the machine where Power BI Desktop is running.
 
