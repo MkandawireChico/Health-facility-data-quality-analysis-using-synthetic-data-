@@ -48,8 +48,8 @@ def build_resource_planning_profiles(
     frame["Catchment_Population"] = pd.to_numeric(frame["Catchment_Population"], errors="coerce")
     if frame["Facility_ID"].isna().any() or frame["Facility_ID"].duplicated().any():
         raise ValueError("Facility_ID must be populated and unique")
-    if frame["Catchment_Population"].isna().any() or frame["Catchment_Population"].lt(0).any():
-        raise ValueError("Catchment_Population must contain non-negative numeric values")
+    if frame["Catchment_Population"].isna().any() or not np.isfinite(frame["Catchment_Population"].to_numpy(dtype=float)).all() or frame["Catchment_Population"].lt(0).any():
+        raise ValueError("Catchment_Population must contain finite non-negative numeric values")
 
     type_increment = {
         "Health Centre": 1,
