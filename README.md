@@ -405,3 +405,8 @@ actions—not only currently visible flagged rows—with status totals, overdue
 counts, full-register export and field-level audit history. Local SQLite
 persistence remains single-instance/local; Streamlit Community Cloud storage
 is ephemeral and is not a managed multi-user database.
+
+
+### Resource capacity planning and allocation scenarios
+
+The new `src/resource_planning.py` layer creates synthetic facility capacity profiles and compares three constrained allocation heuristics: largest-gap priority, rural-weighted equity and equal-share rounds. The pool is configurable and every strategy respects each facility's modelled gap. Outputs include baseline capacity, abstract requirement units, allocated units, residual gaps and scenario summaries. These are explicitly illustrative resource units—not staff headcounts, budgets, official Malawi staffing norms or operational recommendations. Catchment population is only a configurable planning proxy, not patient volume or service coverage. See `docs/resource_planning_methodology.md`. The one-command platform build now exports the resource planning tables and report; Streamlit includes a scenario laboratory and CSV downloads.
