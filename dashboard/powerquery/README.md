@@ -52,6 +52,13 @@ Load these queries:
 - FactProgrammeIndicatorAttainment
 - FactFacilityResourceCapacity
 - FactResourceAllocationScenario
+- DimCommodity
+- FactFacilityCommodityStock
+- FactCommodityReplenishmentPlan
+- DimColdChainCommodity
+- FactColdChainTemperature
+- FactCommodityBatchLedger
+- FactColdChainExpiryRisk
 
 FactSourceObservation and DimIndicator reference the FactReporting query, so create FactReporting first. The other query creation order is flexible after FactReporting and DimFacility exist.
 
