@@ -85,6 +85,20 @@ def test_required_schema_and_duplicate_facility_keys_are_enforced():
         stage_reporting_data(fact, duplicated)
 
 
+def test_facility_dimension_keys_are_trimmed_and_blank_keys_rejected():
+    fact, facilities = sample_tables()
+    padded = facilities.copy()
+    padded["Facility_ID"] = "  " + padded["Facility_ID"] + "  "
+    staged, quarantine, _ = stage_reporting_data(fact, padded)
+    assert len(staged) == len(fact)
+    assert quarantine.empty
+
+    blank = facilities.copy()
+    blank.loc[blank.index[0], "Facility_ID"] = "   "
+    with pytest.raises(ValueError, match="Facility_ID must be populated"):
+        stage_reporting_data(fact, blank)
+
+
 def test_pipeline_persists_staged_quarantine_and_quality_report(tmp_path):
     fact, facilities = sample_tables()
     fact_path, facility_path = tmp_path / "fact.csv", tmp_path / "facilities.csv"
