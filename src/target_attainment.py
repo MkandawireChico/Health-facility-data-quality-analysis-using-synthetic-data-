@@ -42,6 +42,7 @@ def _summarise(frame: pd.DataFrame, dimensions: list[str]) -> pd.DataFrame:
     result["attainment_pct"] = (
         100 * result["reported_total"] / result["target_total"].where(result["target_total"].gt(0))
     ).round(2)
+    result["Indicator_Key"] = result["Programme"].astype("string") + "|" + result["Indicator"].astype("string")
     result["performance_band"] = np.select(
         [result["attainment_pct"].lt(80), result["attainment_pct"].lt(100)],
         ["Below 80% of target", "80–99.9% of target"],
