@@ -387,21 +387,24 @@ CALCULATE (
 
 Power Availability Rate =
 DIVIDE (
-    SUM ( FactMonthlyInfrastructureReliability[Power_Availability_Pct] ),
-    COUNTROWS ( FactMonthlyInfrastructureReliability )
-) / 100
+    SUM ( FactMonthlyInfrastructureReliability[Calendar_Hours] )
+        - SUM ( FactMonthlyInfrastructureReliability[Unserved_Power_Interruption_Hours] ),
+    SUM ( FactMonthlyInfrastructureReliability[Calendar_Hours] )
+)
 
 Water Availability Rate =
 DIVIDE (
-    SUM ( FactMonthlyInfrastructureReliability[Water_Availability_Pct] ),
-    COUNTROWS ( FactMonthlyInfrastructureReliability )
-) / 100
+    SUM ( FactMonthlyInfrastructureReliability[Calendar_Hours] )
+        - SUM ( FactMonthlyInfrastructureReliability[Unserved_Water_Shortage_Hours] ),
+    SUM ( FactMonthlyInfrastructureReliability[Calendar_Hours] )
+)
 
 Connectivity Availability Rate =
 DIVIDE (
-    SUM ( FactMonthlyInfrastructureReliability[Connectivity_Availability_Pct] ),
-    COUNTROWS ( FactMonthlyInfrastructureReliability )
-) / 100
+    SUM ( FactMonthlyInfrastructureReliability[Calendar_Hours] )
+        - SUM ( FactMonthlyInfrastructureReliability[Connectivity_Downtime_Hours] ),
+    SUM ( FactMonthlyInfrastructureReliability[Calendar_Hours] )
+)
 
 Unserved Power Interruption Hours =
 SUM ( FactMonthlyInfrastructureReliability[Unserved_Power_Interruption_Hours] )
