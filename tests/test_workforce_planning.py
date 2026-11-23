@@ -48,6 +48,11 @@ def test_recruitment_scenario_is_budget_constrained():
     assert (role["Unfunded_Positions"]==role["Vacancies"]-role["Funded_Positions"]).all()
     assert (role["Funded_Positions"]*role["Cost_Per_Position"]).sum()<=10000
     assert role["Funded_Positions"].sum()>0
+    zero_budget = build_workforce_profiles(
+        sample_facilities(), periods=2, seed=5, recruitment_budget_credits=0
+    )["role_recruitment_scenario"]
+    assert zero_budget["Funded_Positions"].sum() == 0
+    assert zero_budget["Budget_Credits_Unallocated"].eq(0).all()
 
 
 def test_invalid_inputs_and_export_artifacts(tmp_path):
@@ -63,6 +68,8 @@ def test_invalid_inputs_and_export_artifacts(tmp_path):
         build_workforce_profiles(sample_facilities(),recruitment_budget_credits=-1)
     with pytest.raises(ValueError,match="non-negative integer"):
         build_workforce_profiles(sample_facilities(),recruitment_budget_credits=1000.5)
+    with pytest.raises(ValueError,match="non-negative integer"):
+        build_workforce_profiles(sample_facilities(),recruitment_budget_credits=True)
     path=tmp_path/"facilities.csv"
     sample_facilities().to_csv(path,index=False)
     report=run_workforce_planning(path,tmp_path/"analytics",periods=3,seed=3)
