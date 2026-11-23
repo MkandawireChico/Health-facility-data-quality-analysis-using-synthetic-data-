@@ -14,6 +14,7 @@ from target_attainment import run_target_attainment
 from resource_planning import run_resource_planning
 from supply_chain_planning import run_supply_chain_planning
 from cold_chain_planning import run_cold_chain_planning
+from equipment_maintenance import run_equipment_maintenance
 
 
 def build_platform(
@@ -56,6 +57,9 @@ def build_platform(
     cold_chain_report = run_cold_chain_planning(
         facility_path, analytics_dir, periods=periods, start_month=start_month, seed=seed
     )
+    equipment_report = run_equipment_maintenance(
+        facility_path, analytics_dir, periods=periods, start_month=start_month, seed=seed
+    )
 
     if manifest["actual_record_count"] != generator.expected_record_count:
         raise RuntimeError("Generated record count does not match configured fact grain")
@@ -95,6 +99,12 @@ def build_platform(
         "cold_chain_near_expiry_units": cold_chain_report["latest_near_expiry_90_day_units"],
         "cold_chain_expired_units": cold_chain_report["total_expired_units"],
         "cold_chain_assumptions": cold_chain_report["limitations"],
+        "equipment_asset_count": equipment_report["assets"],
+        "equipment_asset_month_records": equipment_report["asset_month_records"],
+        "equipment_maintenance_work_orders": equipment_report["maintenance_work_orders"],
+        "equipment_latest_high_risk_assets": equipment_report["latest_high_risk_assets"],
+        "equipment_latest_mean_operational_uptime_pct": equipment_report["latest_mean_operational_uptime_pct"],
+        "equipment_maintenance_assumptions": equipment_report["limitations"],
         "months_monitored": statistical_report["months_monitored"],
         "ground_truth_used_for_operational_monitoring": False,
         "outputs": {
@@ -128,6 +138,13 @@ def build_platform(
             "cold_chain_batch_ledger": str(analytics_dir / "facility_commodity_batch_ledger.csv"),
             "cold_chain_expiry_risk_summary": str(analytics_dir / "cold_chain_expiry_risk_summary.csv"),
             "cold_chain_planning_report": str(analytics_dir / "cold_chain_planning_report.json"),
+            "equipment_catalog": str(analytics_dir / "equipment_catalog.csv"),
+            "equipment_asset_register": str(analytics_dir / "facility_equipment_asset_register.csv"),
+            "equipment_asset_monthly_performance": str(analytics_dir / "equipment_asset_monthly_performance.csv"),
+            "facility_equipment_monthly_summary": str(analytics_dir / "facility_equipment_monthly_summary.csv"),
+            "equipment_maintenance_work_orders": str(analytics_dir / "equipment_maintenance_work_orders.csv"),
+            "equipment_latest_asset_status": str(analytics_dir / "equipment_latest_asset_risk_status.csv"),
+            "equipment_maintenance_report": str(analytics_dir / "equipment_maintenance_report.json"),
         },
     }
     (output_dir / "platform_build_summary.json").write_text(json.dumps(summary, indent=2))
