@@ -435,8 +435,27 @@ CALCULATE (
     FactLatestWorkforceCapacity[Workforce_Risk_Band] = "High"
 )
 
+Workforce Baseline Vacancies =
+SUM ( FactFacilityWorkforceEstablishment[Baseline_Vacancies] )
+
 Workforce Vacant Positions =
 SUM ( FactMonthlyWorkforceCapacity[Vacant_Positions] )
+
+Workforce Latest Absence Rate Pct =
+VAR LatestWorkforceMonth =
+    CALCULATE (
+        MAX ( FactMonthlyWorkforceCapacity[Month] ),
+        REMOVEFILTERS ( DimDate )
+    )
+RETURN
+    CALCULATE (
+        DIVIDE (
+            SUM ( FactMonthlyWorkforceCapacity[Absent_Positions] ),
+            SUM ( FactMonthlyWorkforceCapacity[Filled_Positions] )
+        ),
+        REMOVEFILTERS ( DimDate ),
+        FactMonthlyWorkforceCapacity[Month] = LatestWorkforceMonth
+    )
 
 Workforce Absent Positions =
 SUM ( FactMonthlyWorkforceCapacity[Absent_Positions] )
