@@ -115,3 +115,14 @@ Load `DimEquipmentType`, `FactEquipmentAssetRegister`, `FactEquipmentAssetMonthl
 - Do not sum asset-level downtime from the monthly asset fact and facility-month summary together; they are two grains of the same simulated performance.
 - Work-order costs should be aggregated from the work-order fact or from the monthly asset fact, not both.
 - All asset records, failure rates, service intervals, criticality weights and cost credits are synthetic assumptions. See `docs/equipment_maintenance_methodology.md`.
+
+
+## Facility infrastructure and utilities reliability
+
+Load `FactFacilityInfrastructureProfiles`, `FactMonthlyInfrastructureReliability`, `FactLatestInfrastructureResilience`, `FactEquipmentInfrastructureAssociation` and `FactInfrastructureUpgradeScenarios`.
+
+- Connect FactFacilityInfrastructureProfiles, FactMonthlyInfrastructureReliability, FactLatestInfrastructureResilience and FactInfrastructureUpgradeScenarios to DimFacility using Facility_ID.
+- Connect the monthly reliability and latest resilience facts to DimDate using Month.
+- FactEquipmentInfrastructureAssociation is aggregated by interruption band only and has no facility/date relationship.
+- Do not create fact-to-fact relationships.
+- All utility configurations, interruptions, availability scores, upgrade assumptions and abstract credits are synthetic. See `docs/infrastructure_reliability_methodology.md`.
