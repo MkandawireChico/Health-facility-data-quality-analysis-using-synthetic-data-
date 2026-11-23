@@ -155,7 +155,7 @@ Interpretation:
 - Allocation methods are heuristics, not validated optima or operational recommendations.
 
 
-## Page 10 — Commodity availability and replenishment
+## Page 9 — Commodity availability and replenishment
 
 **Decision question:** Which synthetic facility–commodity pairs show stockout signals, and how does a constrained budget affect replenishment?
 
