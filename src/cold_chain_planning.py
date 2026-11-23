@@ -98,6 +98,8 @@ def build_cold_chain_profiles(
         raise ValueError("Temperature bounds must be finite and minimum must be below maximum")
 
     fac = facilities[list(REQUIRED_FACILITY_COLUMNS)].copy()
+    if fac.empty:
+        raise ValueError("Facility dimension must contain at least one facility")
     fac["Catchment_Population"] = pd.to_numeric(fac["Catchment_Population"], errors="coerce")
     if fac["Facility_ID"].isna().any() or fac["Facility_ID"].duplicated().any():
         raise ValueError("Facility_ID must be populated and unique")
