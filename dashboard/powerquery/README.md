@@ -64,8 +64,6 @@ FactSourceObservation and DimIndicator reference the FactReporting query, so cre
 - FactDistrictProfile and FactDistrictMonthlyTrend are separate aggregates. Use DimDistrict (defined in dashboard/dax/dimension_tables.dax) to filter those district facts and DimFacility.
 - Target-attainment facts retain programme-indicator grain. Connect FactFacilityIndicatorAttainment to DimFacility and DimIndicator; FactDistrictIndicatorAttainment to DimDistrict and DimIndicator; and FactMonthlyIndicatorAttainment to DimDate and DimIndicator.
 - Attainment is pooled reported value divided by pooled target for the same indicator. It is not population coverage or unique people served.
-- Target-attainment facts retain programme-indicator grain. Connect FactFacilityIndicatorAttainment to DimFacility and DimIndicator; FactDistrictIndicatorAttainment to DimDistrict and DimIndicator; and FactMonthlyIndicatorAttainment to DimDate and DimIndicator.
-- Attainment is pooled reported value divided by pooled target for the same indicator. It is not population coverage or unique people served.
 - Do not create direct fact-to-fact relationships.
 - Use single-direction one-to-many relationships from dimensions to facts.
 - Keep all synthetic-data disclaimers visible in the report.
