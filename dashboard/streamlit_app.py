@@ -960,6 +960,73 @@ with tabs[6]:
                 use_container_width=True,
                 hide_index=True,
             )
+
+            st.markdown("#### Corrective-action performance")
+            try:
+                from action_performance import build_action_performance
+                action_performance = build_action_performance(priority_action_portfolio)
+                action_kpis = action_performance["kpis"]
+                k1, k2, k3, k4 = st.columns(4)
+                k1.metric("Resolution rate", pct(action_kpis["resolution_rate_pct"]))
+                k2.metric("Overdue unresolved", f"{action_kpis['overdue']:,}")
+                k3.metric("Escalated", f"{action_kpis['escalated']:,}")
+                k4.metric("Total tracked", f"{action_kpis['tracked']:,}")
+
+                district_performance = action_performance["district"]
+                monthly_performance = action_performance["monthly"]
+                if not district_performance.empty:
+                    st.plotly_chart(
+                        px.bar(
+                            district_performance.sort_values("tracked_actions"),
+                            x="District",
+                            y=["resolved_actions", "in_progress_actions",
+                               "open_actions", "escalated_actions"],
+                            title="Action workload and status by district",
+                            labels={"value": "Actions", "variable": "Status"},
+                            barmode="stack",
+                        ),
+                        use_container_width=True,
+                    )
+                    st.dataframe(
+                        district_performance.sort_values(
+                            ["resolution_rate_pct", "tracked_actions"],
+                            ascending=[False, False],
+                        ),
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+                if not monthly_performance.empty:
+                    trend_left, trend_right = st.columns(2)
+                    trend_left.plotly_chart(
+                        px.line(
+                            monthly_performance,
+                            x="Month",
+                            y=["tracked_actions", "resolved_actions"],
+                            markers=True,
+                            title="Monthly action throughput",
+                            labels={"value": "Actions", "variable": "Measure"},
+                        ),
+                        use_container_width=True,
+                    )
+                    trend_right.plotly_chart(
+                        px.line(
+                            monthly_performance,
+                            x="Month",
+                            y="resolution_rate_pct",
+                            markers=True,
+                            title="Monthly resolution rate",
+                            labels={"resolution_rate_pct": "Resolved (%)"},
+                        ),
+                        use_container_width=True,
+                    )
+                st.caption(
+                    "District and monthly metrics describe saved synthetic review actions, "
+                    "not verified health-system performance. Resolution means the action "
+                    "record was marked Resolved; it does not independently verify the outcome."
+                )
+            except ValueError as exc:
+                st.warning(f"Action performance metrics could not be calculated: {exc}")
+
             st.download_button(
                 "Download integrated facility action register",
                 data=priority_action_portfolio.to_csv(index=False).encode("utf-8"),
