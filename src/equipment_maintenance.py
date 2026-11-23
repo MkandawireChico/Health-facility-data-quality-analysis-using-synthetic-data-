@@ -108,7 +108,6 @@ def build_equipment_maintenance_profiles(
             }
             assets.append(asset)
             condition = condition_start
-            last_pm_missed = False
             pm_offset = int(rng.integers(0, spec["PM_Interval_Months"]))
             for period_index, month in enumerate(months):
                 days = int(month.days_in_month)
@@ -140,7 +139,7 @@ def build_equipment_maintenance_profiles(
                 condition = float(np.clip(condition, 10, 100))
                 age_ratio = min(1.0, age_years / spec["Expected_Life_Years"])
                 downtime_risk = min(100.0, breakdown_hours / max(1.0, calendar_hours) * 100 * 5)
-                pm_risk = 100.0 if pm_overdue else (25.0 if not pm_due else 0.0)
+                pm_risk = 100.0 if pm_overdue else 0.0
                 age_risk = age_ratio * 100
                 criticality_weight = {"Critical": 1.0, "High": 0.85, "Medium": 0.65}.get(spec["Criticality"], 0.5)
                 risk_score = float(np.clip(
@@ -148,10 +147,9 @@ def build_equipment_maintenance_profiles(
                     0, 100,
                 ))
                 risk_band = "High" if risk_score >= 65 else "Medium" if risk_score >= 35 else "Low"
-                maintenance_cost = int(
-                    (rng.integers(25, 180) if breakdown else 0)
-                    + (rng.integers(10, 90) if pm_completed else 0)
-                )
+                pm_cost = int(rng.integers(10, 90)) if pm_completed else 0
+                corrective_cost = int(rng.integers(25, 180)) if breakdown else 0
+                maintenance_cost = pm_cost + corrective_cost
                 record = {
                     "Asset_ID": asset_id,
                     "Facility_ID": facility["Facility_ID"],
@@ -196,7 +194,7 @@ def build_equipment_maintenance_profiles(
                         "Status": status,
                         "Due_Date": (month + pd.offsets.MonthEnd(0)).date().isoformat(),
                         "Downtime_Hours": round(planned_downtime, 1),
-                        "Cost_Credits": int(rng.integers(10, 90)) if pm_completed else 0,
+                        "Cost_Credits": pm_cost,
                         "Synthetic_Data": True,
                     })
                 if breakdown:
@@ -213,7 +211,7 @@ def build_equipment_maintenance_profiles(
                         "Status": "Closed" if breakdown_hours < 12 or rng.random() < 0.55 else "In Progress",
                         "Due_Date": (month + pd.offsets.MonthEnd(0)).date().isoformat(),
                         "Downtime_Hours": round(breakdown_hours, 1),
-                        "Cost_Credits": int(rng.integers(25, 180)),
+                        "Cost_Credits": corrective_cost,
                         "Synthetic_Data": True,
                     })
 
