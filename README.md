@@ -1,46 +1,48 @@
-# Health Facility Data Quality Assessment & Reporting Dashboard
-## Rumphi District, Malawi (Synthetic Portfolio Dataset)
+# Malawi Health Facility Data Intelligence & Performance Monitoring Platform
 
 ## Project Overview
 
-This project demonstrates a practical data quality assessment and reporting workflow for health facilities, using a realistic **synthetic** dataset representing monthly reporting across multiple programme areas and three parallel data sources (Paper Register, EMR, DHIS2).
+A portfolio-scale, reproducible health-facility data intelligence platform built around a fully synthetic Malawi-oriented reporting environment. It combines data engineering, data-quality assessment, longitudinal statistical monitoring, programme target-attainment analysis, facility and district intelligence, and operational planning scenarios in one Python, Streamlit, Jupyter and Power BI project.
 
-The analysis identifies incomplete records, inconsistencies between reporting systems, delayed reporting, unusual values, and other data-quality problems that would affect programme monitoring and decision-making in a real health information system.
+The expanded default cohort models **120 synthetic facilities, six Malawi district labels, 60 monthly periods, eight programme areas and 40 indicators — 288,000 facility-month-indicator records**. The platform then stages and validates the data, evaluates controlled quality defects, produces analytical outputs, and runs planning modules for resources, commodities, cold-chain batches, equipment, infrastructure and workforce capacity.
 
-Built as a portfolio demonstration for Data Technician, Data Analyst, Monitoring & Evaluation (M&E), and health informatics roles.
+**Data governance:** every facility record, facility identifier, population, observation, target, stock movement, asset, staffing profile, event, cost and planning output is synthetic. District names are geographic labels only; results do not describe actual Malawi districts, facilities or Ministry of Health performance. No patient-level or employee-level personal data is included. This is a portfolio prototype, not a production health information system or an operational clinical, staffing, engineering or procurement recommendation.
 
-**All data in this project is synthetic, generated programmatically with a fixed random seed (see `notebooks/health_data_quality_analysis.ipynb`, Section 1). It does not represent actual patient, facility, or Ministry of Health data. Facility names are illustrative, chosen to be plausible for the district, not drawn from any real facility list.**
+## Platform capabilities
+
+- **Data engineering:** reproducible cohort generation, relational-style facility and reporting facts, staging, structural validation and quarantine.
+- **Data quality:** completeness, source reconciliation, timeliness, outlier detection, risk prioritisation and synthetic detector evaluation.
+- **Statistical monitoring:** robust peer-group anomaly detection, monthly issue-rate trends and retrospective denominator-aware control limits.
+- **Programme intelligence:** indicator-specific target attainment at facility, district, programme and monthly grain, with valid-data denominators.
+- **Operational planning:** constrained resource allocation, commodity stockout and replenishment scenarios, cold-chain and batch-expiry review, equipment maintenance and uptime, infrastructure resilience, and workforce capacity scenarios.
+- **Decision support:** interactive Streamlit workspace, persistent local corrective-action register with audit history, downloadable analytical outputs, notebook analysis and a Power BI semantic-model implementation pack.
+
+## Baseline demonstration
+
+The repository began as a smaller **960-record Rumphi-oriented demonstration** covering eight fictional facilities and 12 months. Its original Power BI report and four page exports remain available as a baseline example. The expanded platform described above is the current development focus; the original PBIX has not yet been rebuilt to include the expanded semantic model.
 
 ## Problem Statement
 
-Health programmes depend on accurate, complete, and timely information for monitoring performance and supporting operational decisions. Where information is recorded across paper registers, electronic medical records, and platforms like DHIS2, differences between sources create real data-quality problems: missing values, duplicate or inconsistent records, delayed reporting, out-of-range values, and disagreement between systems. These problems make routine reporting less reliable and increase the time required for verification and correction.
+Health programmes depend on accurate, complete and timely information for monitoring performance and supporting operational decisions. Where information is recorded across paper registers, electronic medical records and digital reporting platforms, differences between sources create data-quality problems: missing values, duplicate or inconsistent records, delayed reporting and unusual values. These issues make routine reporting less reliable and increase the effort required for verification and correction.
 
-This project demonstrates how a Data Technician or M&E Assistant could identify these issues systematically using Python, and present the results through a Power BI dashboard designed around an M&E Officer's actual follow-up workflow.
+This project demonstrates an end-to-end analytical workflow that moves from synthetic raw reporting data through validation and monitoring to prioritised review outputs and illustrative operational planning scenarios.
 
 ## Objectives
 
-1. Assess data completeness across facilities and programme areas
-2. Identify inconsistencies between paper, EMR, and DHIS2 records
-3. Identify unusual or potentially erroneous reported values
-4. Analyse reporting timeliness
-5. Identify facilities with recurring data-quality problems
-6. Analyse trends in reported indicators over time
-7. Produce a prioritized, risk-ranked view to support M&E follow-up decisions
-8. Demonstrate a complete, reproducible workflow from raw data to actionable output
+1. Build a reproducible, multi-year synthetic health reporting dataset.
+2. Validate reporting structures and quarantine structural failures.
+3. Measure completeness, consistency, timeliness and validity.
+4. Evaluate quality detectors against controlled synthetic defects without leaking ground-truth labels into operational scoring.
+5. Monitor facility, district, programme and indicator patterns over time.
+6. Compare reported values with targets at like-for-like indicator grain.
+7. Demonstrate constrained, transparent operational planning scenarios.
+8. Deliver reusable outputs through Python, Streamlit, Jupyter and a Power BI implementation pack.
 
 ## Synthetic Dataset
 
-Generated in the notebook (not sourced from anywhere): 8 fictional facilities x 12 months (2025) x 5 programme areas x 2 indicators each x information from 3 reporting sources = **960 monthly facility-indicator records**.
+The expanded generator produces 288,000 facility-month-indicator records by default: 120 synthetic facilities × 60 months × 8 programme areas × 5 indicators. It also creates a facility dimension and a generation manifest. The default seed and configuration make the cohort reproducible. Controlled quality defects and ground-truth labels support detector evaluation; ground truth is excluded from operational profiling and monitoring.
 
-Programme areas: **HIV, TB, Maternal Health, Child Health, Outpatient** (two indicators each — e.g. HIV has "Patients on ART" and "New ART Initiations").
-
-Four categories of realistic data-quality problems are deliberately injected with their own fixed random seeds, so the exact affected rows are reproducible:
-- **Missing reported values** — 3% of records
-- **Source discrepancies** (DHIS2 perturbed 40–60% from the other sources) — 5% of records
-- **Outliers** (reported value inflated to 2–3x target) — 2% of records
-- **Forced late reports** — an additional 8% of records, on top of the ~12% baseline lateness rate
-
-No real patient-level information is included anywhere in this project.
+The original 960-row dataset is retained as a baseline demonstration and should not be confused with the expanded generated cohort. All data is synthetic and generated for portfolio demonstration only.
 
 ## Tools Used
 
@@ -62,7 +64,7 @@ Raw Synthetic Data → Data Inspection → Data Cleaning → Data Validation
 - **Timeliness** — was reporting completed on time? (`Calculated_Timeliness`, based on reporting dates vs. due dates)
 - **Validity** — do reported values fall within a reasonable range? (`Outlier_Flag`, using IQR method grouped by indicator)
 
-## Key Findings
+## Baseline demo findings (960-row dataset)
 
 The following figures are calculated from the committed 960-row raw synthetic dataset using the current field-presence, timeliness, hybrid consistency and IQR rules. They describe this generated dataset only; they are not real Rumphi District or Ministry of Health results.
 
@@ -209,11 +211,11 @@ This project uses entirely synthetic data. No real patient information, patient 
 
 Demonstrates skills relevant to: Data Technician · Data Analyst · Monitoring & Evaluation Assistant · Health Information Systems Assistant · M&E Data Officer · Research Data Assistant · Health Informatics roles — specifically the ability to move from raw, imperfect data to validated information and a prioritized, actionable output.
 
-## Future Improvements
+## Remaining validation and future work
 
-- Capture and add genuine screenshots of the deployed Streamlit app after completing a visual browser QA pass
+- Capture genuine screenshots of the expanded Streamlit workspace after completing a visual browser QA pass
 - Validate the statistical thresholds and peer-group assumptions against appropriately governed operational data before any real-world use
-- Extend the automated tests to cover the production data-quality module and end-to-end dataset generation
+- Execute the complete automated test suite and full default platform build after GitHub Actions runner capacity is restored
 - If properly anonymised and aggregated operational reporting data ever becomes available for a comparable workflow, assess whether the synthetic patterns generalise
 
 ## Author
