@@ -55,9 +55,6 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | FactProgrammeIndicatorAttainment | Programme × indicator | Overall comparable indicator attainment profile |
 | FactMonthlyQualityTrend | Month | Operational issue volumes and rates |
 | FactPeerAnomaly | Anomalous reporting record | Statistical review queue and peer score |
-| FactFacilityIndicatorAttainment | Facility × programme × indicator | Pooled reported-to-target attainment by comparable indicator |
-| FactDistrictIndicatorAttainment | District × programme × indicator | District comparison at comparable indicator grain |
-| FactMonthlyIndicatorAttainment | Month × programme × indicator | Monthly target-attainment trend by indicator |
 
 ### Relationships
 
