@@ -53,7 +53,11 @@ def _validate_facilities(facilities: pd.DataFrame) -> pd.DataFrame:
     if fac["Facility_ID"].duplicated().any():
         raise ValueError("Facility_ID values must be unique")
     fac["Catchment_Population"] = pd.to_numeric(fac["Catchment_Population"], errors="coerce")
-    fac["Catchment_Population"] = fac["Catchment_Population"].fillna(0).clip(lower=0)
+    population = fac["Catchment_Population"]
+    if population.isna().any() or not np.isfinite(population.to_numpy(dtype=float)).all():
+        raise ValueError("Catchment_Population must contain finite numeric values")
+    if population.lt(0).any():
+        raise ValueError("Catchment_Population must contain non-negative numeric values")
     for column in ["Facility_Name", "District", "Facility_Type", "Urban_Rural"]:
         fac[column] = fac[column].fillna("Unknown").astype(str).str.strip()
     return fac
