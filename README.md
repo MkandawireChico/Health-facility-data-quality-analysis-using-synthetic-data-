@@ -333,7 +333,7 @@ workflow artifact.
 
 The expanded platform includes a separate Power BI implementation pack:
 [`dashboard/powerbi_expanded_model.md`](dashboard/powerbi_expanded_model.md).
-It documents the star schema, relationship design, seven-page report plan and
+It documents the star schema, relationship design, expanded thirteen-page report plan (with an optional facility-detail page) and
 synthetic-data governance. The accessible light theme is in
 [`dashboard/powerbi_theme.json`](dashboard/powerbi_theme.json), and the report
 build and visual QA guide is in
@@ -344,8 +344,8 @@ and calculated dimensions in
 [`dashboard/dax/dimension_tables.dax`](dashboard/dax/dimension_tables.dax).
 Power Query M templates for the reporting fact, dimensions, source observations,
 district intelligence, monthly trends, statistical anomalies, detector
-evaluation and facility/district/programme/monthly target attainment are in
-`dashboard/powerquery/`. Target-attainment calculations and interpretation
+evaluation, target attainment, resource allocation, commodity supply, cold-chain,
+equipment, infrastructure and workforce facts are in `dashboard/powerquery/`. Target-attainment calculations and interpretation
 safeguards are documented in
 [`docs/target_attainment_methodology.md`](docs/target_attainment_methodology.md).
 
@@ -446,3 +446,48 @@ See [infrastructure reliability methodology](docs/infrastructure_reliability_met
 ## Workforce capacity and staffing intelligence
 
 A further synthetic planning layer models facility-role establishments, filled and vacant posts, monthly absence and overtime, catchment-based workload proxies, facility coverage review bands, and a role-level recruitment scenario under an abstract credit ceiling. The role categories and weights are illustrative, not official Malawi staffing norms. No employee or patient records are generated. Catchment population is not patient volume; recruitment credits are not MWK. See [workforce planning methodology](docs/workforce_planning_methodology.md).
+
+
+### Reproducible full-platform build and deployment notes
+
+For the complete analytical platform (not just the original CSV assessment
+workflow), install the pinned-by-range project dependencies and run the
+orchestrator from the repository root:
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python src/build_platform.py
+pytest -q
+```
+
+The default build creates 120 synthetic facilities, 60 monthly periods and
+288,000 facility-month-indicator fact records. It writes raw, staged, quarantine
+and analytical outputs beneath `data/warehouse/`, which is intentionally
+excluded from version control. For a quick development run, use a smaller
+cohort, for example:
+
+```bash
+python src/build_platform.py --facilities 12 --periods 6 --output-dir data/warehouse-smoke
+```
+
+The platform build summary is written to
+`data/warehouse/platform_build_summary.json`. Its `outputs` object is the
+artifact manifest; each listed path should exist after a successful build.
+The build includes synthetic resource, commodity, cold-chain, equipment,
+infrastructure and workforce scenarios. These modules use explicit
+illustrative assumptions and abstract credits, not official standards,
+verified facility observations or Malawi Kwacha budgets.
+
+The Streamlit app is launched separately:
+
+```bash
+streamlit run dashboard/streamlit_app.py
+```
+
+The Streamlit Community Cloud deployment linked above is a hosted app and
+should not be assumed to reflect unmerged feature branches. The expanded
+platform code and Power BI semantic-model pack require successful CI,
+deployment refresh and a visual verification pass before they can be described
+as live and fully validated. The existing PBIX remains the original report
+until the expanded semantic model is rebuilt and saved from Power BI Desktop.
