@@ -70,10 +70,27 @@ def build_platform(
         facility_path, analytics_dir, periods=periods, start_month=start_month, seed=seed,
     )
 
+    if isinstance(seed, bool) or not isinstance(seed, int):
+        raise ValueError("seed must be an integer")
+    if isinstance(facility_count, bool) or not isinstance(facility_count, int) or facility_count < 1:
+        raise ValueError("facility_count must be a positive integer")
+    if isinstance(periods, bool) or not isinstance(periods, int) or periods < 1:
+        raise ValueError("periods must be a positive integer")
+
     if manifest["actual_record_count"] != generator.expected_record_count:
         raise RuntimeError("Generated record count does not match configured fact grain")
+    if manifest["facility_count"] != len(facilities):
+        raise RuntimeError("Generated facility count does not match the facility dimension")
     if staging_report["staged_rows"] + staging_report["quarantined_rows"] != manifest["actual_record_count"]:
         raise RuntimeError("Staging row reconciliation failed")
+    if staging_report["source_fact_rows"] != manifest["actual_record_count"]:
+        raise RuntimeError("ETL source row count does not reconcile with the generated fact")
+    if quality_report["input_records"] != staging_report["staged_rows"]:
+        raise RuntimeError("Quality analytics input count does not reconcile with staged records")
+    if statistical_report["staged_records"] != staging_report["staged_rows"]:
+        raise RuntimeError("Statistical monitoring input count does not reconcile with staged records")
+    if attainment_report["input_records"] != staging_report["staged_rows"]:
+        raise RuntimeError("Target attainment input count does not reconcile with staged records")
 
     summary = {
         "synthetic_data": True,
@@ -182,6 +199,21 @@ def build_platform(
             "workforce_planning_report": str(analytics_dir / "workforce_planning_report.json"),
         },
     }
+    # Treat the output map as a build contract: every advertised artifact must
+    # exist before a successful summary is published.
+    missing_artifacts = [
+        name for name, path in summary["outputs"].items()
+        if not Path(path).is_file()
+    ]
+    if missing_artifacts:
+        raise RuntimeError(
+            "Platform build is missing advertised artifacts: "
+            + ", ".join(missing_artifacts)
+        )
+    summary["artifact_count"] = len(summary["outputs"])
+    summary["artifact_total_bytes"] = sum(
+        Path(path).stat().st_size for path in summary["outputs"].values()
+    )
     (output_dir / "platform_build_summary.json").write_text(json.dumps(summary, indent=2))
     return summary
 
