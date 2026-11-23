@@ -94,9 +94,21 @@ def _validate_monthly_analytics_population(
             raise RuntimeError(f"{label} monthly output contains invalid reporting months")
         if months.duplicated().any():
             raise RuntimeError(f"{label} monthly output contains duplicate month rows")
-        counts = pd.to_numeric(frame[count_column], errors="coerce")
-        if counts.isna().any() or counts.lt(0).any() or not np.isfinite(counts).all():
-            raise RuntimeError(f"{label} monthly output contains invalid record counts")
+        raw_counts = frame[count_column]
+        contains_boolean = raw_counts.map(
+            lambda value: isinstance(value, (bool, np.bool_))
+        ).any()
+        counts = pd.to_numeric(raw_counts, errors="coerce")
+        if (
+            contains_boolean
+            or counts.isna().any()
+            or counts.lt(0).any()
+            or not np.isfinite(counts).all()
+            or not np.equal(counts, np.floor(counts)).all()
+        ):
+            raise RuntimeError(
+                f"{label} monthly output contains invalid record counts"
+            )
         monthly_counts[label] = {
             str(month): int(count)
             for month, count in zip(months.astype(str), counts)
