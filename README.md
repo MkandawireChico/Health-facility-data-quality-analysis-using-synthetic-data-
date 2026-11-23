@@ -500,3 +500,5 @@ until the expanded semantic model is rebuilt and saved from Power BI Desktop.
 
 The final release gate and ordered merge procedure are documented in
 [`docs/release_validation_checklist.md`](docs/release_validation_checklist.md).
+
+The final repository-wide audit, PR dependency review and remaining release blockers are recorded in [`docs/final_repository_audit.md`](docs/final_repository_audit.md).
