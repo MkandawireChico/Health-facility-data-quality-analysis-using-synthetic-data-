@@ -56,8 +56,6 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | FactProgrammeIndicatorAttainment | Programme × indicator | Overall comparable indicator attainment profile |
 | FactMonthlyQualityTrend | Month | Operational issue volumes and rates |
 | FactPeerAnomaly | Anomalous reporting record | Statistical review queue and peer score |
-| FactFacilityCommodityStock | Facility × commodity × month | Synthetic stock balances, receipts, demand and stockout estimates |
-| FactCommodityReplenishmentPlan | Facility × commodity snapshot | Requested, funded and unfunded replenishment units |
 | FactFacilityCommodityStock | Facility × commodity × month | Synthetic opening stock, receipts, demand, unmet demand and stockout estimates |
 | FactCommodityReplenishmentPlan | Facility × commodity snapshot | Requested, funded and unfunded replenishment units under an abstract budget |
 
