@@ -554,6 +554,7 @@ with tabs[6]:
                     from resource_planning import build_resource_planning_profiles
                     from supply_chain_planning import build_supply_chain_profiles
                     from cold_chain_planning import build_cold_chain_profiles
+                    from equipment_maintenance import build_equipment_maintenance_profiles
 
                     with st.spinner("Running quality, statistical, resource and commodity supply-chain analytics..."):
                         predicted = add_operational_predictions(platform_data)
@@ -570,6 +571,9 @@ with tabs[6]:
                             budget_credits=int(supply_budget_input),
                         )
                         cold_chain = build_cold_chain_profiles(
+                            resource_facilities, periods=24, start_month="2025-01-01", seed=42,
+                        )
+                        equipment = build_equipment_maintenance_profiles(
                             resource_facilities, periods=24, start_month="2025-01-01", seed=42,
                         )
                         metrics = None
@@ -600,6 +604,7 @@ with tabs[6]:
                             "resource": resource,
                             "supply": supply,
                             "cold_chain": cold_chain,
+                            "equipment": equipment,
                             "metrics": metrics,
                             "synthetic_truth_available": metrics is not None,
                         }
@@ -641,6 +646,11 @@ with tabs[6]:
             "cold_chain_near_expiry_90_day_units_latest": int(result["cold_chain"]["expiry_risk_summary"].loc[result["cold_chain"]["expiry_risk_summary"]["Month"].eq(result["cold_chain"]["expiry_risk_summary"]["Month"].max()), "Near_Expiry_90_Day_Units"].sum()),
             "cold_chain_expired_units": int(result["cold_chain"]["expiry_risk_summary"]["Expired_Units"].sum()),
             "cold_chain_assumptions": result["cold_chain"]["assumptions"]["limitations"],
+            "equipment_asset_count": int(len(result["equipment"]["asset_register"])),
+            "equipment_high_risk_assets_latest": int(result["equipment"]["latest_asset_status"]["Risk_Band"].eq("High").sum()),
+            "equipment_mean_operational_uptime_pct_latest": round(float(result["equipment"]["latest_asset_status"]["Operational_Uptime_Pct"].mean()), 2),
+            "equipment_open_work_orders_latest": int(result["equipment"]["maintenance_work_orders"].loc[result["equipment"]["maintenance_work_orders"]["Month"].eq(result["equipment"]["maintenance_work_orders"]["Month"].max()), "Status"].ne("Closed").sum()) if not result["equipment"]["maintenance_work_orders"].empty else 0,
+            "equipment_assumptions": result["equipment"]["assumptions"]["limitations"],
             "facility_indicator_combinations_with_valid_targets": int(len(valid_attainment_summary)),
             "facility_indicator_combinations_below_80_pct": int(valid_attainment_summary["attainment_pct"].lt(80).sum()),
             "facility_indicator_combinations_at_or_above_100_pct": int(valid_attainment_summary["attainment_pct"].ge(100).sum()),
@@ -679,6 +689,12 @@ with tabs[6]:
             "facility_cold_chain_temperature_monitoring.csv": result["cold_chain"]["temperature_monitoring"],
             "facility_commodity_batch_ledger.csv": result["cold_chain"]["batch_ledger"],
             "cold_chain_expiry_risk_summary.csv": result["cold_chain"]["expiry_risk_summary"],
+            "equipment_catalog.csv": result["equipment"]["equipment_catalog"],
+            "facility_equipment_asset_register.csv": result["equipment"]["asset_register"],
+            "equipment_asset_monthly_performance.csv": result["equipment"]["asset_monthly_performance"],
+            "facility_equipment_monthly_summary.csv": result["equipment"]["facility_monthly_summary"],
+            "equipment_maintenance_work_orders.csv": result["equipment"]["maintenance_work_orders"],
+            "equipment_latest_asset_risk_status.csv": result["equipment"]["latest_asset_status"],
         }
         if result["metrics"] is not None:
             export_tables["synthetic_detector_evaluation_metrics.csv"] = result["metrics"]
@@ -1034,6 +1050,106 @@ with tabs[6]:
                 file_name="facility_cold_chain_temperature_monitoring.csv",
                 mime="text/csv",
                 key="download_cold_chain_temperature",
+            )
+
+        st.markdown("**Equipment asset, maintenance and uptime intelligence**")
+        st.caption(
+            "All asset inventories, service events, downtime, maintenance costs and condition scores are synthetic. Failure probabilities, asset lives, maintenance intervals and criticality labels are illustrative planning assumptions—not engineering standards, verified facility inventories or clinical service availability evidence. Abstract credits are not MWK."
+        )
+        equipment = result["equipment"]
+        asset_register = equipment["asset_register"]
+        asset_monthly = equipment["asset_monthly_performance"]
+        facility_equipment = equipment["facility_monthly_summary"]
+        maintenance_orders = equipment["maintenance_work_orders"]
+        latest_assets = equipment["latest_asset_status"].copy()
+        latest_equipment_month = asset_monthly["Month"].max()
+        latest_orders = maintenance_orders.loc[maintenance_orders["Month"].eq(latest_equipment_month)].copy()
+        open_orders = latest_orders.loc[~latest_orders["Status"].eq("Closed")].copy()
+        e1, e2, e3, e4 = st.columns(4)
+        e1.metric("Synthetic equipment assets", f"{len(asset_register):,}")
+        e2.metric("Mean operational uptime", f"{latest_assets['Operational_Uptime_Pct'].mean():.1f}%")
+        e3.metric("High-risk assets", f"{int(latest_assets['Risk_Band'].eq('High').sum()):,}")
+        e4.metric("Open work orders", f"{len(open_orders):,}")
+        monthly_equipment = asset_monthly.groupby("Month", as_index=False).agg(
+            Mean_Operational_Uptime_Pct=("Operational_Uptime_Pct", "mean"),
+            Mean_Service_Availability_Pct=("Service_Availability_Pct", "mean"),
+            Breakdown_Events=("Breakdown_Count", "sum"),
+            Unplanned_Downtime_Hours=("Unplanned_Downtime_Hours", "sum"),
+        )
+        equipment_left, equipment_right = st.columns(2)
+        equipment_left.plotly_chart(
+            px.line(
+                monthly_equipment, x="Month", y=["Mean_Operational_Uptime_Pct", "Mean_Service_Availability_Pct"],
+                markers=True, title="Monthly simulated uptime and service availability",
+            ),
+            use_container_width=True,
+        )
+        equipment_right.plotly_chart(
+            px.bar(
+                latest_assets.sort_values("Equipment_Risk_Score").tail(15),
+                x="Equipment_Risk_Score", y="Asset_ID", color="Risk_Band", orientation="h",
+                title="Highest-priority equipment assets",
+                hover_data=["Facility_Name", "District", "Equipment_Type", "Unplanned_Downtime_Hours", "Preventive_Maintenance_Overdue"],
+            ),
+            use_container_width=True,
+        )
+        monthly_pm = facility_equipment.groupby("Month", as_index=False).agg(
+            PM_Due=("PM_Due", "sum"), PM_Completed=("PM_Completed", "sum"),
+            PM_Overdue=("PM_Overdue", "sum"),
+        )
+        monthly_pm["PM_Completion_Pct"] = (
+            100 * monthly_pm["PM_Completed"] / monthly_pm["PM_Due"].replace(0, float("nan"))
+        )
+        st.plotly_chart(
+            px.line(
+                monthly_pm, x="Month", y="PM_Completion_Pct", markers=True,
+                title="Preventive maintenance completion rate",
+            ),
+            use_container_width=True,
+        )
+        st.markdown("**Maintenance work-order queue**")
+        if open_orders.empty:
+            st.success("No synthetic maintenance work orders remain open in the latest simulated month.")
+        else:
+            st.dataframe(
+                open_orders.sort_values(["Priority", "Due_Date"], ascending=[True, True]),
+                use_container_width=True, hide_index=True,
+            )
+        st.download_button(
+            "Download maintenance work-order register",
+            data=maintenance_orders.to_csv(index=False).encode("utf-8"),
+            file_name="equipment_maintenance_work_orders.csv",
+            mime="text/csv",
+            key="download_equipment_work_orders",
+        )
+        st.markdown("**Facility equipment performance**")
+        st.dataframe(
+            facility_equipment.loc[facility_equipment["Month"].eq(latest_equipment_month)],
+            use_container_width=True, hide_index=True,
+        )
+        st.download_button(
+            "Download latest equipment risk register",
+            data=latest_assets.to_csv(index=False).encode("utf-8"),
+            file_name="equipment_latest_asset_risk_status.csv",
+            mime="text/csv",
+            key="download_equipment_risk_register",
+        )
+        with st.expander("Inspect asset register and monthly equipment history"):
+            st.dataframe(asset_register, use_container_width=True, hide_index=True)
+            st.dataframe(asset_monthly.tail(500), use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download full equipment asset register",
+                data=asset_register.to_csv(index=False).encode("utf-8"),
+                file_name="facility_equipment_asset_register.csv",
+                mime="text/csv",
+                key="download_equipment_asset_register",
+            )
+            st.download_button(
+                "Download full asset-month performance history",
+                data=asset_monthly.to_csv(index=False).encode("utf-8"),
+                file_name="equipment_asset_monthly_performance.csv",
+                mime="text/csv",
+                key="download_equipment_monthly_performance",
             )
 
         st.markdown("**Programme and indicator quality profile**")

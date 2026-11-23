@@ -42,6 +42,8 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | DimDistrict | One row per district label | District |
 | DimSource | One row per reporting source | Source |
 | DimCommodity | One row per illustrative commodity | Commodity_ID, Commodity, Programme, Unit |
+| DimEquipmentType | One row per illustrative equipment type | Equipment_Type, Category, Criticality |
+| FactEquipmentAssetRegister (asset dimension role) | One row per synthetic asset | Asset_ID, Facility_ID, Equipment_Type, Install_Date, Asset_Status |
 
 ### Facts
 
@@ -58,6 +60,10 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | FactPeerAnomaly | Anomalous reporting record | Statistical review queue and peer score |
 | FactFacilityCommodityStock | Facility × commodity × month | Synthetic opening stock, receipts, demand, unmet demand and stockout estimates |
 | FactCommodityReplenishmentPlan | Facility × commodity snapshot | Requested, funded and unfunded replenishment units under an abstract budget |
+| FactEquipmentAssetMonthly | Asset × month | Breakdowns, planned/unplanned downtime, uptime, PM completion, condition and risk |
+| FactFacilityEquipmentMonthly | Facility × month | Aggregated equipment uptime, breakdowns, PM and maintenance costs |
+| FactEquipmentMaintenanceWorkOrders | Work order event | Preventive and corrective maintenance events and statuses |
+| FactEquipmentLatestAssetRisk | Asset × latest month | Latest asset risk and operating snapshot |
 
 ### Relationships
 
@@ -84,6 +90,10 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 - DimDate[MonthStart] 1 → * FactMonthlyIndicatorAttainment[Month]
 - DimIndicator[Indicator_Key] 1 → * FactMonthlyIndicatorAttainment[Indicator_Key]
 - DimIndicator[Indicator_Key] 1 → * FactProgrammeIndicatorAttainment[Indicator_Key]
+- DimEquipmentType[Equipment_Type] 1 → * FactEquipmentAssetRegister[Equipment_Type], FactEquipmentAssetMonthly[Equipment_Type], FactEquipmentMaintenanceWorkOrders[Equipment_Type] and FactEquipmentLatestAssetRisk[Equipment_Type]
+- DimFacility[Facility_ID] 1 → * FactEquipmentAssetRegister[Facility_ID], FactEquipmentAssetMonthly[Facility_ID], FactFacilityEquipmentMonthly[Facility_ID], FactEquipmentMaintenanceWorkOrders[Facility_ID] and FactEquipmentLatestAssetRisk[Facility_ID]
+- FactEquipmentAssetRegister[Asset_ID] 1 → * FactEquipmentAssetMonthly[Asset_ID], FactEquipmentMaintenanceWorkOrders[Asset_ID] and FactEquipmentLatestAssetRisk[Asset_ID] (the register is the unique asset dimension in this model)
+- DimDate[MonthStart] 1 → * FactEquipmentAssetMonthly[Month], FactFacilityEquipmentMonthly[Month], FactEquipmentMaintenanceWorkOrders[Month] and FactEquipmentLatestAssetRisk[Month]
 
 - DimFacility[Facility_ID] 1 → * FactFacilityCommodityStock[Facility_ID] and FactCommodityReplenishmentPlan[Facility_ID]
 - DimCommodity[Commodity_ID] 1 → * FactFacilityCommodityStock[Commodity_ID] and FactCommodityReplenishmentPlan[Commodity_ID]
@@ -106,17 +116,18 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 7. **Target attainment** — facility, district and monthly reported-to-target attainment by programme-indicator pair; show valid-record denominators and under-target review bands.
 8. **Resource allocation scenarios** — compare synthetic capacity gaps and three constrained allocation heuristics; keep assumptions and limitations visible.
 9. **Commodity availability and replenishment** — monitor synthetic stockouts, unmet demand, days of cover and budget-constrained replenishment. 
-10. **Cold-chain and expiry intelligence** — review synthetic temperature excursions, monitoring coverage, FEFO batch balances, near-expiry stock, expired quantities and facility-commodity risk bands.
+10. **Cold-chain and expiry intelligence** — review synthetic temperature excursions, monitoring coverage, FEFO batch balances, near-expiry stock, expired quantities and facility-commodity risk bands. 
+11. **Equipment maintenance and uptime** — monitor synthetic asset registers, preventive maintenance compliance, breakdowns, downtime, service availability, operational uptime and open work orders.
 
 ## Build instructions
 
 1. Run `python src/build_platform.py` from the repository root.
 2. In Power BI Desktop, create a text parameter named `pWarehouseRoot` pointing to the generated `data/warehouse` folder (no trailing slash).
-3. Create/load the queries in `dashboard/powerquery/`: `FactReporting`, `DimFacility`, `DimIndicator`, `DimDate`, `DimSource`, `FactSourceObservation`, `FactMonthlyQualityTrend`, `FactMonthlyIssueControlChart`, `FactDistrictProfile`, `FactDistrictMonthlyTrend`, `FactPeerAnomaly`, `FactDetectorEvaluation`, `FactFacilityIndicatorAttainment`, `FactDistrictIndicatorAttainment`, `FactMonthlyIndicatorAttainment`, `FactProgrammeIndicatorAttainment`, `FactFacilityResourceCapacity`, `FactResourceAllocationScenario`, `DimCommodity`, `FactFacilityCommodityStock`, `FactCommodityReplenishmentPlan`, `DimColdChainCommodity`, `FactColdChainTemperature`, `FactCommodityBatchLedger` and `FactColdChainExpiryRisk`.
+3. Create/load the queries in `dashboard/powerquery/`: `FactReporting`, `DimFacility`, `DimIndicator`, `DimDate`, `DimSource`, `FactSourceObservation`, `FactMonthlyQualityTrend`, `FactMonthlyIssueControlChart`, `FactDistrictProfile`, `FactDistrictMonthlyTrend`, `FactPeerAnomaly`, `FactDetectorEvaluation`, `FactFacilityIndicatorAttainment`, `FactDistrictIndicatorAttainment`, `FactMonthlyIndicatorAttainment`, `FactProgrammeIndicatorAttainment`, `FactFacilityResourceCapacity`, `FactResourceAllocationScenario`, `DimCommodity`, `FactFacilityCommodityStock`, `FactCommodityReplenishmentPlan`, `DimColdChainCommodity`, `FactColdChainTemperature`, `FactCommodityBatchLedger`, `FactColdChainExpiryRisk`, `DimEquipmentType`, `FactEquipmentAssetRegister`, `FactEquipmentAssetMonthly`, `FactFacilityEquipmentMonthly`, `FactEquipmentMaintenanceWorkOrders` and `FactEquipmentLatestAssetRisk`.
 4. The FactReporting query removes all `Ground_Truth_*` fields before loading; keep detector evaluation as a separate synthetic-only governance table.
 5. Create `DimDistrict` using `dashboard/dax/dimension_tables.dax`, then create the relationships listed above. Mark DimDate as the date table and sort MonthName by MonthNumber.
 6. Add measures from `dashboard/dax/health_data_quality_measures.dax`.
-7. Add the DAX resource and commodity measures and build the ten report pages using the layout plan.
+7. Add the DAX resource, commodity, cold-chain and equipment measures and build the eleven report pages using the layout plan.
 8. Validate filter behaviour at facility, district, month, programme and indicator levels.
 9. Keep the synthetic-data disclaimer visible on every report page and in exported PDFs.
 
@@ -166,6 +177,12 @@ The query files are executable Power Query M templates, not screenshots or mocku
 | DimCommodity | Illustrative commodity catalogue keyed by Commodity_ID |
 | FactFacilityCommodityStock | Facility × commodity × month simulated stock ledger |
 | FactCommodityReplenishmentPlan | Latest-snapshot budget-constrained replenishment worklist |
+| DimEquipmentType | Illustrative equipment type catalogue |
+| FactEquipmentAssetRegister | One row per asset; serves as the asset dimension |
+| FactEquipmentAssetMonthly | Asset-month maintenance and uptime performance |
+| FactFacilityEquipmentMonthly | Facility-month equipment aggregate |
+| FactEquipmentMaintenanceWorkOrders | Preventive/corrective work-order events |
+| FactEquipmentLatestAssetRisk | Latest-month asset risk snapshot |
 
 Create `DimDistrict` from the DAX dimension-table script. Connect it to DimFacility, FactDistrictProfile and FactDistrictMonthlyTrend using single-direction one-to-many relationships. The district aggregate facts are separate from the facility reporting fact; do not create fact-to-fact joins.
 
@@ -197,3 +214,18 @@ Four Power Query templates extend the model:
 Connect DimFacility and DimDate to all applicable facts using Facility_ID and Month. Connect DimColdChainCommodity to FactCommodityBatchLedger and FactColdChainExpiryRisk using Commodity_ID. FactColdChainTemperature is facility-month grain and has no commodity key. Do not create fact-to-fact relationships. Keep the batch ledger at Batch_ID × Month grain; do not aggregate repeated facility-commodity demand across batch rows.
 
 The default 2–8°C band, shelf lives and expiry windows are illustrative assumptions, not official Malawi standards or product-specific storage instructions. Temperature excursions require product-specific review and do not establish product compromise. See `docs/cold_chain_methodology.md`.
+
+
+## Equipment maintenance and uptime facts
+
+Six Power Query templates extend the semantic model:
+- `DimEquipmentType` — illustrative equipment catalogue with category, criticality and assumed maintenance/lifecycle fields.
+- `FactEquipmentAssetRegister` — synthetic asset-level inventory and installation dates.
+- `FactEquipmentAssetMonthly` — asset-month breakdown, downtime, uptime, PM, condition and risk metrics.
+- `FactFacilityEquipmentMonthly` — facility-month aggregate performance.
+- `FactEquipmentMaintenanceWorkOrders` — preventive and corrective work-order event records.
+- `FactEquipmentLatestAssetRisk` — latest-month asset risk snapshot.
+
+Connect DimEquipmentType and DimFacility to the relevant facts. Connect DimDate to all month-grain facts. Keep the asset register, asset-month performance, facility-month summary and work-order events at their respective grains; do not relate facts directly or aggregate the same downtime/cost measures from multiple fact tables at once. If a dedicated DimAsset is added, it can filter asset-month and work-order facts by Asset_ID.
+
+Service availability excludes unplanned breakdown downtime. Operational uptime also subtracts planned maintenance downtime. The asset mix, expected lives, maintenance intervals, failure probabilities, condition scores and cost credits are synthetic assumptions, not official engineering standards or verified clinical service availability. See `docs/equipment_maintenance_methodology.md`.

@@ -251,3 +251,12 @@ All commodity data, consumption rates, receipts, stockouts and unit costs are sy
 Outputs include `cold_chain_catalog.csv`, `facility_cold_chain_temperature_monitoring.csv`, `facility_commodity_batch_ledger.csv`, `cold_chain_expiry_risk_summary.csv` and `cold_chain_planning_report.json`. Streamlit adds an expiry-risk worklist and batch ledger; Power BI receives a cold-chain commodity dimension and three fact tables.
 
 All sensor data, temperatures, lots, suppliers, dates, stock movements and wastage are synthetic. The default 2–8°C range is a generic demonstration assumption, not an official Malawi standard or a product-specific storage instruction. Excursion flags require authorised review and do not establish product compromise. See `docs/cold_chain_methodology.md`.
+
+
+## Equipment asset, maintenance and uptime intelligence
+
+`src/equipment_maintenance.py` adds a synthetic equipment asset register and monthly performance layer. The simulation includes seven illustrative equipment types, synthetic asset IDs and installation dates, preventive-maintenance intervals, corrective work orders, breakdown events, planned/unplanned downtime, service availability, operational uptime, condition scores and an equipment review score.
+
+Outputs include `equipment_catalog.csv`, `facility_equipment_asset_register.csv`, `equipment_asset_monthly_performance.csv`, `facility_equipment_monthly_summary.csv`, `equipment_maintenance_work_orders.csv`, `equipment_latest_asset_risk_status.csv` and `equipment_maintenance_report.json`. Streamlit adds uptime and maintenance monitoring; Power BI receives an equipment type dimension and five equipment fact tables.
+
+All assets, failures, maintenance events, downtime and costs are synthetic. Asset lives, failure probabilities, maintenance intervals and criticality weights are illustrative assumptions, not official equipment standards or engineering recommendations. Uptime is simulated, not verified clinical service availability. Abstract cost credits are not MWK. See `docs/equipment_maintenance_methodology.md`.

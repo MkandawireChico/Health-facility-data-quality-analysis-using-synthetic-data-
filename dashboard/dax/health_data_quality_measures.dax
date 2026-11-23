@@ -299,3 +299,77 @@ AVERAGE ( FactColdChainExpiryRisk[Cold_Chain_Risk_Score] )
 
 Cold Chain Closing Batch Stock =
 SUM ( FactCommodityBatchLedger[Closing_Stock_Units] )
+
+
+// Equipment asset, preventive maintenance and uptime monitoring.
+// All underlying asset records and metrics are synthetic.
+Equipment Asset Count =
+DISTINCTCOUNT ( FactEquipmentAssetRegister[Asset_ID] )
+
+Equipment Mean Operational Uptime Pct =
+AVERAGE ( FactEquipmentAssetMonthly[Operational_Uptime_Pct] )
+
+Equipment Mean Service Availability Pct =
+AVERAGE ( FactEquipmentAssetMonthly[Service_Availability_Pct] )
+
+Equipment Unplanned Downtime Hours =
+SUM ( FactEquipmentAssetMonthly[Unplanned_Downtime_Hours] )
+
+Equipment Planned Maintenance Downtime Hours =
+SUM ( FactEquipmentAssetMonthly[Planned_Maintenance_Downtime_Hours] )
+
+Equipment Breakdown Events =
+SUM ( FactEquipmentAssetMonthly[Breakdown_Count] )
+
+Equipment Preventive Maintenance Due =
+CALCULATE (
+    COUNTROWS ( FactEquipmentAssetMonthly ),
+    FactEquipmentAssetMonthly[Preventive_Maintenance_Due] = TRUE ()
+)
+
+Equipment Preventive Maintenance Completed =
+CALCULATE (
+    COUNTROWS ( FactEquipmentAssetMonthly ),
+    FactEquipmentAssetMonthly[Preventive_Maintenance_Completed] = TRUE ()
+)
+
+Equipment Preventive Maintenance Overdue =
+CALCULATE (
+    COUNTROWS ( FactEquipmentAssetMonthly ),
+    FactEquipmentAssetMonthly[Preventive_Maintenance_Overdue] = TRUE ()
+)
+
+Equipment Preventive Maintenance Completion Pct =
+DIVIDE (
+    [Equipment Preventive Maintenance Completed],
+    [Equipment Preventive Maintenance Due]
+) * 100
+
+Equipment Open Work Orders Latest Month =
+VAR LatestWorkOrderMonth =
+    CALCULATE (
+        MAX ( FactEquipmentMaintenanceWorkOrders[Month] ),
+        REMOVEFILTERS ( DimDate )
+    )
+RETURN
+    CALCULATE (
+        COUNTROWS ( FactEquipmentMaintenanceWorkOrders ),
+        REMOVEFILTERS ( DimDate ),
+        FactEquipmentMaintenanceWorkOrders[Month] = LatestWorkOrderMonth,
+        FactEquipmentMaintenanceWorkOrders[Status] <> "Closed"
+    )
+
+Equipment Maintenance Cost Credits =
+SUM ( FactEquipmentAssetMonthly[Maintenance_Cost_Credits] )
+
+Equipment High Risk Assets =
+CALCULATE (
+    DISTINCTCOUNT ( FactEquipmentLatestAssetRisk[Asset_ID] ),
+    FactEquipmentLatestAssetRisk[Risk_Band] = "High"
+)
+
+Equipment Mean Condition Score =
+AVERAGE ( FactEquipmentAssetMonthly[Condition_Score] )
+
+Equipment Mean Risk Score =
+AVERAGE ( FactEquipmentLatestAssetRisk[Equipment_Risk_Score] )
