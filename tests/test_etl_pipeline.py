@@ -124,3 +124,33 @@ def test_pipeline_persists_staged_quarantine_and_quality_report(tmp_path):
     assert (tmp_path / "output/facility_reporting_staged.csv").exists()
     assert (tmp_path / "output/facility_reporting_quarantine.csv").exists()
     assert (tmp_path / "output/staging_quality_report.json").exists()
+
+
+
+def test_invalid_infinite_source_values_do_not_distort_source_reconciliation():
+    fact, facilities = sample_tables()
+    # Two valid source readings agree; the third is invalid and must not be
+    # counted as an observation or inflate the spread/discrepancy flag.
+    fact.loc[0, ["Paper_Value", "EMR_Value", "DHIS2_Value"]] = [100, 102, float("inf")]
+    staged, quarantine, report = stage_reporting_data(fact, facilities)
+
+    assert quarantine.empty
+    row = staged.loc[staged["Record_ID"].eq(fact.loc[0, "Record_ID"])].iloc[0]
+    assert row["Quality_Invalid_Numeric_Count"] == 1
+    assert row["Quality_Insufficient_Source_Count"] == False
+    assert row["Quality_Source_Spread"] == 2
+    assert row["Quality_Source_Discrepancy"] == False
+
+
+def test_fewer_than_two_finite_sources_are_marked_insufficient():
+    fact, facilities = sample_tables()
+    fact.loc[0, ["Paper_Value", "EMR_Value", "DHIS2_Value"]] = [
+        float("inf"), float("-inf"), 100,
+    ]
+    staged, quarantine, _ = stage_reporting_data(fact, facilities)
+
+    assert quarantine.empty
+    row = staged.loc[staged["Record_ID"].eq(fact.loc[0, "Record_ID"])].iloc[0]
+    assert row["Quality_Insufficient_Source_Count"] == True
+    assert pd.isna(row["Quality_Source_Spread"])
+    assert row["Quality_Source_Discrepancy"] == False
