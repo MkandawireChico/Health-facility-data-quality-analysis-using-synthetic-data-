@@ -101,6 +101,8 @@ def build_monthly_control_chart(data: pd.DataFrame, min_baseline_months: int = 6
     missing = required - set(data.columns)
     if missing:
         raise ValueError(f"Staged data missing control-chart inputs: {sorted(missing)}")
+    if min_baseline_months < 2:
+        raise ValueError("min_baseline_months must be at least 2")
     work = data.copy()
     work["Month"] = pd.to_datetime(work["Month"], errors="coerce").dt.to_period("M").dt.to_timestamp()
     flag_cols = [
@@ -132,11 +134,16 @@ def build_monthly_control_chart(data: pd.DataFrame, min_baseline_months: int = 6
     )
     monthly["Issue_Rate"] = monthly["Issue_Records"] / monthly["Records"].replace(0, np.nan)
     if len(monthly) >= min_baseline_months:
-        centre = float(monthly["Issue_Rate"].mean())
-        sigma = float(monthly["Issue_Rate"].std(ddof=0))
+        # Use a pooled proportion and month-specific binomial standard errors.
+        # This avoids giving a low-volume month the same weight as a high-volume month
+        # and widens descriptive limits when the monthly denominator is small.
+        centre = float(monthly["Issue_Records"].sum() / monthly["Records"].sum())
+        standard_error = np.sqrt(
+            centre * (1 - centre) / monthly["Records"].clip(lower=1)
+        )
         monthly["Centre_Line"] = centre
-        monthly["Lower_Control_Limit"] = max(0.0, centre - 3 * sigma)
-        monthly["Upper_Control_Limit"] = min(1.0, centre + 3 * sigma)
+        monthly["Lower_Control_Limit"] = np.maximum(0.0, centre - 3 * standard_error)
+        monthly["Upper_Control_Limit"] = np.minimum(1.0, centre + 3 * standard_error)
         monthly["Outside_Descriptive_Limits"] = (
             (monthly["Issue_Rate"] < monthly["Lower_Control_Limit"])
             | (monthly["Issue_Rate"] > monthly["Upper_Control_Limit"])
