@@ -584,6 +584,7 @@ def _build_integrated_facility_priority(
             ("supply_cold_chain", bool(row["Supply_Review_Flag"])),
         ] if condition) or "none", axis=1,
     )
+    combined["Quality_Benchmark_Scope"] = "All reporting periods in the current synthetic build"
     combined["Interpretation"] = (
         "Illustrative synthetic cross-domain review score; equal-weighted screening, "
         "not a validated clinical, safety, facility-performance or resource-allocation rating."
@@ -732,7 +733,7 @@ def build_platform(
 
     quality_profile_population = _validate_quality_profile_population(
         pd.read_csv(staged_path),
-        pd.read_csv(analytics_dir / "facility_quality_benchmark.csv"),
+        pd.read_csv(analytics_dir / "facility_quality_benchmark.csv").rename(columns={"Facility": "Facility_Name"}),
         pd.read_csv(analytics_dir / "district_quality_profile.csv"),
         pd.read_csv(analytics_dir / "programme_indicator_quality_profile.csv"),
     )
