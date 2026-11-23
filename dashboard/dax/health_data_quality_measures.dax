@@ -230,3 +230,33 @@ DIVIDE (
 )
 
 // Resource units are illustrative synthetic abstractions, not staff or money.
+
+ 
+// Commodity stock and replenishment measures. Keep abstract credits clearly
+// labelled; they are not monetary values or MWK procurement expenditure.
+Commodity Stockout Days =
+SUM ( FactFacilityCommodityStock[Stockout_Days] )
+
+Commodity Unmet Demand Units =
+SUM ( FactFacilityCommodityStock[Unmet_Demand_Units] )
+
+Commodity Stockout Facility-Item Pairs =
+CALCULATE (
+    COUNTROWS ( FactFacilityCommodityStock ),
+    FactFacilityCommodityStock[Stockout_Flag] = TRUE ()
+)
+
+Commodity Requested Replenishment Units =
+SUM ( FactCommodityReplenishmentPlan[Requested_Replenishment_Units] )
+
+Commodity Allocated Replenishment Units =
+SUM ( FactCommodityReplenishmentPlan[Allocated_Replenishment_Units] )
+
+Commodity Unfunded Replenishment Units =
+SUM ( FactCommodityReplenishmentPlan[Unfunded_Replenishment_Units] )
+
+Commodity Allocated Budget Credits =
+SUM ( FactCommodityReplenishmentPlan[Allocated_Cost_Credits] )
+
+Commodity Average Days of Cover =
+AVERAGE ( FactCommodityReplenishmentPlan[Estimated_Days_of_Cover] )
