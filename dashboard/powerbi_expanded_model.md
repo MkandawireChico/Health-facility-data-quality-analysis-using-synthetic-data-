@@ -35,6 +35,7 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | DimFacility | One row per synthetic facility | Facility_ID, Facility_Name, District, Facility_Type, Urban_Rural, Ownership, Catchment_Population |
 | DimDate | One row per calendar month | MonthStart, Year, Quarter, MonthNumber, MonthName |
 | DimIndicator | One row per programme-indicator pair | Indicator_Key, Programme, Indicator |
+| DimDistrict | One row per district label | District |
 | DimSource | One row per reporting source | Source |
 
 ### Facts
@@ -49,6 +50,9 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 
 ### Relationships
 
+- DimDistrict[District] 1 → * DimFacility[District]
+- DimDistrict[District] 1 → * FactDistrictProfile[District]
+- DimDistrict[District] 1 → * FactDistrictMonthlyTrend[District]
 - DimFacility[Facility_ID] 1 → * FactReporting[Facility_ID]
 - DimDate[MonthStart] 1 → * FactReporting[Month]
 - DimIndicator[Indicator_Key] 1 → * FactReporting[Indicator_Key]
@@ -57,6 +61,11 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 - DimIndicator[Indicator_Key] 1 → * FactSourceObservation[Indicator_Key]
 - DimSource[Source] 1 → * FactSourceObservation[Source]
 - DimDate[MonthStart] 1 → * FactMonthlyQualityTrend[Month]
+- DimDate[MonthStart] 1 → * FactMonthlyIssueControlChart[Month]
+- DimDate[MonthStart] 1 → * FactDistrictMonthlyTrend[Month]
+- DimFacility[Facility_ID] 1 → * FactPeerAnomaly[Facility_ID]
+- DimDate[MonthStart] 1 → * FactPeerAnomaly[Month]
+- DimIndicator[Indicator_Key] 1 → * FactPeerAnomaly[Indicator_Key]
 
 Use single-direction filtering from dimensions to facts. Avoid fact-to-fact relationships and ambiguous bidirectional filters. Detector evaluation is a separate governance fact and must not feed operational issue rates or facility rankings.
 
@@ -76,13 +85,14 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 ## Build instructions
 
 1. Run `python src/build_platform.py` from the repository root.
-2. In Power BI Desktop, create text parameters for the staged fact, facility dimension and analytics folder paths.
-3. Use the Power Query templates in `dashboard/powerquery/`.
-4. Create the relationships listed above and mark DimDate as the date table.
-5. Add the measures in `dashboard/dax/health_data_quality_measures.dax`.
-6. Build the six report pages using the layout plan.
-7. Validate filter behaviour at facility, district, month, programme and indicator levels.
-8. Keep the synthetic-data disclaimer visible on every report page and in exported PDFs.
+2. In Power BI Desktop, create a text parameter named `pWarehouseRoot` pointing to the generated `data/warehouse` folder (no trailing slash).
+3. Create/load the queries in `dashboard/powerquery/`: `FactReporting`, `DimFacility`, `DimIndicator`, `DimDate`, `DimSource`, `FactSourceObservation`, `FactMonthlyQualityTrend`, `FactMonthlyIssueControlChart`, `FactDistrictProfile`, `FactDistrictMonthlyTrend`, `FactPeerAnomaly` and `FactDetectorEvaluation`.
+4. The FactReporting query removes all `Ground_Truth_*` fields before loading; keep detector evaluation as a separate synthetic-only governance table.
+5. Create `DimDistrict` using `dashboard/dax/dimension_tables.dax`, then create the relationships listed above. Mark DimDate as the date table and sort MonthName by MonthNumber.
+6. Add measures from `dashboard/dax/health_data_quality_measures.dax`.
+7. Build the six report pages using the layout plan.
+8. Validate filter behaviour at facility, district, month, programme and indicator levels.
+9. Keep the synthetic-data disclaimer visible on every report page and in exported PDFs.
 
 ## Limitations
 
@@ -100,3 +110,25 @@ The analytical pipeline also exports `district_quality_profile.csv` and
 on derived quality flags, not synthetic ground-truth labels. Use District from
 DimFacility to filter FactReporting and the district-level aggregate visuals.
 The district labels and all underlying performance values remain synthetic.
+
+
+## Power Query implementation inventory
+
+The query files are executable Power Query M templates, not screenshots or mockups. Set the single `pWarehouseRoot` text parameter to the local `data/warehouse` directory. Query names and their source artefacts:
+
+| Query | Warehouse source / role |
+|---|---|
+| FactReporting | Staged operational fact; excludes ground-truth columns |
+| DimFacility | Raw synthetic facility dimension |
+| DimIndicator | Distinct programme-indicator combinations |
+| DimDate | Continuous monthly calendar |
+| DimSource | Controlled Paper / EMR / DHIS2 source dimension |
+| FactSourceObservation | Unpivots the three source-value columns to one row per source observation |
+| FactMonthlyQualityTrend | Monthly operational profile |
+| FactMonthlyIssueControlChart | Retrospective monthly issue-rate limits |
+| FactDistrictProfile | District-level synthetic operational profile |
+| FactDistrictMonthlyTrend | District-month volumes and issue rates |
+| FactPeerAnomaly | Statistical anomalies only; filtered to flagged records |
+| FactDetectorEvaluation | Aggregate detector evaluation against synthetic labels |
+
+Create `DimDistrict` from the DAX dimension-table script. Connect it to DimFacility, FactDistrictProfile and FactDistrictMonthlyTrend using single-direction one-to-many relationships. The district aggregate facts are separate from the facility reporting fact; do not create fact-to-fact joins.
