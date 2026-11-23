@@ -491,3 +491,7 @@ platform code and Power BI semantic-model pack require successful CI,
 deployment refresh and a visual verification pass before they can be described
 as live and fully validated. The existing PBIX remains the original report
 until the expanded semantic model is rebuilt and saved from Power BI Desktop.
+
+
+The final release gate and ordered merge procedure are documented in
+[`docs/release_validation_checklist.md`](docs/release_validation_checklist.md).
