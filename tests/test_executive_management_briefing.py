@@ -116,3 +116,29 @@ def test_recommendations_reflect_overdue_and_unassigned_action_gap():
     beta = result["management_queue"].set_index("Facility_ID").loc["F-002"]
     assert "2 overdue" in alpha["Management_Follow_Up"]
     assert "assign an accountable owner" in beta["Management_Follow_Up"]
+
+
+def test_integer_scores_reconcile_without_dtype_false_positive():
+    integer_scores = priority_rows().copy()
+    for column in [
+        "Integrated_Priority_Score", "Data_Quality_Priority_Score",
+        "Resource_Gap_Priority_Score", "Operational_Priority_Score",
+        "Supply_Cold_Chain_Priority_Score",
+    ]:
+        integer_scores[column] = integer_scores[column].astype(int)
+    result = build_executive_management_briefing(integer_scores, action_rows())
+    assert result["kpis"]["facilities"] == 3
+
+
+def test_malformed_nonempty_due_date_is_rejected():
+    bad = action_rows()
+    bad.loc[0, "Due date"] = "next Friday"
+    with pytest.raises(ValueError, match="invalid due dates"):
+        build_executive_management_briefing(priority_rows(), bad)
+
+
+def test_invalid_action_month_is_rejected():
+    bad = action_rows()
+    bad.loc[0, "Month"] = "not-a-month"
+    with pytest.raises(ValueError, match="invalid reporting months"):
+        build_executive_management_briefing(priority_rows(), bad)
