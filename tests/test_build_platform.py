@@ -94,5 +94,17 @@ def test_small_end_to_end_platform_build(tmp_path):
     for relative in expected_files:
         assert (tmp_path / "warehouse" / relative).exists(), relative
 
+    # Every artifact advertised by the platform manifest must exist on disk.
+    for artifact_name, artifact_path in summary["outputs"].items():
+        assert Path(artifact_path).exists(), artifact_name
+
+    expected_report_keys = {
+        "staging_quality_report",
+        "quality_analytics_report",
+        "statistical_monitoring_report",
+        "target_attainment_report",
+    }
+    assert expected_report_keys.issubset(summary["outputs"])
+
     persisted = json.loads((tmp_path / "warehouse" / "platform_build_summary.json").read_text())
     assert persisted["generated_fact_records"] == 480
