@@ -40,7 +40,18 @@ def add_operational_predictions(data: pd.DataFrame) -> pd.DataFrame:
     result = data.copy()
     reported = pd.to_numeric(result["Reported_Value"], errors="coerce")
     target = pd.to_numeric(result["Target_Value"], errors="coerce")
-    ratio = reported / target.where(target.gt(0))
+    finite_reported = pd.Series(
+        np.isfinite(reported.to_numpy(dtype=float)), index=result.index
+    )
+    finite_target = pd.Series(
+        np.isfinite(target.to_numpy(dtype=float)), index=result.index
+    )
+    valid_denominator = finite_reported & finite_target & target.gt(0)
+    ratio = reported.where(valid_denominator) / target.where(valid_denominator)
+    # A finite input pair can still overflow during division; never let an
+    # infinite ratio become a false operational outlier signal.
+    finite_ratio = pd.Series(np.isfinite(ratio.to_numpy(dtype=float)), index=result.index)
+    ratio = ratio.where(finite_ratio)
     # Generator outliers are injected at 2–3x target. The 1.5x threshold
     # intentionally leaves a margin above normal synthetic variation.
     result["Operational_Detected_Outlier"] = ratio.gt(1.5).fillna(False)
