@@ -74,22 +74,6 @@ Load these queries:
 - FactMonthlyWorkforceCapacity
 - FactLatestWorkforceCapacity
 - FactWorkforceRecruitmentScenario
-- DimColdChainCommodity
-- FactColdChainTemperature
-- FactCommodityBatchLedger
-- FactColdChainExpiryRisk
-- DimEquipmentType
-- FactEquipmentAssetRegister
-- FactEquipmentAssetMonthly
-- FactFacilityEquipmentMonthly
-- FactEquipmentMaintenanceWorkOrders
-- FactEquipmentLatestAssetRisk
-- FactFacilityInfrastructureProfiles
-- FactMonthlyInfrastructureReliability
-- FactLatestInfrastructureResilience
-- FactEquipmentInfrastructureAssociation
-- FactInfrastructureUpgradeScenarios
-
 FactSourceObservation and DimIndicator reference the FactReporting query, so create FactReporting first. The other query creation order is flexible after FactReporting and DimFacility exist.
 
 ## Model and governance
