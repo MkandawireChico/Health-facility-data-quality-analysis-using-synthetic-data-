@@ -242,3 +242,12 @@ Corrective-action record identifiers are generated from the selected source name
 The pipeline exports a commodity catalogue, facility-commodity stock ledger, replenishment plan, summary and methodology report. Streamlit includes monthly stockout trends, commodity risk comparisons and a budget-constrained worklist; Power BI receives a commodity dimension and stock/replenishment facts.
 
 All commodity data, consumption rates, receipts, stockouts and unit costs are synthetic. Budget credits are not MWK; the commodity list is illustrative, not an approved national catalogue. Monthly stockout-day estimates are approximations, not observed daily stock-card events. See `docs/supply_chain_methodology.md`.
+
+
+## Cold-chain, batch traceability and expiry intelligence
+
+`src/cold_chain_planning.py` extends the synthetic supply-chain layer with four illustrative temperature-sensitive commodity labels. It generates facility-month sensor coverage, daily temperature summaries, excursion-day estimates, lot identifiers and manufacture/receipt/expiry dates. Batch stock is consumed using an explicit FEFO convention and the ledger reconciles opening stock, receipts, consumption, expiry and closing stock. Facility-commodity-month risk profiles expose 30/60/90-day expiry quantities, unmet demand, temperature excursions and a transparent synthetic risk score.
+
+Outputs include `cold_chain_catalog.csv`, `facility_cold_chain_temperature_monitoring.csv`, `facility_commodity_batch_ledger.csv`, `cold_chain_expiry_risk_summary.csv` and `cold_chain_planning_report.json`. Streamlit adds an expiry-risk worklist and batch ledger; Power BI receives a cold-chain commodity dimension and three fact tables.
+
+All sensor data, temperatures, lots, suppliers, dates, stock movements and wastage are synthetic. The default 2–8°C range is a generic demonstration assumption, not an official Malawi standard or a product-specific storage instruction. Excursion flags require authorised review and do not establish product compromise. See `docs/cold_chain_methodology.md`.
