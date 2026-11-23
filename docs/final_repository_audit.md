@@ -142,3 +142,39 @@ The project therefore remains **not release-validated**. Keep the seven-PR
 dependency chain open and merge only after runner allocation is restored,
 required checks execute successfully, and the manual release checklist is
 completed. Do not infer deployment from branch commits.
+
+
+
+## Release-readiness implementation addendum — 23 November 2026
+
+A reusable release-readiness checker was added in `src/release_readiness.py`.
+It checks priority-register schema, facility identifier uniqueness, score
+ranges, integrated-score reconciliation, rank integrity, action record IDs,
+status vocabulary, reporting months, due-date format and action-to-facility
+linkage. When a local `platform_build_summary.json` is supplied, it verifies
+that every manifest artifact exists inside the build directory and matches
+its recorded byte size and SHA-256 digest. Missing optional action/build
+inputs are warnings rather than false passes.
+
+The Streamlit expanded-platform view now displays the pass/warning/fail table,
+readiness state and downloadable CSV report. Documentation explains that
+these checks do not replace CI, notebook, browser, deployment or Power BI
+verification.
+
+During this work, a pre-existing defect was found in
+`src/platform_input_validation.py`: valid uploads referenced an uninitialised
+month variable, and a return statement made the remaining facility metadata
+and catchment-population checks unreachable. The validator was repaired to
+handle missing required columns safely and validate every reporting month,
+facility metadata field, catchment population, reported/target values and
+quality flags. Nine additional tests cover those cases.
+
+Nine new release-readiness tests cover valid/invalid priority registers,
+action linkage, empty actions, absent build summaries, valid manifests,
+manifest hash mismatches and path traversal. These tests have been added but
+have **not yet been executed in GitHub Actions or a local checkout**.
+
+The latest reviewed commit has two failed GitHub Actions runs. Both workflow
+jobs report no step summaries and no downloadable logs. The available evidence
+does not establish that Python installation or test commands ran; it also does
+not establish that the code passed. Full validation remains pending.
