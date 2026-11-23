@@ -109,18 +109,29 @@ def stage_reporting_data(
         & work["Deadline_Date"].notna()
         & work["Submission_Date"].gt(work["Deadline_Date"])
     )
-    source_count = work[["Paper_Value", "EMR_Value", "DHIS2_Value"]].notna().sum(axis=1)
+    # Reconcile source comparisons using finite observations only. Invalid
+    # numeric values remain visible in staged data and are separately flagged,
+    # but must not distort source counts, spreads or discrepancy decisions.
+    source_columns = ["Paper_Value", "EMR_Value", "DHIS2_Value"]
+    source_values = work[source_columns].where(
+        np.isfinite(work[source_columns].to_numpy(dtype=float))
+    )
+    source_count = source_values.notna().sum(axis=1)
     work["Quality_Insufficient_Source_Count"] = source_count.lt(2)
-    source_max = work[["Paper_Value", "EMR_Value", "DHIS2_Value"]].max(axis=1)
-    source_min = work[["Paper_Value", "EMR_Value", "DHIS2_Value"]].min(axis=1)
-    work["Quality_Source_Spread"] = source_max - source_min
+    source_max = source_values.max(axis=1)
+    source_min = source_values.min(axis=1)
+    with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
+        source_spread = source_max - source_min
+        relative_spread = source_max / source_min.where(source_min.gt(0))
+    work["Quality_Source_Spread"] = source_spread.where(np.isfinite(source_spread))
     work["Quality_Source_Discrepancy"] = (
-        source_count.ge(2) & work["Quality_Source_Spread"].gt(5)
+        source_count.ge(2)
+        & work["Quality_Source_Spread"].gt(5)
         & (
             source_min.le(0)
-            | ((source_max - source_min) / source_min.where(source_min.gt(0)) > 0.20)
+            | relative_spread.gt(1.20)
         )
-    )
+    ).fillna(False)
 
     for column in structural.columns:
         work[f"Structural_{column}"] = structural[column].astype(bool)
