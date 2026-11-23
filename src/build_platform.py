@@ -309,7 +309,7 @@ def _build_operational_resilience_views(facilities, equipment_monthly, infrastru
     normalized = []
     reference_months = None
     for frame, label, measures in frames:
-        required = set(key + identity) | measures
+        required = set(key + identity + ["Commodity_ID"]) | measures
         if not required.issubset(frame.columns):
             raise RuntimeError(f"{label} operational output is missing required integration columns")
         data = frame[list(required)].copy()
@@ -404,6 +404,10 @@ def _build_supply_cold_chain_resilience_view(facilities, stock_ledger, cold_chai
             raise RuntimeError(f"{label} facility population does not match canonical dimension")
         if data[identity].isna().any().any():
             raise RuntimeError(f"{label} source contains missing facility metadata")
+        if data.groupby("Facility_ID")[identity].nunique().gt(1).any().any():
+            raise RuntimeError(f"{label} source contains conflicting facility metadata")
+        if data["Commodity_ID"].isna().any() or data["Commodity_ID"].astype(str).str.strip().eq("").any():
+            raise RuntimeError(f"{label} source contains missing commodity identifiers")
         if data.duplicated(key + ["Commodity_ID"]).any():
             raise RuntimeError(f"{label} source contains duplicate facility-month-commodity keys")
         months = set(data["Month"])
