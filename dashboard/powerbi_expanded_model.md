@@ -151,3 +151,8 @@ The query files are executable Power Query M templates, not screenshots or mocku
 | FactProgrammeIndicatorAttainment | Overall programme-indicator attainment |
 
 Create `DimDistrict` from the DAX dimension-table script. Connect it to DimFacility, FactDistrictProfile and FactDistrictMonthlyTrend using single-direction one-to-many relationships. The district aggregate facts are separate from the facility reporting fact; do not create fact-to-fact joins.
+
+
+## Resource capacity and allocation scenario facts
+
+Two additional Power Query facts are provided: `FactFacilityResourceCapacity` (baseline illustrative requirement, synthetic availability and gap) and `FactResourceAllocationScenario` (facility-level allocations and residual gaps for each of three strategies). Relate both to DimFacility on Facility_ID with single-direction one-to-many relationships. Use Scenario as a slicer for comparisons; do not relate the two facts directly. Resource units are abstract synthetic planning units, not staffing headcounts or currency. Refer to `docs/resource_planning_methodology.md` for assumptions and safeguards.
