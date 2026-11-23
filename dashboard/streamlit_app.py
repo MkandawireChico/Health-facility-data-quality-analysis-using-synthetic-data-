@@ -1146,6 +1146,43 @@ with tabs[6]:
         except ValueError as exc:
             st.warning(f"Executive management briefing could not be prepared: {exc}")
 
+        st.markdown("### Platform release-readiness checks")
+        st.caption(
+            "Integrity checks for the current synthetic priority and action registers, "
+            "plus the local build manifest when one is available. This is not a substitute "
+            "for CI, notebook, browser, deployment or Power BI verification."
+        )
+        try:
+            from release_readiness import build_release_readiness_report
+            release_actions = pd.DataFrame(current_priority_actions).reindex(columns=[
+                "Record_ID", "Facility", "Month", "Status", "Due date",
+            ])
+            release_report = build_release_readiness_report(
+                result["integrated_priority_register"],
+                release_actions,
+                output_dir=ROOT / "data" / "warehouse",
+            )
+            r1, r2, r3, r4 = st.columns(4)
+            r1.metric("Readiness", release_report["readiness"])
+            r2.metric("Checks passed", release_report["passed"])
+            r3.metric("Warnings", release_report["warnings"])
+            r4.metric("Failures", release_report["failed"])
+            st.dataframe(
+                release_report["checks"],
+                use_container_width=True,
+                hide_index=True,
+            )
+            st.download_button(
+                "Download release-readiness report",
+                data=release_report["checks"].to_csv(index=False).encode("utf-8"),
+                file_name="platform_release_readiness_checks.csv",
+                mime="text/csv",
+                key="download_platform_release_readiness",
+            )
+            st.caption(release_report["scope"])
+        except (ValueError, OSError) as exc:
+            st.warning(f"Release-readiness checks could not be completed: {exc}")
+
         st.markdown("### Facility management drill-down")
         st.caption(
             "Select a synthetic facility to review its integrated priority components, "
