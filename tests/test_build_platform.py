@@ -146,3 +146,65 @@ def test_build_reconciles_every_advertised_artifact(tmp_path):
     assert summary["artifact_total_bytes"] == sum(
         Path(path).stat().st_size for path in summary["outputs"].values()
     )
+
+
+
+def test_artifact_manifest_records_relative_paths_sizes_and_sha256(tmp_path):
+    import hashlib
+    from build_platform import _build_artifact_manifest
+
+    artifact = tmp_path / "warehouse" / "analytics" / "sample.csv"
+    artifact.parent.mkdir(parents=True)
+    payload = b"facility_id,value\nF001,12\n"
+    artifact.write_bytes(payload)
+
+    manifest = _build_artifact_manifest(
+        {"sample": str(artifact)}, tmp_path / "warehouse"
+    )
+
+    assert manifest["sample"]["path"] == "analytics/sample.csv"
+    assert manifest["sample"]["size_bytes"] == len(payload)
+    assert manifest["sample"]["sha256"] == hashlib.sha256(payload).hexdigest()
+
+
+def test_artifact_manifest_rejects_missing_empty_and_external_files(tmp_path):
+    import pytest
+    from build_platform import _build_artifact_manifest
+
+    root = tmp_path / "warehouse"
+    root.mkdir()
+    missing = root / "missing.csv"
+    with pytest.raises(RuntimeError, match="missing"):
+        _build_artifact_manifest({"missing": str(missing)}, root)
+
+    empty = root / "empty.csv"
+    empty.touch()
+    with pytest.raises(RuntimeError, match="empty"):
+        _build_artifact_manifest({"empty": str(empty)}, root)
+
+    outside = tmp_path / "outside.csv"
+    outside.write_text("data\n1\n")
+    with pytest.raises(RuntimeError, match="outside the output directory"):
+        _build_artifact_manifest({"outside": str(outside)}, root)
+
+
+def test_build_summary_contains_complete_artifact_integrity_manifest(tmp_path):
+    import hashlib
+
+    summary = build_platform(
+        output_dir=tmp_path / "warehouse",
+        seed=12,
+        facility_count=3,
+        start_month="2024-01-01",
+        periods=1,
+    )
+    manifest = summary["artifact_manifest"]
+    assert set(manifest) == set(summary["outputs"])
+    for name, details in manifest.items():
+        artifact = tmp_path / "warehouse" / details["path"]
+        assert artifact.is_file()
+        assert details["size_bytes"] == artifact.stat().st_size
+        assert details["sha256"] == hashlib.sha256(artifact.read_bytes()).hexdigest()
+    assert summary["artifact_total_bytes"] == sum(
+        details["size_bytes"] for details in manifest.values()
+    )
