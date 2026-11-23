@@ -116,7 +116,7 @@ def test_pipeline_writes_all_outputs(tmp_path: Path):
 
 def test_invalid_catchment_population_is_rejected():
     for invalid_population in ["not-a-number", float("nan"), float("inf"), -1]:
-        data = facilities().copy()
+        data = facility_dimension().copy()
         data.loc[data.index[0], "Catchment_Population"] = invalid_population
         with pytest.raises(ValueError, match="Catchment_Population"):
             build_cold_chain_profiles(data)
