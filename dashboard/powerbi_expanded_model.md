@@ -40,7 +40,8 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | DimDate | One row per calendar month | MonthStart, Year, Quarter, MonthNumber, MonthName |
 | DimIndicator | One row per programme-indicator pair | Indicator_Key, Programme, Indicator |
 | DimDistrict | One row per district label | District |
-| DimSource | One row per reporting source | Source |\n| DimCommodity | One row per illustrative commodity | Commodity_ID, Commodity, Programme, Unit |
+| DimSource | One row per reporting source | Source |
+| DimCommodity | One row per illustrative commodity | Commodity_ID, Commodity, Programme, Unit |
 
 ### Facts
 
@@ -54,7 +55,11 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | FactMonthlyIndicatorAttainment | Month × programme × indicator | Monthly target-attainment trend by indicator |
 | FactProgrammeIndicatorAttainment | Programme × indicator | Overall comparable indicator attainment profile |
 | FactMonthlyQualityTrend | Month | Operational issue volumes and rates |
-| FactPeerAnomaly | Anomalous reporting record | Statistical review queue and peer score |\n| FactFacilityCommodityStock | Facility × commodity × month | Synthetic opening stock, receipts, demand, unmet demand and stockout estimates |\n| FactCommodityReplenishmentPlan | Facility × commodity snapshot | Requested, funded and unfunded replenishment units under an abstract budget |
+| FactPeerAnomaly | Anomalous reporting record | Statistical review queue and peer score |
+| FactFacilityCommodityStock | Facility × commodity × month | Synthetic stock balances, receipts, demand and stockout estimates |
+| FactCommodityReplenishmentPlan | Facility × commodity snapshot | Requested, funded and unfunded replenishment units |
+| FactFacilityCommodityStock | Facility × commodity × month | Synthetic opening stock, receipts, demand, unmet demand and stockout estimates |
+| FactCommodityReplenishmentPlan | Facility × commodity snapshot | Requested, funded and unfunded replenishment units under an abstract budget |
 
 ### Relationships
 
@@ -82,7 +87,11 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 - DimIndicator[Indicator_Key] 1 → * FactMonthlyIndicatorAttainment[Indicator_Key]
 - DimIndicator[Indicator_Key] 1 → * FactProgrammeIndicatorAttainment[Indicator_Key]
 
-- DimFacility[Facility_ID] 1 → * FactFacilityCommodityStock[Facility_ID] and FactCommodityReplenishmentPlan[Facility_ID]\n- DimCommodity[Commodity_ID] 1 → * FactFacilityCommodityStock[Commodity_ID] and FactCommodityReplenishmentPlan[Commodity_ID]\n- DimDate[MonthStart] 1 → * FactFacilityCommodityStock[Month]\n\nUse single-direction filtering from dimensions to facts. Avoid fact-to-fact relationships and ambiguous bidirectional filters. Detector evaluation is a separate governance fact and must not feed operational issue rates or facility rankings.
+- DimFacility[Facility_ID] 1 → * FactFacilityCommodityStock[Facility_ID] and FactCommodityReplenishmentPlan[Facility_ID]
+- DimCommodity[Commodity_ID] 1 → * FactFacilityCommodityStock[Commodity_ID] and FactCommodityReplenishmentPlan[Commodity_ID]
+- DimDate[MonthStart] 1 → * FactFacilityCommodityStock[Month]
+
+Use single-direction filtering from dimensions to facts. Avoid fact-to-fact relationships and ambiguous bidirectional filters. Detector evaluation is a separate governance fact and must not feed operational issue rates or facility rankings.
 
 ## Ground-truth governance
 
@@ -96,7 +105,9 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 4. **Source reconciliation** — source value distributions, absolute spread and source review queue.
 5. **Statistical monitoring** — MAD/IQR peer anomalies and retrospective monthly issue-rate limits. Signals are review prompts, not proof of error.
 6. **Detector governance** — precision, recall, F1 and confusion counts on synthetic injected defects; display a persistent synthetic-evaluation disclaimer.
-7. **Target attainment** — facility, district and monthly reported-to-target attainment by programme-indicator pair; show valid-record denominators and under-target review bands.\n8. **Resource allocation scenarios** — compare synthetic capacity gaps and three constrained allocation heuristics; keep assumptions and limitations visible.\n9. **Commodity availability and replenishment** — monitor synthetic stockouts, unmet demand, days of cover and budget-constrained replenishment.
+7. **Target attainment** — facility, district and monthly reported-to-target attainment by programme-indicator pair; show valid-record denominators and under-target review bands.
+8. **Resource allocation scenarios** — compare synthetic capacity gaps and three constrained allocation heuristics; keep assumptions and limitations visible.
+9. **Commodity availability and replenishment** — monitor synthetic stockouts, unmet demand, days of cover and budget-constrained replenishment.
 
 ## Build instructions
 
@@ -148,7 +159,14 @@ The query files are executable Power Query M templates, not screenshots or mocku
 | FactFacilityIndicatorAttainment | Facility-level attainment by programme-indicator pair |
 | FactDistrictIndicatorAttainment | District-level attainment by programme-indicator pair |
 | FactMonthlyIndicatorAttainment | Monthly attainment by programme-indicator pair |
-| FactProgrammeIndicatorAttainment | Overall programme-indicator attainment |\n| FactFacilityResourceCapacity | Synthetic baseline requirement, availability and gap by facility |\n| FactResourceAllocationScenario | Facility-level allocations and residual gaps by scenario |\n| DimCommodity | Illustrative commodity catalogue keyed by Commodity_ID |\n| FactFacilityCommodityStock | Facility × commodity × month simulated stock ledger |\n| FactCommodityReplenishmentPlan | Latest-snapshot budget-constrained replenishment worklist |
+| FactProgrammeIndicatorAttainment | Overall programme-indicator attainment |
+| FactFacilityResourceCapacity | Facility baseline capacity requirement, synthetic availability and gap |
+| FactResourceAllocationScenario | Facility allocation and residual capacity by scenario |
+| FactFacilityResourceCapacity | Synthetic baseline requirement, availability and gap by facility |
+| FactResourceAllocationScenario | Facility-level allocations and residual gaps by scenario |
+| DimCommodity | Illustrative commodity catalogue keyed by Commodity_ID |
+| FactFacilityCommodityStock | Facility × commodity × month simulated stock ledger |
+| FactCommodityReplenishmentPlan | Latest-snapshot budget-constrained replenishment worklist |
 
 Create `DimDistrict` from the DAX dimension-table script. Connect it to DimFacility, FactDistrictProfile and FactDistrictMonthlyTrend using single-direction one-to-many relationships. The district aggregate facts are separate from the facility reporting fact; do not create fact-to-fact joins.
 
