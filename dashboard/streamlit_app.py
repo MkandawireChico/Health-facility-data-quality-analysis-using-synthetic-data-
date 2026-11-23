@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+import io
+import json
 import os
 import sys
+import zipfile
 
 import pandas as pd
 import plotly.express as px
@@ -588,6 +591,56 @@ with tabs[6]:
     if result:
         st.divider()
         st.caption("Analysis result is held in this browser session. Upload and rerun to analyse a different extract.")
+
+        # Package the derived outputs into one portable management/review bundle.
+        export_buffer = io.BytesIO()
+        export_summary = {
+            "synthetic_data": True,
+            "staged_records": int(result["records"]),
+            "facilities": int(result["facilities"]),
+            "districts": int(result["districts"]),
+            "reporting_months": int(result["months"]),
+            "programme_areas": int(result["programmes"]),
+            "indicators": int(result["indicators"]),
+            "detected_issue_rate_pct": (
+                round(float(result["issue_rate"]) * 100, 2)
+                if pd.notna(result["issue_rate"]) else None
+            ),
+            "peer_anomaly_records": int(result["peer_anomaly_count"]),
+            "synthetic_ground_truth_evaluation_available": bool(result["synthetic_truth_available"]),
+            "ground_truth_scope": (
+                "Detector metrics evaluate controlled synthetic defects only."
+                if result["synthetic_truth_available"] else
+                "No ground-truth evaluation was performed."
+            ),
+            "interpretation": (
+                "District and facility metrics are synthetic portfolio demonstrations, "
+                "not actual Malawi Ministry of Health performance. Statistical signals "
+                "are review prompts, not proof of reporting error or clinical risk."
+            ),
+        }
+        export_tables = {
+            "monthly_quality_trends.csv": result["monthly"],
+            "facility_quality_benchmark.csv": result["facility"],
+            "programme_indicator_quality_profile.csv": result["programme"],
+            "district_quality_profile.csv": result["district"],
+            "district_monthly_quality_trends.csv": result["district_monthly"],
+            "statistical_peer_anomalies.csv": result["peer_anomalies"],
+            "monthly_issue_control_chart.csv": result["control"],
+        }
+        if result["metrics"] is not None:
+            export_tables["synthetic_detector_evaluation_metrics.csv"] = result["metrics"]
+        with zipfile.ZipFile(export_buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("management_summary.json", json.dumps(export_summary, indent=2))
+            for filename, frame in export_tables.items():
+                archive.writestr(filename, frame.to_csv(index=False))
+        st.download_button(
+            "Download complete expanded analysis pack (ZIP)",
+            data=export_buffer.getvalue(),
+            file_name="malawi_health_facility_data_intelligence_analysis.zip",
+            mime="application/zip",
+            key="download_expanded_analysis_pack",
+        )
         p1, p2, p3, p4, p5 = st.columns(5)
         p1.metric("Staged records", f"{result['records']:,}")
         p2.metric("Facilities", f"{result['facilities']:,}")
