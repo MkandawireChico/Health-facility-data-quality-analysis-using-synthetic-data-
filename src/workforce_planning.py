@@ -50,13 +50,25 @@ def build_workforce_profiles(facilities: pd.DataFrame, periods: int=60,
                              recruitment_budget_credits: int=50000) -> dict[str,pd.DataFrame]:
     if isinstance(periods, bool) or not isinstance(periods, int) or periods < 1:
         raise ValueError("periods must be a positive integer")
-    if (isinstance(recruitment_budget_credits, bool)
+    if (isinstance(seed, (bool, np.bool_))
+            or not isinstance(seed, (int, np.integer))
+            or seed < 0):
+        raise ValueError("seed must be a non-negative integer")
+    if (isinstance(recruitment_budget_credits, (bool, np.bool_))
             or not isinstance(recruitment_budget_credits, (int, np.integer))
             or recruitment_budget_credits < 0):
         raise ValueError("recruitment budget must be a non-negative integer")
+    try:
+        parsed_start_month = pd.Timestamp(start_month)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError("start_month must be a valid timezone-naive date") from exc
+    if pd.isna(parsed_start_month) or parsed_start_month.tz is not None:
+        raise ValueError("start_month must be a valid timezone-naive date")
+    month_start = parsed_start_month.to_period("M").to_timestamp()
+
     fac=_facilities(facilities)
-    rng=np.random.default_rng(seed)
-    months=pd.date_range(pd.Timestamp(start_month).to_period("M").to_timestamp(),periods=periods,freq="MS")
+    rng=np.random.default_rng(int(seed))
+    months=pd.date_range(month_start,periods=periods,freq="MS")
     establishments=[]
     monthly=[]
     establishment_lookup={}
