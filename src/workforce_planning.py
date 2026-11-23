@@ -34,7 +34,12 @@ def _facilities(data: pd.DataFrame) -> pd.DataFrame:
     out["Facility_ID"]=out["Facility_ID"].astype("string").str.strip()
     if out["Facility_ID"].isna().any() or out["Facility_ID"].eq("").any() or out["Facility_ID"].duplicated().any():
         raise ValueError("Facility_ID must be populated and unique")
-    out["Catchment_Population"]=pd.to_numeric(out["Catchment_Population"],errors="coerce").fillna(0).clip(lower=0)
+    population = pd.to_numeric(out["Catchment_Population"], errors="coerce")
+    if population.isna().any() or not np.isfinite(population.to_numpy(dtype=float)).all():
+        raise ValueError("Catchment_Population must contain finite numeric values")
+    if population.lt(0).any():
+        raise ValueError("Catchment_Population must contain non-negative numeric values")
+    out["Catchment_Population"] = population
     for col in ["Facility_Name","District","Facility_Type","Urban_Rural"]:
         out[col]=out[col].fillna("Unknown").astype(str).str.strip()
     return out
