@@ -142,3 +142,15 @@ def test_invalid_action_month_is_rejected():
     bad.loc[0, "Month"] = "not-a-month"
     with pytest.raises(ValueError, match="invalid reporting months"):
         build_executive_management_briefing(priority_rows(), bad)
+
+
+def test_duplicate_priority_ranks_are_rejected():
+    bad = priority_rows()
+    bad.loc[1, "Integrated_Priority_Rank"] = 1
+    with pytest.raises(ValueError, match="invalid or duplicate ranks"):
+        build_executive_management_briefing(bad, action_rows())
+
+
+def test_invalid_management_reference_date_is_rejected():
+    with pytest.raises(ValueError, match="valid timezone-naive date"):
+        build_executive_management_briefing(priority_rows(), action_rows(), as_of="NaT")
