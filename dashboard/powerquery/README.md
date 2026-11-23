@@ -46,6 +46,9 @@ Load these queries:
 - FactDistrictMonthlyTrend
 - FactPeerAnomaly
 - FactDetectorEvaluation
+- FactFacilityIndicatorAttainment
+- FactDistrictIndicatorAttainment
+- FactMonthlyIndicatorAttainment
 
 FactSourceObservation and DimIndicator reference the FactReporting query, so create FactReporting first. The other query creation order is flexible after FactReporting and DimFacility exist.
 
