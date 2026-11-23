@@ -11,7 +11,7 @@ import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from action_store import ActionRegisterStore
+from action_store import ActionRegisterStore, build_action_record_id
 from reporting import (
     REQUIRED_COLUMNS, assess_dataset, build_issue_register, facility_summary,
     validate_dataset,
@@ -313,20 +313,13 @@ with tabs[4]:
     flagged_rows = filtered[filtered["Requires_Follow_Up"]].copy()
     if not flagged_rows.empty:
         key_cols = ["Facility", "Month", "Programme", "Indicator"]
-        record_ids = []
-        for _, row in flagged_rows.iterrows():
-            month_key = (
-                pd.Timestamp(row["Month"]).strftime("%Y-%m-%d")
-                if pd.notna(row["Month"]) else ""
+        record_ids = [
+            build_action_record_id(
+                source_name, row["Facility"], row["Month"],
+                row["Programme"], row["Indicator"],
             )
-            identity = "||".join([
-                source_name,
-                str(row["Facility"]),
-                month_key,
-                str(row["Programme"]),
-                str(row["Indicator"]),
-            ])
-            record_ids.append("ACT-" + hashlib.sha256(identity.encode("utf-8")).hexdigest()[:20])
+            for _, row in flagged_rows.iterrows()
+        ]
         flagged_rows["Record_ID"] = record_ids
 
         action_rows = []
