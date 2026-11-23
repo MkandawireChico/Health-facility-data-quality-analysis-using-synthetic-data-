@@ -91,3 +91,31 @@ def test_peer_groups_are_scoped_to_reporting_month():
     assert result.loc[:7, "Peer_Group_Size"].eq(8).all()
     assert result.loc[8, "Peer_Group_Size"] == 1
     assert not result.loc[8, "Statistical_Anomaly"]
+
+
+
+def test_control_limits_use_pooled_rate_and_month_specific_denominators():
+    sizes = [1, 2, 3, 4, 5, 6]
+    data = peer_data([100] * sum(sizes), monthly=False)
+    months = []
+    for month, size in enumerate(sizes, start=1):
+        months.extend([pd.Timestamp(2024, month, 1)] * size)
+    data["Month"] = months
+    # One flagged record in each month: pooled rate is 6 / 21.
+    data.loc[data.groupby("Month").head(1).index, "Quality_Late_Submission"] = True
+
+    result = build_monthly_control_chart(data)
+    pooled_rate = 6 / 21
+    expected_se = np.sqrt(pooled_rate * (1 - pooled_rate) / result["Records"])
+
+    assert result["Centre_Line"].eq(pytest.approx(pooled_rate)).all()
+    np.testing.assert_allclose(
+        result["Upper_Control_Limit"],
+        np.minimum(1.0, pooled_rate + 3 * expected_se),
+    )
+    assert result.loc[0, "Upper_Control_Limit"] > result.loc[5, "Upper_Control_Limit"]
+
+
+def test_control_chart_rejects_invalid_baseline_length():
+    with pytest.raises(ValueError, match="at least 2"):
+        build_monthly_control_chart(peer_data([10] * 12), min_baseline_months=1)
