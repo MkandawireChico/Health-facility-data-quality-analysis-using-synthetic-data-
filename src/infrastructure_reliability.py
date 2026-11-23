@@ -72,7 +72,7 @@ def build_infrastructure_profiles(
         rural = str(facility["Urban_Rural"]).lower() == "rural"
         power_source = rng.choice(POWER_SOURCES, p=[0.30, 0.24, 0.30, 0.16] if rural else [0.48, 0.12, 0.30, 0.10])
         water_source = rng.choice(WATER_SOURCES, p=[0.16, 0.44, 0.18, 0.22] if rural else [0.52, 0.15, 0.08, 0.25])
-        connectivity = rng.choice(CONNECTIVITY_TYPES, p=[0.16, 0.18, 0.24, 0.40] if rural else [0.31, 0.29, 0.16, 0.22])
+        connectivity = rng.choice(CONNECTIVITY_TYPES, p=[0.16, 0.18, 0.24, 0.42] if rural else [0.31, 0.29, 0.16, 0.24])
         backup_hours = float(rng.uniform(2, 18) if power_source in {"Grid + generator", "Solar + generator"} else rng.uniform(0, 10))
         water_storage_days = float(rng.uniform(0.5, 4.0) if water_source in {"Borehole", "Mixed supply"} else rng.uniform(0.2, 2.5))
         profile_rows.append({
