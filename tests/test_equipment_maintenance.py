@@ -90,6 +90,8 @@ def test_reproducibility_and_invalid_inputs():
         build_equipment_maintenance_profiles(facilities().iloc[0:0])
     with pytest.raises(ValueError, match="periods"):
         build_equipment_maintenance_profiles(facilities(), periods=0)
+    with pytest.raises(ValueError, match="periods"):
+        build_equipment_maintenance_profiles(facilities(), periods=True)
     with pytest.raises(ValueError, match="unique"):
         build_equipment_maintenance_profiles(pd.concat([facilities(), facilities().iloc[[0]]]))
 
