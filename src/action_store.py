@@ -1,6 +1,7 @@
 """SQLite-backed corrective-action register with field-level audit history."""
 from __future__ import annotations
 
+import hashlib
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
@@ -39,6 +40,25 @@ def _value(value: Any) -> str | int | None:
     if isinstance(value, (int, float)):
         return int(value) if float(value).is_integer() else float(value)
     return str(value).strip()
+
+
+def build_action_record_id(
+    source_name: str,
+    facility: Any,
+    month: Any,
+    programme: Any,
+    indicator: Any,
+) -> str:
+    """Return a stable key independent of dataframe row order and active filters."""
+    month_value = (
+        pd.Timestamp(month).strftime("%Y-%m-%d")
+        if month is not None and not pd.isna(month) else ""
+    )
+    identity = "||".join(
+        str(value).strip()
+        for value in (source_name, facility, month_value, programme, indicator)
+    )
+    return "ACT-" + hashlib.sha256(identity.encode("utf-8")).hexdigest()[:20]
 
 
 class ActionRegisterStore:
