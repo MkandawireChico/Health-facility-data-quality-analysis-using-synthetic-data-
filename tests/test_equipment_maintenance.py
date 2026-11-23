@@ -102,8 +102,8 @@ def test_pipeline_writes_complete_outputs(tmp_path: Path):
     )
     assert report["synthetic_data"] is True
     assert report["facilities"] == 3
-    assert report["assets"] == 15
-    assert report["asset_month_records"] == 45
+    assert report["assets"] == 17
+    assert report["asset_month_records"] == 51
     assert report["latest_high_risk_assets"] >= 0
     for filename in report["outputs"]:
         assert (tmp_path / "analytics" / filename).exists()
