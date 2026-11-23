@@ -73,8 +73,14 @@ def test_invalid_inputs_and_output_artifacts(tmp_path):
         build_infrastructure_profiles(facilities().iloc[:0])
     with pytest.raises(ValueError, match="periods"):
         build_infrastructure_profiles(facilities(), periods=0)
-    with pytest.raises(ValueError, match="non-negative"):
+    with pytest.raises(ValueError, match="periods"):
+        build_infrastructure_profiles(facilities(), periods=True)
+    with pytest.raises(ValueError, match="non-negative integer"):
         build_infrastructure_profiles(facilities(), budget_credits=-1)
+    with pytest.raises(ValueError, match="non-negative integer"):
+        build_infrastructure_profiles(facilities(), budget_credits=1000.5)
+    with pytest.raises(ValueError, match="non-negative integer"):
+        build_infrastructure_profiles(facilities(), budget_credits=True)
     facility_path = tmp_path / "facilities.csv"
     facilities().to_csv(facility_path, index=False)
     report = run_infrastructure_planning(facility_path, tmp_path / "analytics", periods=2, seed=4)
