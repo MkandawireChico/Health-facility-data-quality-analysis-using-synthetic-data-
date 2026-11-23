@@ -1,0 +1,96 @@
+{
+  "name": "Malawi Health Data Intelligence — Accessible Light",
+  "dataColors": [
+    "#245A8D",
+    "#16806A",
+    "#D97706",
+    "#7C5CC4",
+    "#C04B45",
+    "#3986A8",
+    "#6B7280",
+    "#A16207"
+  ],
+  "background": "#FFFFFF",
+  "foreground": "#172B4D",
+  "tableAccent": "#245A8D",
+  "good": "#16806A",
+  "neutral": "#D97706",
+  "bad": "#C04B45",
+  "maximum": "#245A8D",
+  "center": "#64748B",
+  "minimum": "#E8EEF5",
+  "visualStyles": {
+    "*": {
+      "*": [
+        {
+          "title": [
+            {
+              "fontFace": "Aptos",
+              "fontSize": 12,
+              "color": {
+                "solid": {
+                  "color": "#172B4D"
+                }
+              }
+            }
+          ],
+          "labels": [
+            {
+              "fontFace": "Aptos",
+              "color": {
+                "solid": {
+                  "color": "#334155"
+                }
+              }
+            }
+          ],
+          "background": [
+            {
+              "color": {
+                "solid": {
+                  "color": "#FFFFFF"
+                }
+              },
+              "transparency": 0
+            }
+          ],
+          "border": [
+            {
+              "color": {
+                "solid": {
+                  "color": "#D7E0EA"
+                }
+              },
+              "show": true
+            }
+          ]
+        }
+      ]
+    },
+    "page": {
+      "*": [
+        {
+          "background": [
+            {
+              "color": {
+                "solid": {
+                  "color": "#F5F8FC"
+                }
+              },
+              "transparency": 0
+            }
+          ],
+          "outspace": [
+            {
+              "color": {
+                "solid": {
+                  "color": "#F5F8FC"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
