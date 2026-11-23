@@ -972,10 +972,29 @@ with tabs[6]:
             Expired_Units=("Expired_Units", "sum"),
             Unmet_Demand_Units=("Unmet_Demand_Units", "sum"),
         )
+        cold_left, cold_right = st.columns(2)
+        cold_left.plotly_chart(
+            px.line(
+                monthly_cold, x="Month", y="High_Risk_Pairs", markers=True,
+                title="Monthly high-risk facility–commodity pairs",
+            ),
+            use_container_width=True,
+        )
+        cold_right.plotly_chart(
+            px.line(
+                monthly_cold, x="Month", y=["Near_Expiry_90_Day_Units", "Expired_Units"],
+                markers=True, title="Near-expiry and expired stock (units)",
+            ),
+            use_container_width=True,
+        )
+        monthly_temperature = cold_temp.groupby("Month", as_index=False).agg(
+            Excursion_Facility_Months=("Temperature_Excursion_Flag", "sum"),
+            Average_Data_Coverage_Pct=("Temperature_Data_Coverage_Pct", "mean"),
+        )
         st.plotly_chart(
             px.line(
-                monthly_cold, x="Month", y=["High_Risk_Pairs", "Near_Expiry_90_Day_Units", "Expired_Units"],
-                markers=True, title="Monthly cold-chain and expiry risk signals",
+                monthly_temperature, x="Month", y="Excursion_Facility_Months",
+                markers=True, title="Facility-month temperature excursion signals",
             ),
             use_container_width=True,
         )
