@@ -43,15 +43,18 @@ def _facilities(data: pd.DataFrame) -> pd.DataFrame:
 def build_workforce_profiles(facilities: pd.DataFrame, periods: int=60,
                              start_month: str="2021-01-01", seed: int=42,
                              recruitment_budget_credits: int=50000) -> dict[str,pd.DataFrame]:
-    if not isinstance(periods,int) or periods<1:
+    if isinstance(periods, bool) or not isinstance(periods, int) or periods < 1:
         raise ValueError("periods must be a positive integer")
-    if recruitment_budget_credits<0:
-        raise ValueError("recruitment budget must be non-negative")
+    if (isinstance(recruitment_budget_credits, bool)
+            or not isinstance(recruitment_budget_credits, (int, np.integer))
+            or recruitment_budget_credits < 0):
+        raise ValueError("recruitment budget must be a non-negative integer")
     fac=_facilities(facilities)
     rng=np.random.default_rng(seed)
     months=pd.date_range(pd.Timestamp(start_month).to_period("M").to_timestamp(),periods=periods,freq="MS")
     establishments=[]
     monthly=[]
+    establishment_lookup={}
     for f in fac.to_dict("records"):
         typ=str(f["Facility_Type"]).lower()
         hospital="hospital" in typ
@@ -64,15 +67,17 @@ def build_workforce_profiles(facilities: pd.DataFrame, periods: int=60,
             required=max(1,int(round(base[role]*scale)))
             fill_rate=float(rng.uniform(.62,.98))
             filled=min(required,int(round(required*fill_rate)))
-            establishments.append({**{k:f[k] for k in ["Facility_ID","Facility_Name","District","Facility_Type","Urban_Rural"]},
+            establishment = {**{k:f[k] for k in ["Facility_ID","Facility_Name","District","Facility_Type","Urban_Rural"]},
                 "Role":role,"Illustrative_Establishment":required,"Baseline_Filled_Positions":filled,
                 "Baseline_Vacancies":required-filled,"Workforce_Weight":definition["weight"],
-                "Synthetic_Recruitment_Cost_Credits_Per_Position":definition["cost"],"Synthetic_Data":True})
+                "Synthetic_Recruitment_Cost_Credits_Per_Position":definition["cost"],"Synthetic_Data":True}
+            establishments.append(establishment)
+            establishment_lookup[(f["Facility_ID"], role)] = establishment
         for month in months:
             total_required=0; total_filled=0; weighted_available=0.0
             role_month=[]
             for role,definition in ROLES.items():
-                establishment=next(x for x in establishments if x["Facility_ID"]==f["Facility_ID"] and x["Role"]==role)
+                establishment=establishment_lookup[(f["Facility_ID"], role)]
                 required=establishment["Illustrative_Establishment"]
                 baseline=establishment["Baseline_Filled_Positions"]
                 drift=int(rng.choice([-1,0,0,0,1],p=[.08,.62,.12,.10,.08]))
