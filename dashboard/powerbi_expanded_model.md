@@ -83,7 +83,7 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 - DimIndicator[Indicator_Key] 1 → * FactDistrictIndicatorAttainment[Indicator_Key]
 - DimDate[MonthStart] 1 → * FactMonthlyIndicatorAttainment[Month]
 - DimIndicator[Indicator_Key] 1 → * FactMonthlyIndicatorAttainment[Indicator_Key]
-- DimIndicator[Indicator_Key] 1 → * FactProgrammeIndicatorAttainment[Indicator_Key]
+- DimIndicator[Indicator_Key] 1 → * FactProgrammeIndicatorAttainment[Indicator_Key]\n- DimEquipmentType[Equipment_Type] 1 → * FactEquipmentAssetRegister[Equipment_Type], FactEquipmentAssetMonthly[Equipment_Type], FactEquipmentMaintenanceWorkOrders[Equipment_Type] and FactEquipmentLatestAssetRisk[Equipment_Type]\n- DimFacility[Facility_ID] 1 → * FactEquipmentAssetRegister[Facility_ID], FactEquipmentAssetMonthly[Facility_ID], FactFacilityEquipmentMonthly[Facility_ID], FactEquipmentMaintenanceWorkOrders[Facility_ID] and FactEquipmentLatestAssetRisk[Facility_ID]\n- FactEquipmentAssetRegister[Asset_ID] 1 → * FactEquipmentAssetMonthly[Asset_ID], FactEquipmentMaintenanceWorkOrders[Asset_ID] and FactEquipmentLatestAssetRisk[Asset_ID] (the register is the unique asset dimension in this model)\n- DimDate[MonthStart] 1 → * FactEquipmentAssetMonthly[Month], FactFacilityEquipmentMonthly[Month], FactEquipmentMaintenanceWorkOrders[Month] and FactEquipmentLatestAssetRisk[Month]
 
 - DimFacility[Facility_ID] 1 → * FactFacilityCommodityStock[Facility_ID] and FactCommodityReplenishmentPlan[Facility_ID]
 - DimCommodity[Commodity_ID] 1 → * FactFacilityCommodityStock[Commodity_ID] and FactCommodityReplenishmentPlan[Commodity_ID]
