@@ -13,6 +13,7 @@ from statistical_monitoring import run_statistical_monitoring
 from target_attainment import run_target_attainment
 from resource_planning import run_resource_planning
 from supply_chain_planning import run_supply_chain_planning
+from cold_chain_planning import run_cold_chain_planning
 
 
 def build_platform(
@@ -52,6 +53,9 @@ def build_platform(
     supply_report = run_supply_chain_planning(
         facility_path, analytics_dir, periods=periods, start_month=start_month, seed=seed
     )
+    cold_chain_report = run_cold_chain_planning(
+        facility_path, analytics_dir, periods=periods, start_month=start_month, seed=seed
+    )
 
     if manifest["actual_record_count"] != generator.expected_record_count:
         raise RuntimeError("Generated record count does not match configured fact grain")
@@ -84,6 +88,13 @@ def build_platform(
         "supply_chain_unfunded_replenishment_units": supply_report["unfunded_replenishment_units"],
         "supply_chain_allocated_cost_credits": supply_report["allocated_cost_credits"],
         "supply_chain_assumptions": supply_report["limitations"],
+        "cold_chain_outputs": cold_chain_report["outputs"],
+        "cold_chain_temperature_records": cold_chain_report["temperature_monitoring_records"],
+        "cold_chain_batch_records": cold_chain_report["batch_ledger_records"],
+        "cold_chain_high_risk_pairs": cold_chain_report["latest_high_risk_facility_commodity_pairs"],
+        "cold_chain_near_expiry_units": cold_chain_report["latest_near_expiry_90_day_units"],
+        "cold_chain_expired_units": cold_chain_report["total_expired_units"],
+        "cold_chain_assumptions": cold_chain_report["limitations"],
         "months_monitored": statistical_report["months_monitored"],
         "ground_truth_used_for_operational_monitoring": False,
         "outputs": {
@@ -112,6 +123,11 @@ def build_platform(
             "commodity_replenishment_plan": str(analytics_dir / "commodity_replenishment_plan.csv"),
             "commodity_replenishment_summary": str(analytics_dir / "commodity_replenishment_summary.csv"),
             "supply_chain_planning_report": str(analytics_dir / "supply_chain_planning_report.json"),
+            "cold_chain_catalog": str(analytics_dir / "cold_chain_catalog.csv"),
+            "cold_chain_temperature_monitoring": str(analytics_dir / "facility_cold_chain_temperature_monitoring.csv"),
+            "cold_chain_batch_ledger": str(analytics_dir / "facility_commodity_batch_ledger.csv"),
+            "cold_chain_expiry_risk_summary": str(analytics_dir / "cold_chain_expiry_risk_summary.csv"),
+            "cold_chain_planning_report": str(analytics_dir / "cold_chain_planning_report.json"),
         },
     }
     (output_dir / "platform_build_summary.json").write_text(json.dumps(summary, indent=2))
