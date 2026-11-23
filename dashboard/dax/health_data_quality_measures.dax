@@ -203,3 +203,30 @@ SUM ( FactFacilityIndicatorAttainment[valid_attainment_records] )
 
 // These are pooled reported-to-target ratios for comparable indicators.
 // They are not population coverage measures or official service standards.
+
+
+// Resource capacity scenario measures. Select one Scenario at a time when
+// comparing allocations; the two resource facts remain separate.
+Illustrative Resource Requirement Units =
+SUM ( FactFacilityResourceCapacity[Illustrative_Requirement_Units] )
+
+Synthetic Available Resource Units =
+SUM ( FactFacilityResourceCapacity[Synthetic_Available_Units] )
+
+Baseline Resource Gap Units =
+SUM ( FactFacilityResourceCapacity[Baseline_Gap_Units] )
+
+Scenario Allocated Resource Units =
+SUM ( FactResourceAllocationScenario[Allocated_Units] )
+
+Scenario Residual Resource Gap Units =
+SUM ( FactResourceAllocationScenario[Residual_Gap_Units] )
+
+Scenario Post-Allocation Capacity Coverage =
+DIVIDE (
+    SUM ( FactResourceAllocationScenario[Synthetic_Available_Units] )
+        + SUM ( FactResourceAllocationScenario[Allocated_Units] ),
+    SUM ( FactResourceAllocationScenario[Illustrative_Requirement_Units] )
+)
+
+// Resource units are illustrative synthetic abstractions, not staff or money.
