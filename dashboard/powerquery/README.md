@@ -10,6 +10,10 @@ python src/build_platform.py
 
 The build creates the raw, staged and analytics CSV files under data/warehouse. Generated files are intentionally excluded from Git.
 
+## Apply the report theme
+
+In Power BI Desktop, select View → Themes → Browse for themes and import `dashboard/powerbi_theme.json`. The theme uses a light canvas and high-contrast text. Review contrast and font sizing again after adding custom visuals.
+
 ## Create the shared parameter
 
 In Power BI Desktop:
