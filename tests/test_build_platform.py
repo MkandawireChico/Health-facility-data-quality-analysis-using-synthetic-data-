@@ -24,6 +24,10 @@ def test_small_end_to_end_platform_build(tmp_path):
     assert summary["cold_chain_batch_records"] > 0
     assert summary["cold_chain_high_risk_pairs"] >= 0
     assert summary["cold_chain_expired_units"] >= 0
+    assert summary["equipment_asset_count"] > 0
+    assert summary["equipment_asset_month_records"] == summary["equipment_asset_count"] * 2
+    assert summary["equipment_maintenance_work_orders"] >= 0
+    assert 0 <= summary["equipment_latest_mean_operational_uptime_pct"] <= 100
 
     expected_files = [
         "raw/facility_reporting_fact.csv",
@@ -58,6 +62,13 @@ def test_small_end_to_end_platform_build(tmp_path):
         "analytics/facility_commodity_batch_ledger.csv",
         "analytics/cold_chain_expiry_risk_summary.csv",
         "analytics/cold_chain_planning_report.json",
+        "analytics/equipment_catalog.csv",
+        "analytics/facility_equipment_asset_register.csv",
+        "analytics/equipment_asset_monthly_performance.csv",
+        "analytics/facility_equipment_monthly_summary.csv",
+        "analytics/equipment_maintenance_work_orders.csv",
+        "analytics/equipment_latest_asset_risk_status.csv",
+        "analytics/equipment_maintenance_report.json",
         "platform_build_summary.json",
     ]
     for relative in expected_files:
