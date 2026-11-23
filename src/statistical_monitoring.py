@@ -59,7 +59,7 @@ def detect_peer_anomalies(data: pd.DataFrame, min_group_size: int = 8,
     out["Month"] = pd.to_datetime(out["Month"], errors="coerce").dt.to_period("M").dt.to_timestamp()
     keys = ["Month", "District", "Programme", "Indicator"]
     for _, indexes in out.groupby(keys, dropna=False, sort=False).groups.items():
-        valid_idx = [i for i in indexes if pd.notna(values.loc[i])]
+        valid_idx = [i for i in indexes if pd.notna(values.loc[i]) and np.isfinite(values.loc[i])]
         sample = values.loc[valid_idx]
         n = len(sample)
         out.loc[indexes, "Peer_Group_Size"] = n
