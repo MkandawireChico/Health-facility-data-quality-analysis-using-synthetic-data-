@@ -122,3 +122,24 @@ def test_operational_profiles_reject_missing_facility_label():
     with pytest.raises(ValueError, match="Facility"):
         build_operational_profiles(data)
 \n
+
+def test_operational_profiles_reject_missing_or_invalid_months():
+    data = analytics_fixture()
+    data.loc[0, "Month"] = None
+    with pytest.raises(ValueError, match="invalid or missing Month"):
+        build_operational_profiles(data)
+
+
+def test_operational_profiles_reject_blank_grouping_dimensions():
+    data = analytics_fixture()
+    data.loc[0, "Facility_ID"] = "  "
+    with pytest.raises(ValueError, match="blank profile dimension: Facility_ID"):
+        build_operational_profiles(data)
+
+
+def test_district_profiles_reject_blank_district_labels():
+    data = analytics_fixture()
+    data.loc[0, "District"] = ""
+    with pytest.raises(ValueError, match="blank district dimension: District"):
+        build_district_profiles(data)
+\n
