@@ -924,10 +924,8 @@ with tabs[6]:
                 else:
                     st.session_state["integrated_priority_actions"] = {
                         row["Record_ID"]: {
-                            key: row[key] for key in [
-                                "Status", "Assigned owner", "Root cause",
-                                "Corrective action / notes", "Due date",
-                            ]
+                            key: value for key, value in row.items()
+                            if key != "Record_ID"
                         }
                         for row in edited_priority_actions.to_dict(orient="records")
                     }
