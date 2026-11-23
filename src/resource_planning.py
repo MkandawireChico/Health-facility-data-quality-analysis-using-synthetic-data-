@@ -45,8 +45,11 @@ def build_resource_planning_profiles(
         raise ValueError("units_per_10000_population must be a finite positive number")
 
     frame = facilities[list(REQUIRED_FACILITY_COLUMNS)].copy()
+    if frame.empty:
+        raise ValueError("Facility dimension must contain at least one facility")
+    frame["Facility_ID"] = frame["Facility_ID"].astype("string").str.strip()
     frame["Catchment_Population"] = pd.to_numeric(frame["Catchment_Population"], errors="coerce")
-    if frame["Facility_ID"].isna().any() or frame["Facility_ID"].duplicated().any():
+    if frame["Facility_ID"].isna().any() or frame["Facility_ID"].eq("").any() or frame["Facility_ID"].duplicated().any():
         raise ValueError("Facility_ID must be populated and unique")
     if frame["Catchment_Population"].isna().any() or not np.isfinite(frame["Catchment_Population"].to_numpy(dtype=float)).all() or frame["Catchment_Population"].lt(0).any():
         raise ValueError("Catchment_Population must contain finite non-negative numeric values")
