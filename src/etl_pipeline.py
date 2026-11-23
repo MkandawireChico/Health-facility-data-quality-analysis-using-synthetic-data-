@@ -45,11 +45,14 @@ def stage_reporting_data(
         raise ValueError(f"Facility table missing required columns: {missing_facilities}")
     if facilities.empty:
         raise ValueError("Facility dimension cannot be empty")
-    if facilities["Facility_ID"].duplicated().any():
+    dimension = facilities.copy()
+    dimension["Facility_ID"] = dimension["Facility_ID"].astype("string").str.strip()
+    if dimension["Facility_ID"].isna().any() or dimension["Facility_ID"].eq("").any():
+        raise ValueError("Facility_ID must be populated in the facility dimension")
+    if dimension["Facility_ID"].duplicated().any():
         raise ValueError("Facility_ID must be unique in the facility dimension")
 
     work = fact.copy().reset_index(drop=True)
-    dimension = facilities.copy()
     for column in ["Record_ID", "Facility_ID", "Programme", "Indicator", "Data_Source"]:
         work[column] = work[column].astype("string").str.strip()
 
