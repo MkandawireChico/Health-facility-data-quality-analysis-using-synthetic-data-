@@ -122,6 +122,10 @@ def test_build_configuration_is_rejected_before_creating_output(tmp_path):
         {"periods": 0},
         {"periods": True},
         {"seed": True},
+        {"seed": -1},
+        {"start_month": "not-a-date"},
+        {"start_month": ""},
+        {"start_month": "2024-01-01T00:00:00+02:00"},
     ]
     for options in invalid_options:
         with pytest.raises(ValueError):
