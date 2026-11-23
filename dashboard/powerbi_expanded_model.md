@@ -156,3 +156,14 @@ Create `DimDistrict` from the DAX dimension-table script. Connect it to DimFacil
 ## Resource capacity and allocation scenario facts
 
 Two additional Power Query facts are provided: `FactFacilityResourceCapacity` (baseline illustrative requirement, synthetic availability and gap) and `FactResourceAllocationScenario` (facility-level allocations and residual gaps for each of three strategies). Relate both to DimFacility on Facility_ID with single-direction one-to-many relationships. Use Scenario as a slicer for comparisons; do not relate the two facts directly. Resource units are abstract synthetic planning units, not staffing headcounts or currency. Refer to `docs/resource_planning_methodology.md` for assumptions and safeguards.
+
+## Commodity availability and replenishment facts
+
+Three Power Query templates extend the semantic model:
+- `DimCommodity` — illustrative commodity catalogue keyed by Commodity_ID.
+- `FactFacilityCommodityStock` — facility-commodity-month stock ledger with opening stock, receipts, demand, fulfilled consumption, unmet demand, closing stock and estimated stockout days.
+- `FactCommodityReplenishmentPlan` — latest-snapshot replenishment requests, budget-constrained allocations and unfunded quantities.
+
+Create single-direction one-to-many relationships from DimFacility, DimCommodity and DimDate to the applicable facts. FactFacilityCommodityStock joins all three dimensions. FactCommodityReplenishmentPlan joins DimFacility and DimCommodity; its Snapshot_Month can join DimDate if the model uses a dedicated role-playing date relationship. Do not join facts directly.
+
+All inventory records and unit costs are synthetic. Budget credits are not MWK, the commodity list is illustrative, and stockout-day estimates are monthly approximations. See `docs/supply_chain_methodology.md`.
