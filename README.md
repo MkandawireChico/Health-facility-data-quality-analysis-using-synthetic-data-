@@ -292,8 +292,11 @@ python src/etl_pipeline.py
 
 Then upload `data/warehouse/staged/facility_reporting_staged.csv` in the app.
 The upload and resulting analysis remain session-scoped; shared database
-persistence is not configured. The expanded generated data is not committed
-to the repository.
+persistence is not configured. The Expanded Platform page also provides a
+one-click ZIP export containing the management summary, monthly/facility/
+programme/district profiles, peer anomalies, monthly control-chart output and
+synthetic-only detector evaluation metrics when labels are available. The
+expanded generated data is not committed to the repository.
 
 
 ### Expanded analytical notebook
