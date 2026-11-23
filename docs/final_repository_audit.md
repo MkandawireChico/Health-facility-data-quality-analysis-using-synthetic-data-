@@ -107,3 +107,35 @@ The remaining blockers are external/manual validation rather than an identified 
 7. Merge PRs #20–#26 in dependency order, rechecking each child base after its parent merges.
 
 Until these gates are met, describe the project as an expanded development build with validation pending—not as a fully tested production platform.
+
+
+## Integration review addendum — 23 November 2026
+
+A focused integration review was performed after adding the executive briefing and
+facility management drill-down.
+
+- The executive briefing and facility drill-down helpers were exercised with
+  their focused test modules in an isolated local Python environment: **24
+  tests passed**. These tests cover district aggregation, facility filtering,
+  priority-score reconciliation, action status counts, overdue deadlines,
+  missing action records, malformed dates, duplicate IDs/ranks and invalid
+  reference dates.
+- The review corrected two inaccurate assertions in the executive briefing
+  tests: action resolution is rounded to two decimal places, and the selected
+  facility in the fixture has one overdue unresolved action (the portfolio
+  total is two).
+- Date parsing for the new management views now follows the documented
+  YYYY-MM-DD action-date contract; invalid non-empty dates are rejected.
+- GitHub Actions was triggered again for both the expanded platform build and
+  project quality checks. Both runs failed before reporting any executed steps;
+  the job-step endpoint returned empty step lists and downloadable logs were
+  unavailable. This does not establish a code-test failure or prove the cause
+  of the runner problem.
+- The complete repository test suite, default 120-facility/60-period build,
+  notebook execution, Streamlit browser workflow, hosted deployment and
+  Power BI Desktop refresh remain unverified.
+
+The project therefore remains **not release-validated**. Keep the seven-PR
+dependency chain open and merge only after runner allocation is restored,
+required checks execute successfully, and the manual release checklist is
+completed. Do not infer deployment from branch commits.
