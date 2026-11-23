@@ -267,10 +267,10 @@ pytest -q
 The additional statistical monitoring layer is available in
 [`src/statistical_monitoring.py`](src/statistical_monitoring.py). It applies
 MAD robust-z and IQR fallback checks within month/district/programme/indicator
-peer groups, then builds retrospective monthly issue-rate control limits. Run it
-after staging with `python src/statistical_monitoring.py`. Statistical signals
-are verification prompts, not proof of errors; the control limits are
-retrospective descriptive limits, not a prospective alerting service. The
+peer groups, then builds retrospective monthly issue-rate monitoring with pooled-rate, denominator-aware retrospective p-chart
+limits. Run it after staging with `python src/statistical_monitoring.py`.
+Statistical signals are verification prompts, not proof of errors; the control
+limits are retrospective descriptive limits, not a prospective alerting service. The
 monitoring code does not use synthetic ground-truth labels.
 
 
