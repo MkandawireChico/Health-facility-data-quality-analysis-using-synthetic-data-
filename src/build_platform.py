@@ -72,6 +72,47 @@ def _validate_generated_fact_grain(
     }
 
 
+
+def _validate_monthly_analytics_population(
+    quality_monthly: pd.DataFrame,
+    control_chart: pd.DataFrame,
+    attainment_monthly: pd.DataFrame,
+) -> dict[str, int]:
+    """Require monthly quality, monitoring and attainment views to share one population."""
+    specifications = [
+        (quality_monthly, "records", "quality analytics"),
+        (control_chart, "Records", "statistical monitoring"),
+        (attainment_monthly, "reporting_records", "target attainment"),
+    ]
+    monthly_counts: dict[str, dict[str, int]] = {}
+    for frame, count_column, label in specifications:
+        if not {"Month", count_column}.issubset(frame.columns):
+            raise RuntimeError(f"{label} monthly output is missing Month or {count_column}")
+        months = pd.to_datetime(frame["Month"], errors="coerce").dt.to_period("M")
+        if months.isna().any():
+            raise RuntimeError(f"{label} monthly output contains invalid reporting months")
+        if months.duplicated().any():
+            raise RuntimeError(f"{label} monthly output contains duplicate month rows")
+        counts = pd.to_numeric(frame[count_column], errors="coerce")
+        if counts.isna().any() or counts.lt(0).any() or not np.isfinite(counts).all():
+            raise RuntimeError(f"{label} monthly output contains invalid record counts")
+        monthly_counts[label] = {
+            str(month): int(count)
+            for month, count in zip(months.astype(str), counts)
+        }
+
+    expected = monthly_counts["quality analytics"]
+    for label, counts in monthly_counts.items():
+        if counts != expected:
+            raise RuntimeError(
+                f"Monthly reporting population mismatch: quality analytics vs {label}"
+            )
+    return {
+        "months_reconciled": len(expected),
+        "monthly_reporting_records": int(sum(expected.values())),
+    }
+
+
 def _build_artifact_manifest(outputs: dict[str, str], output_dir: Path) -> dict[str, dict[str, Any]]:
     """Validate build artifacts and return stable, relative integrity metadata."""
     root = Path(output_dir).resolve()
@@ -183,6 +224,11 @@ def build_platform(
         raise RuntimeError("Statistical monitoring input count does not reconcile with staged records")
     if attainment_report["input_records"] != staging_report["staged_rows"]:
         raise RuntimeError("Target attainment input count does not reconcile with staged records")
+    monthly_population = _validate_monthly_analytics_population(
+        pd.read_csv(analytics_dir / "monthly_quality_trends.csv"),
+        pd.read_csv(analytics_dir / "monthly_issue_control_chart.csv"),
+        pd.read_csv(analytics_dir / "monthly_indicator_target_attainment.csv"),
+    )
 
     summary = {
         "synthetic_data": True,
@@ -195,6 +241,7 @@ def build_platform(
         "generated_fact_records": manifest["actual_record_count"],
         "generated_fact_grain_validation": grain_validation,
         "staged_records": staging_report["staged_rows"],
+        "monthly_analytics_population": monthly_population,
         "quarantined_records": staging_report["quarantined_rows"],
         "staging_yield_pct": staging_report["staging_yield_pct"],
         "detector_evaluation_scope": quality_report["evaluation_scope"],
