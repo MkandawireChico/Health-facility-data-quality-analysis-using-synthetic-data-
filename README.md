@@ -416,3 +416,12 @@ The new `src/resource_planning.py` layer creates synthetic facility capacity pro
 The new `src/supply_chain_planning.py` module simulates monthly stock cards for eight illustrative commodities across the synthetic facility dimension. It calculates stock balances, fulfilled and unmet demand, estimated stockout days, days of cover and replenishment requirements based on a configurable lead-time-plus-buffer assumption. A deterministic priority-per-credit routine allocates a configurable abstract budget ceiling and exposes funded and unfunded units. The one-command platform build exports the commodity catalogue, stock ledger, replenishment plan and summary; Streamlit adds stockout trends, a commodity risk table and a downloadable replenishment worklist.
 
 All commodity records, demand, receipts and unit costs are synthetic. The commodity list is illustrative, budget credits are not MWK, and this is not an approved national catalogue or operational procurement recommendation. See `docs/supply_chain_methodology.md`.
+
+
+### Cold-chain, batch traceability and expiry intelligence
+
+The new `src/cold_chain_planning.py` module creates synthetic facility-month temperature monitoring and batch-level inventory histories for four illustrative temperature-sensitive commodity labels. It records synthetic sensor coverage and excursion summaries, lot identifiers, supplier identifiers, manufacture/receipt/expiry dates, FEFO consumption, batch balances, expired quantities and near-expiry stock at 30/60/90 days. A transparent review score combines observed excursion-day rate and the share of closing stock expiring within 90 days.
+
+The one-command platform build exports a cold-chain catalogue, temperature monitoring fact, batch ledger, expiry-risk summary and report. Streamlit adds a cold-chain risk dashboard and downloadable batch review worklist. The notebook and Power BI model include the same analysis layer.
+
+All records, sensors, lots, temperatures, suppliers, receipts, consumption and expiry events are synthetic. The default 2–8°C band and shelf lives are illustrative assumptions, not official Malawi standards or product-specific storage instructions. The monthly temperature summary is not validated continuous logger evidence and cannot determine product disposition. See `docs/cold_chain_methodology.md`.

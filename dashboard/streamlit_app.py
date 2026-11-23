@@ -553,6 +553,7 @@ with tabs[6]:
                     from statistical_monitoring import detect_peer_anomalies, build_monthly_control_chart
                     from resource_planning import build_resource_planning_profiles
                     from supply_chain_planning import build_supply_chain_profiles
+                    from cold_chain_planning import build_cold_chain_profiles
 
                     with st.spinner("Running quality, statistical, resource and commodity supply-chain analytics..."):
                         predicted = add_operational_predictions(platform_data)
@@ -567,6 +568,9 @@ with tabs[6]:
                         supply = build_supply_chain_profiles(
                             resource_facilities, periods=24, start_month="2025-01-01", seed=42,
                             budget_credits=int(supply_budget_input),
+                        )
+                        cold_chain = build_cold_chain_profiles(
+                            resource_facilities, periods=24, start_month="2025-01-01", seed=42,
                         )
                         metrics = None
                         if set(truth_required).issubset(platform_data.columns):
@@ -595,6 +599,7 @@ with tabs[6]:
                             "control": control,
                             "resource": resource,
                             "supply": supply,
+                            "cold_chain": cold_chain,
                             "metrics": metrics,
                             "synthetic_truth_available": metrics is not None,
                         }
@@ -631,6 +636,11 @@ with tabs[6]:
             "commodity_replenishment_budget_credits": int(result["supply"]["scenario_summary"]["budget_credits"].iloc[0]),
             "commodity_supply_chain_assumptions": result["supply"]["assumptions"]["limitations"],
             "commodity_supply_chain_interpretation": "All stock, demand, receipts, stockouts and costs are synthetic. Budget credits are not MWK; the commodity list is illustrative and the replenishment worklist is not an order.",
+            "cold_chain_high_risk_pairs_latest": int(result["cold_chain"]["expiry_risk_summary"].loc[result["cold_chain"]["expiry_risk_summary"]["Month"].eq(result["cold_chain"]["expiry_risk_summary"]["Month"].max()), "Risk_Band"].eq("High").sum()),
+            "cold_chain_temperature_excursion_facility_months": int(result["cold_chain"]["temperature_monitoring"]["Temperature_Excursion_Flag"].sum()),
+            "cold_chain_near_expiry_90_day_units_latest": int(result["cold_chain"]["expiry_risk_summary"].loc[result["cold_chain"]["expiry_risk_summary"]["Month"].eq(result["cold_chain"]["expiry_risk_summary"]["Month"].max()), "Near_Expiry_90_Day_Units"].sum()),
+            "cold_chain_expired_units": int(result["cold_chain"]["expiry_risk_summary"]["Expired_Units"].sum()),
+            "cold_chain_assumptions": result["cold_chain"]["assumptions"]["limitations"],
             "facility_indicator_combinations_with_valid_targets": int(len(valid_attainment_summary)),
             "facility_indicator_combinations_below_80_pct": int(valid_attainment_summary["attainment_pct"].lt(80).sum()),
             "facility_indicator_combinations_at_or_above_100_pct": int(valid_attainment_summary["attainment_pct"].ge(100).sum()),
@@ -665,6 +675,10 @@ with tabs[6]:
             "facility_commodity_stock_ledger.csv": result["supply"]["inventory_ledger"],
             "commodity_replenishment_plan.csv": result["supply"]["replenishment_plan"],
             "commodity_replenishment_summary.csv": result["supply"]["scenario_summary"],
+            "cold_chain_catalog.csv": result["cold_chain"]["cold_chain_catalog"],
+            "facility_cold_chain_temperature_monitoring.csv": result["cold_chain"]["temperature_monitoring"],
+            "facility_commodity_batch_ledger.csv": result["cold_chain"]["batch_ledger"],
+            "cold_chain_expiry_risk_summary.csv": result["cold_chain"]["expiry_risk_summary"],
         }
         if result["metrics"] is not None:
             export_tables["synthetic_detector_evaluation_metrics.csv"] = result["metrics"]
@@ -935,6 +949,91 @@ with tabs[6]:
                 file_name="facility_commodity_stock_ledger.csv",
                 mime="text/csv",
                 key="download_commodity_stock_ledger",
+            )
+
+        st.markdown("**Cold-chain, batch traceability and expiry intelligence**")
+        st.caption(
+            "Synthetic monitoring scenario only. The 2–8°C band, shelf lives and alert windows are illustrative assumptions, not product-specific storage instructions or official Malawi standards. Monthly summaries do not replace calibrated continuous temperature logs, batch quarantine procedures or professional product-stability decisions."
+        )
+        cold = result["cold_chain"]
+        cold_risk = cold["expiry_risk_summary"]
+        cold_temp = cold["temperature_monitoring"]
+        cold_batches = cold["batch_ledger"]
+        latest_cold_month = cold_risk["Month"].max()
+        latest_cold = cold_risk.loc[cold_risk["Month"].eq(latest_cold_month)].copy()
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("High-risk facility–commodity pairs", f"{int(latest_cold['Risk_Band'].eq('High').sum()):,}")
+        c2.metric("Facility-month temperature excursions", f"{int(cold_temp['Temperature_Excursion_Flag'].sum()):,}")
+        c3.metric("Units expiring within 90 days", f"{int(latest_cold['Near_Expiry_90_Day_Units'].sum()):,}")
+        c4.metric("Expired units in simulation", f"{int(cold_risk['Expired_Units'].sum()):,}")
+        monthly_cold = cold_risk.groupby("Month", as_index=False).agg(
+            High_Risk_Pairs=("Risk_Band", lambda values: int(values.eq("High").sum())),
+            Near_Expiry_90_Day_Units=("Near_Expiry_90_Day_Units", "sum"),
+            Expired_Units=("Expired_Units", "sum"),
+            Unmet_Demand_Units=("Unmet_Demand_Units", "sum"),
+        )
+        cold_left, cold_right = st.columns(2)
+        cold_left.plotly_chart(
+            px.line(
+                monthly_cold, x="Month", y="High_Risk_Pairs", markers=True,
+                title="Monthly high-risk facility–commodity pairs",
+            ),
+            use_container_width=True,
+        )
+        cold_right.plotly_chart(
+            px.line(
+                monthly_cold, x="Month", y=["Near_Expiry_90_Day_Units", "Expired_Units"],
+                markers=True, title="Near-expiry and expired stock (units)",
+            ),
+            use_container_width=True,
+        )
+        monthly_temperature = cold_temp.groupby("Month", as_index=False).agg(
+            Excursion_Facility_Months=("Temperature_Excursion_Flag", "sum"),
+            Average_Data_Coverage_Pct=("Temperature_Data_Coverage_Pct", "mean"),
+        )
+        st.plotly_chart(
+            px.line(
+                monthly_temperature, x="Month", y="Excursion_Facility_Months",
+                markers=True, title="Facility-month temperature excursion signals",
+            ),
+            use_container_width=True,
+        )
+        st.markdown("**Latest batch and facility review worklist**")
+        risk_order = {"High": 0, "Medium": 1, "Low": 2, "Data Gap": 3}
+        latest_cold["Risk_Order"] = latest_cold["Risk_Band"].map(risk_order).fillna(4)
+        cold_worklist = latest_cold.sort_values(
+            ["Risk_Order", "Cold_Chain_Risk_Score", "Near_Expiry_90_Day_Units"],
+            ascending=[True, False, False], na_position="last",
+        ).drop(columns=["Risk_Order"])
+        cold_columns = [
+            "Facility_Name", "District", "Commodity", "Risk_Band", "Cold_Chain_Risk_Score",
+            "Temperature_Excursion_Days", "Temperature_Data_Coverage_Pct",
+            "Near_Expiry_30_Day_Units", "Near_Expiry_60_Day_Units",
+            "Near_Expiry_90_Day_Units", "Expired_Units", "Unmet_Demand_Units",
+        ]
+        st.dataframe(cold_worklist[cold_columns], use_container_width=True, hide_index=True)
+        st.download_button(
+            "Download cold-chain and expiry risk worklist",
+            data=cold_worklist.to_csv(index=False).encode("utf-8"),
+            file_name="cold_chain_expiry_risk_worklist.csv",
+            mime="text/csv",
+            key="download_cold_chain_risk_worklist",
+        )
+        with st.expander("Inspect batch-level traceability ledger"):
+            st.dataframe(cold_batches.tail(500), use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download complete batch ledger",
+                data=cold_batches.to_csv(index=False).encode("utf-8"),
+                file_name="facility_commodity_batch_ledger.csv",
+                mime="text/csv",
+                key="download_cold_chain_batch_ledger",
+            )
+            st.download_button(
+                "Download facility temperature monitoring",
+                data=cold_temp.to_csv(index=False).encode("utf-8"),
+                file_name="facility_cold_chain_temperature_monitoring.csv",
+                mime="text/csv",
+                key="download_cold_chain_temperature",
             )
 
         st.markdown("**Programme and indicator quality profile**")

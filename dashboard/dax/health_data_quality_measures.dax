@@ -260,3 +260,42 @@ SUM ( FactCommodityReplenishmentPlan[Allocated_Cost_Credits] )
 
 Commodity Average Days of Cover =
 AVERAGE ( FactCommodityReplenishmentPlan[Estimated_Days_of_Cover] )
+
+
+// Cold-chain, batch and expiry monitoring. All underlying observations and
+// quantities are synthetic; temperature thresholds and risk bands are illustrative.
+Cold Chain Temperature Excursion Days =
+SUM ( FactColdChainTemperature[Excursion_Days] )
+
+Cold Chain Facility-Months with Excursions =
+CALCULATE (
+    COUNTROWS ( FactColdChainTemperature ),
+    FactColdChainTemperature[Temperature_Excursion_Flag] = TRUE ()
+)
+
+Cold Chain Average Temperature Coverage Pct =
+AVERAGE ( FactColdChainTemperature[Temperature_Data_Coverage_Pct] )
+
+Cold Chain Near Expiry 90 Day Units =
+SUM ( FactColdChainExpiryRisk[Near_Expiry_90_Day_Units] )
+
+Cold Chain Near Expiry 30 Day Units =
+SUM ( FactColdChainExpiryRisk[Near_Expiry_30_Day_Units] )
+
+Cold Chain Expired Units =
+SUM ( FactColdChainExpiryRisk[Expired_Units] )
+
+Cold Chain Unmet Demand Units =
+SUM ( FactColdChainExpiryRisk[Unmet_Demand_Units] )
+
+Cold Chain High Risk Facility Commodity Months =
+CALCULATE (
+    COUNTROWS ( FactColdChainExpiryRisk ),
+    FactColdChainExpiryRisk[Risk_Band] = "High"
+)
+
+Cold Chain Average Risk Score =
+AVERAGE ( FactColdChainExpiryRisk[Cold_Chain_Risk_Score] )
+
+Cold Chain Closing Batch Stock =
+SUM ( FactCommodityBatchLedger[Closing_Stock_Units] )

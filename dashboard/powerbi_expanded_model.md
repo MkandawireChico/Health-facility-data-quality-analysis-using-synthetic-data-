@@ -105,17 +105,18 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 6. **Detector governance** — precision, recall, F1 and confusion counts on synthetic injected defects; display a persistent synthetic-evaluation disclaimer.
 7. **Target attainment** — facility, district and monthly reported-to-target attainment by programme-indicator pair; show valid-record denominators and under-target review bands.
 8. **Resource allocation scenarios** — compare synthetic capacity gaps and three constrained allocation heuristics; keep assumptions and limitations visible.
-9. **Commodity availability and replenishment** — monitor synthetic stockouts, unmet demand, days of cover and budget-constrained replenishment.
+9. **Commodity availability and replenishment** — monitor synthetic stockouts, unmet demand, days of cover and budget-constrained replenishment. 
+10. **Cold-chain and expiry intelligence** — review synthetic temperature excursions, monitoring coverage, FEFO batch balances, near-expiry stock, expired quantities and facility-commodity risk bands.
 
 ## Build instructions
 
 1. Run `python src/build_platform.py` from the repository root.
 2. In Power BI Desktop, create a text parameter named `pWarehouseRoot` pointing to the generated `data/warehouse` folder (no trailing slash).
-3. Create/load the queries in `dashboard/powerquery/`: `FactReporting`, `DimFacility`, `DimIndicator`, `DimDate`, `DimSource`, `FactSourceObservation`, `FactMonthlyQualityTrend`, `FactMonthlyIssueControlChart`, `FactDistrictProfile`, `FactDistrictMonthlyTrend`, `FactPeerAnomaly`, `FactDetectorEvaluation`, `FactFacilityIndicatorAttainment`, `FactDistrictIndicatorAttainment`, `FactMonthlyIndicatorAttainment`, `FactProgrammeIndicatorAttainment`, `FactFacilityResourceCapacity`, `FactResourceAllocationScenario`, `DimCommodity`, `FactFacilityCommodityStock` and `FactCommodityReplenishmentPlan`.
+3. Create/load the queries in `dashboard/powerquery/`: `FactReporting`, `DimFacility`, `DimIndicator`, `DimDate`, `DimSource`, `FactSourceObservation`, `FactMonthlyQualityTrend`, `FactMonthlyIssueControlChart`, `FactDistrictProfile`, `FactDistrictMonthlyTrend`, `FactPeerAnomaly`, `FactDetectorEvaluation`, `FactFacilityIndicatorAttainment`, `FactDistrictIndicatorAttainment`, `FactMonthlyIndicatorAttainment`, `FactProgrammeIndicatorAttainment`, `FactFacilityResourceCapacity`, `FactResourceAllocationScenario`, `DimCommodity`, `FactFacilityCommodityStock`, `FactCommodityReplenishmentPlan`, `DimColdChainCommodity`, `FactColdChainTemperature`, `FactCommodityBatchLedger` and `FactColdChainExpiryRisk`.
 4. The FactReporting query removes all `Ground_Truth_*` fields before loading; keep detector evaluation as a separate synthetic-only governance table.
 5. Create `DimDistrict` using `dashboard/dax/dimension_tables.dax`, then create the relationships listed above. Mark DimDate as the date table and sort MonthName by MonthNumber.
 6. Add measures from `dashboard/dax/health_data_quality_measures.dax`.
-7. Add the DAX resource and commodity measures and build the nine report pages using the layout plan.
+7. Add the DAX resource and commodity measures and build the ten report pages using the layout plan.
 8. Validate filter behaviour at facility, district, month, programme and indicator levels.
 9. Keep the synthetic-data disclaimer visible on every report page and in exported PDFs.
 
@@ -183,3 +184,16 @@ Three Power Query templates extend the semantic model:
 Create single-direction one-to-many relationships from DimFacility, DimCommodity and DimDate to the applicable facts. FactFacilityCommodityStock joins all three dimensions. FactCommodityReplenishmentPlan joins DimFacility and DimCommodity; its Snapshot_Month can join DimDate if the model uses a dedicated role-playing date relationship. Do not join facts directly.
 
 All inventory records and unit costs are synthetic. Budget credits are not MWK, the commodity list is illustrative, and stockout-day estimates are monthly approximations. See `docs/supply_chain_methodology.md`.
+
+
+## Cold-chain and expiry facts
+
+Four Power Query templates extend the model:
+- `DimColdChainCommodity` — synthetic catalogue of illustrative temperature-sensitive commodities.
+- `FactColdChainTemperature` — facility-month sensor coverage, temperature summaries and excursion estimates.
+- `FactCommodityBatchLedger` — batch-month stock movements, expiry dates, FEFO consumption and remaining lot balances.
+- `FactColdChainExpiryRisk` — facility-commodity-month demand, unmet demand, expiry exposure and risk-band summary.
+
+Connect DimFacility and DimDate to all applicable facts using Facility_ID and Month. Connect DimColdChainCommodity to FactCommodityBatchLedger and FactColdChainExpiryRisk using Commodity_ID. FactColdChainTemperature is facility-month grain and has no commodity key. Do not create fact-to-fact relationships. Keep the batch ledger at Batch_ID × Month grain; do not aggregate repeated facility-commodity demand across batch rows.
+
+The default 2–8°C band, shelf lives and expiry windows are illustrative assumptions, not official Malawi standards or product-specific storage instructions. Temperature excursions require product-specific review and do not establish product compromise. See `docs/cold_chain_methodology.md`.

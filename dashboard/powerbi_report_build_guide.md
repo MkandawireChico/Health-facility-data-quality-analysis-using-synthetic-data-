@@ -199,6 +199,25 @@ Avoid exposing patient-level data. The current dataset has no patient-level reco
 - Export each page to PDF and review clipping, labels and synthetic disclaimers.
 - Save the final PBIX only after the model refresh and all page-level checks pass.
 
+
+
+## Page 10 — Cold-chain, batch traceability and expiry intelligence
+
+**Decision question:** Which synthetic facility-month temperature records and facility-commodity batches need a closer review for excursions, incomplete monitoring or expiry exposure?
+
+Layout:
+- Facility-month temperature coverage and excursion-day trend, with the assumed temperature band clearly labelled.
+- Near-expiry stock at 30/60/90 days and simulated expired quantities.
+- Facility-commodity risk table showing risk band, score, temperature coverage, excursion days, expiry quantities and unmet demand.
+- Batch ledger drill-through with Batch_ID, supplier identifier, manufacture date, receipt date, expiry date, opening stock, receipts, FEFO consumption, expired units and closing stock.
+
+Interpretation:
+- The default 2–8°C band and shelf lives are illustrative modelling assumptions, not universal product storage instructions or official Malawi standards.
+- Monthly temperature summaries do not replace calibrated continuous logger evidence.
+- An excursion flag is a review trigger, not proof of product compromise or a product-disposition instruction.
+- Batch IDs, suppliers, stock movements and expiry events are synthetic.
+- Keep batch-level measures at batch grain; use the facility-commodity-month summary for demand and consumption totals.
+
 ## Required model files
 
 - Semantic model and relationships: powerbi_expanded_model.md
@@ -208,6 +227,6 @@ Avoid exposing patient-level data. The current dataset has no patient-level reco
 
 ## Companion Streamlit analysis export
 
-The Expanded Platform workspace provides a ZIP handover package alongside its individual CSV downloads. The package contains the management summary JSON, monthly quality trends, facility benchmark, programme/indicator profile, district and district-month profiles, statistical peer anomalies, monthly issue-control output, target-attainment facts, resource-capacity/allocation scenario tables, commodity stock ledger and replenishment worklist. Detector evaluation metrics are included only when synthetic ground-truth labels are present. The summary carries an explicit synthetic-data disclaimer and records whether synthetic evaluation was performed.
+The Expanded Platform workspace provides a ZIP handover package alongside its individual CSV downloads. The package contains the management summary JSON, monthly quality trends, facility benchmark, programme/indicator profile, district and district-month profiles, statistical peer anomalies, monthly issue-control output, target-attainment facts, resource-capacity/allocation scenario tables, commodity stock ledger and replenishment worklist, cold-chain temperature monitoring, batch ledger and expiry-risk summary. Detector evaluation metrics are included only when synthetic ground-truth labels are present. The summary carries an explicit synthetic-data disclaimer and records whether synthetic evaluation was performed.
 
 The guide does not substitute for a completed Power BI Desktop refresh and visual review.
