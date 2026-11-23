@@ -425,3 +425,72 @@ def test_quality_profile_population_rejects_missing_groups_and_boolean_counts():
     with pytest.raises(RuntimeError, match="invalid record counts"):
         _validate_quality_profile_population(staged, facility, district, programme)
 \n
+
+def _planning_population_samples():
+    import pandas as pd
+
+    facilities = pd.DataFrame({
+        "Facility_ID": ["F1", "F2"],
+        "Facility_Name": ["Alpha", "Beta"],
+        "District": ["North", "South"],
+    })
+    resource = facilities.copy()
+    resource_scenarios = pd.concat([
+        facilities.assign(Scenario=scenario)
+        for scenario in ["gap_priority", "equity", "equal"]
+    ], ignore_index=True)
+    establishment = pd.DataFrame([
+        {"Facility_ID": facility, "Role": role}
+        for facility in ["F1", "F2"]
+        for role in ["Nurse", "Clinician"]
+    ])
+    monthly = pd.DataFrame([
+        {"Facility_ID": facility, "Month": month}
+        for facility in ["F1", "F2"]
+        for month in ["2024-01-01", "2024-02-01"]
+    ])
+    latest = facilities.assign(Month="2024-02-01")
+    return facilities, resource, resource_scenarios, establishment, monthly, latest
+
+
+def test_operational_planning_population_reconciles_resource_and_workforce_outputs():
+    from build_platform import _validate_operational_planning_population
+
+    samples = _planning_population_samples()
+    assert _validate_operational_planning_population(*samples, 2) == {
+        "facilities_reconciled": 2,
+        "resource_scenarios_reconciled": 3,
+        "workforce_roles_reconciled": 2,
+        "workforce_months_reconciled": 2,
+        "workforce_facility_month_rows": 4,
+    }
+
+
+def test_operational_planning_population_rejects_missing_resource_facility():
+    import pytest
+    from build_platform import _validate_operational_planning_population
+
+    samples = list(_planning_population_samples())
+    samples[1] = samples[1].iloc[:1].copy()
+    with pytest.raises(RuntimeError, match="resource capacity facility population"):
+        _validate_operational_planning_population(*samples, 2)
+
+
+def test_operational_planning_population_rejects_incomplete_workforce_month_grid():
+    import pytest
+    from build_platform import _validate_operational_planning_population
+
+    samples = list(_planning_population_samples())
+    samples[4] = samples[4].iloc[:-1].copy()
+    with pytest.raises(RuntimeError, match="facility-month grid"):
+        _validate_operational_planning_population(*samples, 2)
+
+
+def test_operational_planning_population_rejects_duplicate_resource_scenario_rows():
+    import pytest
+    from build_platform import _validate_operational_planning_population
+
+    samples = list(_planning_population_samples())
+    samples[2] = pd.concat([samples[2], samples[2].iloc[[0]]], ignore_index=True)
+    with pytest.raises(RuntimeError, match="duplicate facility-scenario"):
+        _validate_operational_planning_population(*samples, 2)
