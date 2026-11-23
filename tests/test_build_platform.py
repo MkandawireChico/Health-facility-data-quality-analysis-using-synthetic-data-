@@ -343,3 +343,85 @@ def test_monthly_analytics_population_rejects_fractional_and_boolean_counts():
             quality, boolean, attainment
         )
 
+def test_quality_profile_population_reconciles_across_dimensions():
+    import pandas as pd
+    from build_platform import _validate_quality_profile_population
+
+    staged = pd.DataFrame({
+        "Facility_ID": ["F1", "F1", "F2", "F2"],
+        "District": ["North", "North", "South", "South"],
+        "Programme": ["HIV", "TB", "HIV", "TB"],
+        "Indicator": ["A", "B", "A", "B"],
+    })
+    facility = pd.DataFrame({
+        "Facility_ID": ["F1", "F2"], "records": [2, 2],
+    })
+    district = pd.DataFrame({
+        "District": ["North", "South"], "records": [2, 2],
+    })
+    programme = pd.DataFrame({
+        "Programme": ["HIV", "TB"], "Indicator": ["A", "B"],
+        "records": [2, 2],
+    })
+
+    assert _validate_quality_profile_population(
+        staged, facility, district, programme
+    ) == {
+        "staged_records": 4,
+        "facilities_reconciled": 2,
+        "districts_reconciled": 2,
+        "programme_indicator_groups_reconciled": 2,
+    }
+
+
+def test_quality_profile_population_rejects_record_count_drift():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_quality_profile_population
+
+    staged = pd.DataFrame({
+        "Facility_ID": ["F1", "F1", "F2"],
+        "District": ["North", "North", "South"],
+        "Programme": ["HIV", "TB", "HIV"],
+        "Indicator": ["A", "B", "A"],
+    })
+    facility = pd.DataFrame({
+        "Facility_ID": ["F1", "F2"], "records": [1, 1],
+    })
+    district = pd.DataFrame({
+        "District": ["North", "South"], "records": [2, 1],
+    })
+    programme = pd.DataFrame({
+        "Programme": ["HIV", "TB"], "Indicator": ["A", "B"],
+        "records": [2, 1],
+    })
+
+    with pytest.raises(RuntimeError, match="facility quality profile population"):
+        _validate_quality_profile_population(staged, facility, district, programme)
+
+
+def test_quality_profile_population_rejects_missing_groups_and_boolean_counts():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_quality_profile_population
+
+    staged = pd.DataFrame({
+        "Facility_ID": ["F1", "F2"],
+        "District": ["North", "South"],
+        "Programme": ["HIV", "TB"],
+        "Indicator": ["A", "B"],
+    })
+    facility = pd.DataFrame({
+        "Facility_ID": ["F1", "F2"], "records": [True, 1],
+    })
+    district = pd.DataFrame({
+        "District": ["North", "South"], "records": [1, 1],
+    })
+    programme = pd.DataFrame({
+        "Programme": ["HIV", "TB"], "Indicator": ["A", "B"],
+        "records": [1, 1],
+    })
+
+    with pytest.raises(RuntimeError, match="invalid record counts"):
+        _validate_quality_profile_population(staged, facility, district, programme)
+\n
