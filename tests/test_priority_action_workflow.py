@@ -87,3 +87,19 @@ def test_priority_action_rows_reject_missing_review_domains():
     data.loc[0, "Review_Domains"] = None
     with pytest.raises(ValueError, match="missing review domains"):
         build_priority_action_rows(data, "2026-10-01")
+
+
+def test_priority_action_rows_persist_through_audited_store(tmp_path):
+    from action_store import ActionRegisterStore
+
+    store = ActionRegisterStore(tmp_path / "priority-actions.sqlite")
+    row = build_priority_action_rows(priority_frame(), "2026-10-01").iloc[0].to_dict()
+    assert store.upsert_actions([row])["inserted"] == 1
+    row["Status"] = "In progress"
+    row["Assigned owner"] = "District coordinator"
+    row["Root cause"] = "Delayed reporting consolidation"
+    assert store.upsert_actions([row])["updated"] == 1
+    loaded = store.get_actions([row["Record_ID"]])[row["Record_ID"]]
+    assert loaded["Assigned owner"] == "District coordinator"
+    history = store.history(row["Record_ID"])
+    assert {"Status", "Assigned owner", "Root cause"}.issubset(set(history["field_name"]))
