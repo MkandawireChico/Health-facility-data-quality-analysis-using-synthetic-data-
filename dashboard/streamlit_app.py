@@ -1056,6 +1056,116 @@ with tabs[6]:
                 "Assign an owner and submit the form above to create the first action records."
             )
 
+        st.markdown("### Facility management drill-down")
+        st.caption(
+            "Select a synthetic facility to review its integrated priority components, "
+            "all saved corrective actions across reporting months, deadlines and audit changes."
+        )
+        from facility_management_view import build_facility_management_view
+        priority_action_portfolio = pd.DataFrame(current_priority_actions)
+        priority_lookup = result["integrated_priority_register"].set_index("Facility_ID")
+        facility_ids = result["integrated_priority_register"]["Facility_ID"].astype(str).tolist()
+        selected_facility_id = st.selectbox(
+            "Facility to inspect",
+            facility_ids,
+            format_func=lambda value: (
+                f'{priority_lookup.loc[value, "Facility_Name"]} · '
+                f'{priority_lookup.loc[value, "District"]} · {value}'
+            ),
+            key="facility_management_drilldown_id",
+        )
+        selected_audit = pd.DataFrame(
+            columns=["changed_at", "field_name", "old_value", "new_value"]
+        )
+        facility_actions = priority_action_portfolio
+        if not facility_actions.empty:
+            facility_actions = facility_actions[
+                facility_actions["Facility"].astype(str).str.endswith(f"[{selected_facility_id}]")
+            ]
+            if priority_action_store is not None and not facility_actions.empty:
+                audit_record_id = st.selectbox(
+                    "Action audit trail",
+                    facility_actions["Record_ID"].astype(str).tolist(),
+                    format_func=lambda value: (
+                        f'{facility_actions.loc[facility_actions["Record_ID"].astype(str).eq(value), "Month"].iloc[0]} · {value}'
+                    ),
+                    key="facility_management_audit_record",
+                )
+                selected_audit = priority_action_store.history(audit_record_id)
+        try:
+            facility_view = build_facility_management_view(
+                result["integrated_priority_register"],
+                priority_action_portfolio.reindex(columns=[
+                    "Record_ID", "Facility", "Month", "Status", "Assigned owner",
+                    "Root cause", "Corrective action / notes", "Due date",
+                ]),
+                selected_facility_id,
+                audit_history=selected_audit,
+            )
+            facility_priority = facility_view["facility"]
+            facility_progress = facility_view["progress"]
+            f1, f2, f3, f4, f5 = st.columns(5)
+            f1.metric("Priority band", str(facility_priority["Priority_Band"]))
+            f2.metric("Priority score", f'{float(facility_priority["Integrated_Priority_Score"]):.1f}/100')
+            f3.metric("Actions tracked", facility_progress["tracked"])
+            f4.metric("Resolved", facility_progress["resolved"])
+            f5.metric("Overdue", facility_progress["overdue"])
+            component_view = pd.DataFrame([
+                {"Domain": "Data quality", "Score": facility_priority["Data_Quality_Priority_Score"]},
+                {"Domain": "Resource gap", "Score": facility_priority["Resource_Gap_Priority_Score"]},
+                {"Domain": "Operational resilience", "Score": facility_priority["Operational_Priority_Score"]},
+                {"Domain": "Supply and cold chain", "Score": facility_priority["Supply_Cold_Chain_Priority_Score"]},
+            ])
+            st.plotly_chart(
+                px.bar(component_view, x="Domain", y="Score", range_y=[0, 100],
+                       title="Facility priority components (0–100)"),
+                use_container_width=True,
+            )
+            st.write(f'**Review domains:** {facility_priority["Review_Domains"] or "None recorded"}')
+            st.write(
+                f'**Action progress:** {facility_progress["resolution_rate_pct"]:.1f}% resolved · '
+                f'{facility_progress["open"]} open · {facility_progress["in_progress"]} in progress · '
+                f'{facility_progress["escalated"]} escalated'
+            )
+            if facility_view["actions"].empty:
+                st.info("No saved corrective actions exist for this facility yet. Priority context is still available above.")
+            else:
+                action_columns = [
+                    "Month", "Status", "Assigned owner", "Root cause",
+                    "Corrective action / notes", "Due date", "Overdue",
+                ]
+                st.dataframe(
+                    facility_view["actions"][action_columns],
+                    use_container_width=True,
+                    hide_index=True,
+                )
+                if not facility_view["monthly"].empty:
+                    st.plotly_chart(
+                        px.line(
+                            facility_view["monthly"], x="Month",
+                            y=["tracked_actions", "resolved_actions"],
+                            markers=True, title="Facility action history by reporting month",
+                            labels={"value": "Actions", "variable": "Measure"},
+                        ),
+                        use_container_width=True,
+                    )
+                if priority_action_store is not None:
+                    if facility_view["audit_history"].empty:
+                        st.caption("No field-level audit changes are recorded for the selected action.")
+                    else:
+                        st.dataframe(
+                            facility_view["audit_history"],
+                            use_container_width=True,
+                            hide_index=True,
+                        )
+            st.caption(
+                "Priority scores and action records are synthetic. Resolution means an action "
+                "was marked Resolved; the platform does not independently verify service outcomes. "
+                "The drill-down reads the existing local SQLite register and does not create a second store."
+            )
+        except ValueError as exc:
+            st.warning(f"Facility management view could not be prepared: {exc}")
+
         p1, p2, p3, p4, p5 = st.columns(5)
         p1.metric("Staged records", f"{result['records']:,}")
         p2.metric("Facilities", f"{result['facilities']:,}")
