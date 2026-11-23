@@ -155,4 +155,8 @@ Avoid exposing patient-level data. The current dataset has no patient-level reco
 - DAX measures: dax/health_data_quality_measures.dax
 - Calculated dimensions: dax/dimension_tables.dax
 
+## Companion Streamlit analysis export
+
+The Expanded Platform workspace provides a ZIP handover package alongside its individual CSV downloads. The package contains the management summary JSON, monthly quality trends, facility benchmark, programme/indicator profile, district and district-month profiles, statistical peer anomalies and monthly issue-control output. Detector evaluation metrics are included only when synthetic ground-truth labels are present. The summary carries an explicit synthetic-data disclaimer and records whether synthetic evaluation was performed.
+
 The guide does not substitute for a completed Power BI Desktop refresh and visual review.
