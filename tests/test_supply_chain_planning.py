@@ -70,6 +70,9 @@ def test_pipeline_writes_all_outputs(tmp_path):
     report = run_supply_chain_planning(path, tmp_path / "analytics", periods=2, budget_credits=200)
     assert report["synthetic_data"] is True
     assert report["inventory_records"] == 3 * 2 * 8
+    assert report["allocated_replenishment_units"] <= report["requested_replenishment_units"]
+    assert report["allocated_cost_credits"] <= report["budget_credits"]
+    assert report["facility_commodity_pairs_with_recent_stockout"] >= 0
     for filename in report["outputs"]:
         assert (tmp_path / "analytics" / filename).exists()
     assert (tmp_path / "analytics" / "supply_chain_planning_report.json").exists()
