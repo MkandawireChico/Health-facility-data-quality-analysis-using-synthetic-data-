@@ -73,3 +73,17 @@ def test_priority_action_rows_reject_duplicate_facilities():
 def test_priority_action_rows_reject_invalid_latest_month():
     with pytest.raises(ValueError, match="Latest simulated month"):
         build_priority_action_rows(priority_frame(), "not-a-date")
+
+
+def test_priority_action_rows_reject_duplicate_ranks():
+    data = priority_frame()
+    data.loc[1, "Integrated_Priority_Rank"] = 1
+    with pytest.raises(ValueError, match="unique positive"):
+        build_priority_action_rows(data, "2026-10-01")
+
+
+def test_priority_action_rows_reject_missing_review_domains():
+    data = priority_frame()
+    data.loc[0, "Review_Domains"] = None
+    with pytest.raises(ValueError, match="missing review domains"):
+        build_priority_action_rows(data, "2026-10-01")
