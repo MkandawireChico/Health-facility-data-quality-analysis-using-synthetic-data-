@@ -82,6 +82,12 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 - DimIndicator[Indicator_Key] 1 → * FactDistrictIndicatorAttainment[Indicator_Key]
 - DimDate[MonthStart] 1 → * FactMonthlyIndicatorAttainment[Month]
 - DimIndicator[Indicator_Key] 1 → * FactMonthlyIndicatorAttainment[Indicator_Key]
+- DimFacility[Facility_ID] 1 → * FactFacilityIndicatorAttainment[Facility_ID]
+- DimIndicator[Indicator_Key] 1 → * FactFacilityIndicatorAttainment[Indicator_Key]
+- DimDistrict[District] 1 → * FactDistrictIndicatorAttainment[District]
+- DimIndicator[Indicator_Key] 1 → * FactDistrictIndicatorAttainment[Indicator_Key]
+- DimDate[MonthStart] 1 → * FactMonthlyIndicatorAttainment[Month]
+- DimIndicator[Indicator_Key] 1 → * FactMonthlyIndicatorAttainment[Indicator_Key]
 
 Use single-direction filtering from dimensions to facts. Avoid fact-to-fact relationships and ambiguous bidirectional filters. Detector evaluation is a separate governance fact and must not feed operational issue rates or facility rankings.
 
