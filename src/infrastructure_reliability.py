@@ -71,8 +71,8 @@ def build_infrastructure_profiles(
     for facility in fac.to_dict("records"):
         rural = str(facility["Urban_Rural"]).lower() == "rural"
         power_source = rng.choice(POWER_SOURCES, p=[0.30, 0.24, 0.30, 0.16] if rural else [0.48, 0.12, 0.30, 0.10])
-        water_source = rng.choice(WATER_SOURCES, p=[0.18, 0.48, 0.20, 0.24] if rural else [0.58, 0.16, 0.06, 0.30])
-        connectivity = rng.choice(CONNECTIVITY_TYPES, p=[0.18, 0.20, 0.25, 0.47] if rural else [0.34, 0.32, 0.18, 0.26])
+        water_source = rng.choice(WATER_SOURCES, p=[0.16, 0.44, 0.18, 0.22] if rural else [0.52, 0.15, 0.08, 0.25])
+        connectivity = rng.choice(CONNECTIVITY_TYPES, p=[0.16, 0.18, 0.24, 0.40] if rural else [0.31, 0.29, 0.16, 0.22])
         backup_hours = float(rng.uniform(2, 18) if power_source in {"Grid + generator", "Solar + generator"} else rng.uniform(0, 10))
         water_storage_days = float(rng.uniform(0.5, 4.0) if water_source in {"Borehole", "Mixed supply"} else rng.uniform(0.2, 2.5))
         profile_rows.append({
@@ -186,9 +186,9 @@ def build_infrastructure_profiles(
     scenario_rows: list[dict[str, Any]] = []
     for row in latest.to_dict("records"):
         for upgrade in INFRASTRUCTURE_UPGRADES:
-            power_gain = row["Unserved_Power_Interruption_Hours"] * (1 - upgrade["Power_Reduction_Factor"])
-            water_gain = row["Unserved_Water_Shortage_Hours"] * (1 - upgrade["Water_Reduction_Factor"])
-            connectivity_gain = row["Connectivity_Downtime_Hours"] * (1 - upgrade["Connectivity_Reduction_Factor"])
+            power_gain = row["Unserved_Power_Interruption_Hours"] * upgrade["Power_Reduction_Factor"]
+            water_gain = row["Unserved_Water_Shortage_Hours"] * upgrade["Water_Reduction_Factor"]
+            connectivity_gain = row["Connectivity_Downtime_Hours"] * upgrade["Connectivity_Reduction_Factor"]
             avoided = power_gain + water_gain + connectivity_gain
             scenario_rows.append({
                 "Facility_ID": row["Facility_ID"], "Facility_Name": row["Facility_Name"],
