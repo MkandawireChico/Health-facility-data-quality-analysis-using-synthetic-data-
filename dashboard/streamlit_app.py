@@ -837,6 +837,160 @@ with tabs[6]:
             key="download_integrated_facility_priority_register",
         )
 
+        st.markdown("### Facility corrective-action workflow")
+        st.caption(
+            "Create one accountable action per facility and simulated reporting month. "
+            "Assignments use the same SQLite register as the original data-quality workflow, "
+            "including field-level audit history. This is a local demonstration store, not a shared multi-user service."
+        )
+        from priority_action_workflow import build_priority_action_rows
+        priority_database_path = os.getenv(
+            "HEALTH_DATA_ACTION_DB",
+            str(ROOT / "data" / "warehouse" / "corrective_actions.sqlite"),
+        )
+        try:
+            priority_action_store = ActionRegisterStore(priority_database_path)
+            persisted_priority_actions = priority_action_store.get_actions()
+        except Exception as exc:
+            priority_action_store = None
+            persisted_priority_actions = st.session_state.get("integrated_priority_actions", {})
+            st.warning(
+                f"Persistent action storage is unavailable: {exc}. "
+                "Edits will be held only in this browser session."
+            )
+        latest_priority_month = result["workforce"]["monthly_workforce"]["Month"].max()
+        try:
+            priority_action_rows = build_priority_action_rows(
+                result["integrated_priority_register"],
+                latest_priority_month,
+                persisted_priority_actions,
+            )
+        except ValueError as exc:
+            st.error(f"Facility action queue could not be prepared: {exc}")
+            priority_action_rows = pd.DataFrame()
+        if not priority_action_rows.empty:
+            st.markdown("**Assign owners, document causes and set deadlines**")
+            with st.form("integrated_priority_action_form"):
+                edited_priority_actions = st.data_editor(
+                    priority_action_rows,
+                    use_container_width=True,
+                    hide_index=True,
+                    disabled=[
+                        "Record_ID", "Facility", "Month", "Programme", "Indicator",
+                        "Primary issue", "Issue count",
+                    ],
+                    column_config={
+                        "Status": st.column_config.SelectboxColumn(
+                            "Status",
+                            options=["Open", "In progress", "Resolved", "Escalated"],
+                            required=True,
+                        ),
+                        "Assigned owner": st.column_config.TextColumn("Assigned owner"),
+                        "Root cause": st.column_config.TextColumn("Root cause", width="medium"),
+                        "Corrective action / notes": st.column_config.TextColumn(
+                            "Corrective action / notes", width="large"
+                        ),
+                        "Due date": st.column_config.TextColumn("Due date (YYYY-MM-DD)"),
+                    },
+                    key="integrated_priority_action_editor",
+                )
+                save_priority_actions = st.form_submit_button(
+                    "Save facility action assignments", type="primary"
+                )
+            if save_priority_actions:
+                due_text = edited_priority_actions["Due date"].fillna("").astype(str).str.strip()
+                parsed_due = pd.to_datetime(
+                    due_text.where(due_text.ne(""), pd.NA),
+                    format="%Y-%m-%d", errors="coerce",
+                )
+                invalid_due = due_text.ne("") & parsed_due.isna()
+                if invalid_due.any():
+                    st.error(
+                        "Due dates must use YYYY-MM-DD. "
+                        f"{int(invalid_due.sum())} invalid value(s); nothing was saved."
+                    )
+                elif priority_action_store is not None:
+                    try:
+                        saved = priority_action_store.upsert_actions(
+                            edited_priority_actions.to_dict(orient="records")
+                        )
+                        st.success(
+                            f"Actions saved: {saved['inserted']} new · "
+                            f"{saved['updated']} updated · {saved['unchanged']} unchanged."
+                        )
+                        st.rerun()
+                    except Exception as exc:
+                        st.error(f"Could not save facility actions: {exc}")
+                else:
+                    st.session_state["integrated_priority_actions"] = {
+                        row["Record_ID"]: {
+                            key: row[key] for key in [
+                                "Status", "Assigned owner", "Root cause",
+                                "Corrective action / notes", "Due date",
+                            ]
+                        }
+                        for row in edited_priority_actions.to_dict(orient="records")
+                    }
+                    st.success("Facility action assignments saved for this browser session.")
+                    st.rerun()
+
+        current_priority_actions = [
+            {"Record_ID": record_id, **fields}
+            for record_id, fields in persisted_priority_actions.items()
+            if fields.get("Programme") == "Integrated facility review"
+        ]
+        if current_priority_actions:
+            priority_action_portfolio = pd.DataFrame(current_priority_actions)
+            today = pd.Timestamp.now().normalize()
+            priority_due = pd.to_datetime(
+                priority_action_portfolio["Due date"], errors="coerce"
+            )
+            priority_unresolved = ~priority_action_portfolio["Status"].eq("Resolved")
+            priority_overdue = (
+                priority_unresolved & priority_due.notna() & priority_due.lt(today)
+            )
+            a1, a2, a3, a4, a5 = st.columns(5)
+            a1.metric("Tracked actions", len(priority_action_portfolio))
+            a2.metric("Open", int(priority_action_portfolio["Status"].eq("Open").sum()))
+            a3.metric("In progress", int(priority_action_portfolio["Status"].eq("In progress").sum()))
+            a4.metric("Resolved", int(priority_action_portfolio["Status"].eq("Resolved").sum()))
+            a5.metric("Overdue", int(priority_overdue.sum()))
+            st.dataframe(
+                priority_action_portfolio.sort_values(
+                    ["Status", "Due date"], na_position="last"
+                ),
+                use_container_width=True,
+                hide_index=True,
+            )
+            st.download_button(
+                "Download integrated facility action register",
+                data=priority_action_portfolio.to_csv(index=False).encode("utf-8"),
+                file_name="integrated_facility_corrective_action_register.csv",
+                mime="text/csv",
+                key="download_integrated_facility_actions",
+            )
+            if priority_action_store is not None:
+                with st.expander("Integrated facility action audit history"):
+                    selected_priority_history = st.selectbox(
+                        "Facility action to inspect",
+                        priority_action_portfolio["Record_ID"].tolist(),
+                        key="integrated_priority_history_record",
+                    )
+                    priority_history = priority_action_store.history(
+                        selected_priority_history
+                    )
+                    if priority_history.empty:
+                        st.caption("No field changes have been recorded for this action yet.")
+                    else:
+                        st.dataframe(
+                            priority_history, use_container_width=True, hide_index=True
+                        )
+        else:
+            st.info(
+                "No integrated facility actions have been saved yet. "
+                "Assign an owner and submit the form above to create the first action records."
+            )
+
         p1, p2, p3, p4, p5 = st.columns(5)
         p1.metric("Staged records", f"{result['records']:,}")
         p2.metric("Facilities", f"{result['facilities']:,}")
