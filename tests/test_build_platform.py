@@ -20,6 +20,10 @@ def test_small_end_to_end_platform_build(tmp_path):
     assert summary["generated_fact_records"] == 480
     assert summary["staged_records"] + summary["quarantined_records"] == 480
     assert summary["ground_truth_used_for_operational_monitoring"] is False
+    assert summary["cold_chain_temperature_records"] == 6 * 2
+    assert summary["cold_chain_batch_records"] > 0
+    assert summary["cold_chain_high_risk_pairs"] >= 0
+    assert summary["cold_chain_expired_units"] >= 0
 
     expected_files = [
         "raw/facility_reporting_fact.csv",
