@@ -1056,6 +1056,96 @@ with tabs[6]:
                 "Assign an owner and submit the form above to create the first action records."
             )
 
+        st.markdown("### Executive management briefing")
+        st.caption(
+            "Cross-facility and district comparison, synthetic priority concentration, "
+            "action accountability and a rule-based management follow-up queue."
+        )
+        try:
+            from executive_management_briefing import build_executive_management_briefing
+            briefing_actions = pd.DataFrame(current_priority_actions).reindex(columns=[
+                "Record_ID", "Facility", "Month", "Status", "Assigned owner", "Due date",
+            ])
+            executive_briefing = build_executive_management_briefing(
+                result["integrated_priority_register"],
+                briefing_actions,
+            )
+            briefing_kpis = executive_briefing["kpis"]
+            b1, b2, b3, b4, b5 = st.columns(5)
+            b1.metric("Facilities reviewed", f'{briefing_kpis["facilities"]:,}')
+            b2.metric("High review", f'{briefing_kpis["high_review"]:,}')
+            b3.metric("Focused review", f'{briefing_kpis["focused_review"]:,}')
+            b4.metric("Overdue actions", f'{briefing_kpis["overdue_actions"]:,}')
+            b5.metric("Action resolution", pct(briefing_kpis["action_resolution_rate_pct"] / 100))
+            st.write(
+                f'**Mean integrated priority:** {briefing_kpis["mean_priority_score"]:.1f}/100 · '
+                f'**Saved actions:** {briefing_kpis["tracked_actions"]:,}'
+            )
+            district_briefing = executive_briefing["district"]
+            domain_briefing = executive_briefing["domains"]
+            if not district_briefing.empty:
+                st.plotly_chart(
+                    px.bar(
+                        district_briefing,
+                        x="District",
+                        y=["high_review", "focused_review", "routine_review"],
+                        barmode="stack",
+                        title="Priority bands by district (synthetic facilities)",
+                        labels={"value": "Facilities", "variable": "Priority band"},
+                    ),
+                    use_container_width=True,
+                )
+                st.dataframe(
+                    district_briefing,
+                    use_container_width=True,
+                    hide_index=True,
+                )
+            domain_left, domain_right = st.columns([1, 1])
+            domain_left.plotly_chart(
+                px.bar(
+                    domain_briefing.sort_values("facilities_flagged"),
+                    x="facilities_flagged",
+                    y="Domain",
+                    orientation="h",
+                    title="Facilities flagged by review domain",
+                    labels={"facilities_flagged": "Facilities with non-zero component score"},
+                ),
+                use_container_width=True,
+            )
+            domain_right.dataframe(
+                domain_briefing,
+                use_container_width=True,
+                hide_index=True,
+            )
+            st.markdown("**Management follow-up queue**")
+            management_queue = executive_briefing["management_queue"]
+            briefing_columns = [
+                "Integrated_Priority_Rank", "Facility_Name", "District",
+                "Priority_Band", "Integrated_Priority_Score", "actions_tracked",
+                "overdue_actions", "open_actions", "in_progress_actions",
+                "resolved_actions", "Management_Follow_Up",
+            ]
+            st.dataframe(
+                management_queue[briefing_columns],
+                use_container_width=True,
+                hide_index=True,
+            )
+            st.download_button(
+                "Download executive management briefing",
+                data=executive_briefing["all_facilities"].to_csv(index=False).encode("utf-8"),
+                file_name="executive_facility_management_briefing.csv",
+                mime="text/csv",
+                key="download_executive_facility_management_briefing",
+            )
+            st.caption(
+                executive_briefing["synthetic_scope"]
+                + " District comparisons aggregate generated facility labels; "
+                "follow-up text is rule-based guidance for reviewing the synthetic register, "
+                "not an automated operational decision."
+            )
+        except ValueError as exc:
+            st.warning(f"Executive management briefing could not be prepared: {exc}")
+
         st.markdown("### Facility management drill-down")
         st.caption(
             "Select a synthetic facility to review its integrated priority components, "
