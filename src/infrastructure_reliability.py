@@ -204,9 +204,13 @@ def build_infrastructure_profiles(
     scenarios = pd.DataFrame(scenario_rows).sort_values(
         ["Avoided_Hours_Per_100_Credits", "Facility_ID"], ascending=[False, True]
     ).reset_index(drop=True)
+    scenarios["Selected_Package_For_Facility"] = False
+    best_indices = scenarios.groupby("Facility_ID")["Avoided_Hours_Per_100_Credits"].idxmax()
+    scenarios.loc[best_indices, "Selected_Package_For_Facility"] = True
     scenarios["Within_Illustrative_Budget"] = False
     remaining = int(budget_credits)
-    for idx, row in scenarios.iterrows():
+    for idx in best_indices:
+        row = scenarios.loc[idx]
         cost = int(row["Synthetic_Cost_Credits"])
         if cost <= remaining:
             scenarios.loc[idx, "Within_Illustrative_Budget"] = True
