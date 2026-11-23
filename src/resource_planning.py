@@ -36,10 +36,13 @@ def build_resource_planning_profiles(
     missing = REQUIRED_FACILITY_COLUMNS - set(facilities.columns)
     if missing:
         raise ValueError(f"Facility dimension missing required columns: {sorted(missing)}")
-    if not isinstance(resource_pool, (int, np.integer)) or resource_pool < 0:
+    if isinstance(resource_pool, bool) or not isinstance(resource_pool, (int, np.integer)) or resource_pool < 0:
         raise ValueError("resource_pool must be a non-negative integer")
-    if units_per_10000_population <= 0:
-        raise ValueError("units_per_10000_population must be positive")
+    if (isinstance(units_per_10000_population, bool)
+            or not isinstance(units_per_10000_population, (int, float, np.integer, np.floating))
+            or not np.isfinite(units_per_10000_population)
+            or units_per_10000_population <= 0):
+        raise ValueError("units_per_10000_population must be a finite positive number")
 
     frame = facilities[list(REQUIRED_FACILITY_COLUMNS)].copy()
     frame["Catchment_Population"] = pd.to_numeric(frame["Catchment_Population"], errors="coerce")
