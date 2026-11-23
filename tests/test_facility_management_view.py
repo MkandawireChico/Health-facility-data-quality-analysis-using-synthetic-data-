@@ -101,3 +101,15 @@ def test_invalid_priority_component_score_is_rejected():
     bad.loc[0, "Operational_Priority_Score"] = 101
     with pytest.raises(ValueError, match="invalid Operational_Priority_Score"):
         build_facility_management_view(bad, actions(), "F-001")
+
+
+def test_malformed_action_due_date_is_rejected():
+    bad = actions()
+    bad.loc[0, "Due date"] = "next Friday"
+    with pytest.raises(ValueError, match="invalid due dates"):
+        build_facility_management_view(priorities(), bad, "F-001")
+
+
+def test_invalid_management_reference_date_is_rejected():
+    with pytest.raises(ValueError, match="valid timezone-naive date"):
+        build_facility_management_view(priorities(), actions(), "F-001", as_of="NaT")
