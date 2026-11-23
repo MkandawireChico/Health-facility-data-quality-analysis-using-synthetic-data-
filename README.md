@@ -344,7 +344,7 @@ and calculated dimensions in
 [`dashboard/dax/dimension_tables.dax`](dashboard/dax/dimension_tables.dax).
 Power Query M templates for the reporting fact, dimensions, source observations,
 district intelligence, monthly trends, statistical anomalies, detector
-evaluation and facility/district/monthly target attainment are in
+evaluation and facility/district/programme/monthly target attainment are in
 `dashboard/powerquery/`. Target-attainment calculations and interpretation
 safeguards are documented in
 [`docs/target_attainment_methodology.md`](docs/target_attainment_methodology.md).
