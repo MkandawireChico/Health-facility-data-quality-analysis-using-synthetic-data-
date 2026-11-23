@@ -114,18 +114,21 @@ Until these gates are met, describe the project as an expanded development build
 A focused integration review was performed after adding the executive briefing and
 facility management drill-down.
 
-- The executive briefing and facility drill-down helpers were exercised with
-  their focused test modules in an isolated local Python environment: **24
-  tests passed**. These tests cover district aggregation, facility filtering,
+- The executive briefing, facility drill-down, action-performance summaries,
+  priority-action adapter and SQLite action store were exercised with their
+  focused test modules in an isolated local Python environment: **49 tests
+  passed**. Coverage includes district aggregation, facility filtering,
   priority-score reconciliation, action status counts, overdue deadlines,
-  missing action records, malformed dates, duplicate IDs/ranks and invalid
-  reference dates.
+  stable action IDs, persistence, field-level audit history, malformed dates,
+  duplicate IDs/ranks and invalid reference dates. This is a focused subset,
+  not the full repository suite.
 - The review corrected two inaccurate assertions in the executive briefing
   tests: action resolution is rounded to two decimal places, and the selected
   facility in the fixture has one overdue unresolved action (the portfolio
   total is two).
-- Date parsing for the new management views now follows the documented
-  YYYY-MM-DD action-date contract; invalid non-empty dates are rejected.
+- Date parsing for the management views and action-performance summaries now
+  follows the documented YYYY-MM-DD action-date contract; invalid non-empty
+  dates and invalid reference dates are rejected.
 - GitHub Actions was triggered again for both the expanded platform build and
   project quality checks. Both runs failed before reporting any executed steps;
   the job-step endpoint returned empty step lists and downloadable logs were
