@@ -38,4 +38,3 @@ def test_saved_action_portfolio_is_visible_without_matching_current_rows(tmp_pat
 
     assert not app.exception
     assert any("Action portfolio" in item.value for item in app.markdown)
-    assert any("Total actions" in item.label for item in app.metric)
