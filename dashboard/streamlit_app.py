@@ -554,7 +554,7 @@ with tabs[6]:
                     from resource_planning import build_resource_planning_profiles
                     from supply_chain_planning import build_supply_chain_profiles
 
-                    with st.spinner("Running peer anomaly detection and longitudinal monitoring..."):
+                    with st.spinner("Running quality, statistical, resource and commodity supply-chain analytics..."):
                         predicted = add_operational_predictions(platform_data)
                         monthly, facility_profile, programme_profile = build_operational_profiles(platform_data)
                         district_profile, district_monthly = build_district_profiles(platform_data)
@@ -629,6 +629,8 @@ with tabs[6]:
             "commodity_replenishment_requested_units": int(result["supply"]["replenishment_plan"]["Requested_Replenishment_Units"].sum()),
             "commodity_replenishment_allocated_units": int(result["supply"]["replenishment_plan"]["Allocated_Replenishment_Units"].sum()),
             "commodity_replenishment_budget_credits": int(result["supply"]["scenario_summary"]["budget_credits"].iloc[0]),
+            "commodity_supply_chain_assumptions": result["supply"]["assumptions"]["limitations"],
+            "commodity_supply_chain_interpretation": "All stock, demand, receipts, stockouts and costs are synthetic. Budget credits are not MWK; the commodity list is illustrative and the replenishment worklist is not an order.",
             "facility_indicator_combinations_with_valid_targets": int(len(valid_attainment_summary)),
             "facility_indicator_combinations_below_80_pct": int(valid_attainment_summary["attainment_pct"].lt(80).sum()),
             "facility_indicator_combinations_at_or_above_100_pct": int(valid_attainment_summary["attainment_pct"].ge(100).sum()),
