@@ -29,7 +29,10 @@ def priority_frame():
 def test_priority_rows_create_one_stable_action_per_facility():
     first = build_priority_action_rows(priority_frame(), "2026-10-01")
     second = build_priority_action_rows(priority_frame().iloc[::-1], "2026-10-15")
-    assert first["Record_ID"].tolist() == second.sort_values("Facility").sort_values("Facility")["Record_ID"].tolist()[::-1] or set(first["Record_ID"]) == set(second["Record_ID"])
+    assert set(first["Record_ID"]) == set(second["Record_ID"])
+    first_id = first.loc[first["Facility"].str.contains("F-001"), "Record_ID"].iloc[0]
+    second_id = second.loc[second["Facility"].str.contains("F-001"), "Record_ID"].iloc[0]
+    assert first_id == second_id
     assert first["Issue count"].tolist() == [2, 1]
     assert first.loc[0, "Status"] == "Open"
     assert first.loc[0, "Month"] == "2026-10-01"
