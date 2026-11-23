@@ -208,3 +208,65 @@ def test_build_summary_contains_complete_artifact_integrity_manifest(tmp_path):
     assert summary["artifact_total_bytes"] == sum(
         details["size_bytes"] for details in manifest.values()
     )
+
+
+
+def test_generated_fact_grain_accepts_complete_unique_facility_month_indicator_grid():
+    import pandas as pd
+    from build_platform import _validate_generated_fact_grain
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1", "F2"]})
+    fact = pd.DataFrame([
+        {"Facility_ID": facility, "Month": month, "Programme": "HIV", "Indicator": indicator}
+        for facility in ["F1", "F2"]
+        for month in ["2024-01-01", "2024-02-01"]
+        for indicator in ["A", "B"]
+    ])
+    result = _validate_generated_fact_grain(fact, facilities, 8, 2)
+    assert result == {
+        "unique_facility_month_groups": 4,
+        "indicators_per_facility_month": 2,
+        "unique_natural_keys": 8,
+    }
+
+
+def test_generated_fact_grain_rejects_duplicate_natural_key():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_generated_fact_grain
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1"]})
+    fact = pd.DataFrame([
+        {"Facility_ID": "F1", "Month": "2024-01-01", "Programme": "HIV", "Indicator": "A"},
+        {"Facility_ID": "F1", "Month": "2024-01-01", "Programme": "HIV", "Indicator": "A"},
+    ])
+    with pytest.raises(RuntimeError, match="duplicate facility-month-indicator"):
+        _validate_generated_fact_grain(fact, facilities, 2, 1)
+
+
+def test_generated_fact_grain_rejects_incomplete_facility_month_grid():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_generated_fact_grain
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1", "F2"]})
+    fact = pd.DataFrame([
+        {"Facility_ID": "F1", "Month": "2024-01-01", "Programme": "HIV", "Indicator": "A"},
+        {"Facility_ID": "F2", "Month": "2024-01-01", "Programme": "HIV", "Indicator": "A"},
+        {"Facility_ID": "F1", "Month": "2024-02-01", "Programme": "HIV", "Indicator": "A"},
+    ])
+    with pytest.raises(RuntimeError, match="row count mismatch"):
+        _validate_generated_fact_grain(fact, facilities, 4, 2)
+
+
+def test_generated_fact_grain_rejects_unknown_facility():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_generated_fact_grain
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1"]})
+    fact = pd.DataFrame([
+        {"Facility_ID": "F2", "Month": "2024-01-01", "Programme": "HIV", "Indicator": "A"},
+    ])
+    with pytest.raises(RuntimeError, match="absent from the dimension"):
+        _validate_generated_fact_grain(fact, facilities, 1, 1)
