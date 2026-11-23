@@ -103,8 +103,8 @@ Layout:
 
 Interpretation:
 - MAD/IQR flags are unusual peer observations, not proof of reporting error.
-- Monthly limits are retrospective and calculated over the full observed period.
-- Show monthly denominators beside rates; small denominators can make rates volatile.
+- Monthly limits are retrospective and calculated over the full observed period using a pooled issue proportion and month-specific binomial standard errors.
+- Show monthly denominators beside rates; lower-volume months have wider descriptive limits.
 - Do not label a review signal as a confirmed incident or clinical risk.
 
 ## Page 6 — Detector governance
