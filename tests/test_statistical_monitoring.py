@@ -144,3 +144,17 @@ def test_control_limits_use_pooled_rate_and_month_specific_denominators():
 def test_control_chart_rejects_invalid_baseline_length():
     with pytest.raises(ValueError, match="at least 2"):
         build_monthly_control_chart(peer_data([10] * 12), min_baseline_months=1)
+
+
+
+def test_control_chart_ignores_non_finite_and_overflowed_outlier_ratios():
+    data = peer_data([100] * 12)
+    data.loc[0, "Reported_Value"] = float("inf")
+    data.loc[1, "Target_Value"] = float("inf")
+    data.loc[2, "Reported_Value"] = float("1e308")
+    data.loc[2, "Target_Value"] = float("1e-308")
+
+    result = build_monthly_control_chart(data)
+
+    assert result["Outlier_Records"].sum() == 0
+    assert result["Issue_Records"].sum() == 0
