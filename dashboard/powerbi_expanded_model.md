@@ -107,8 +107,7 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 
 The analytical pipeline also exports `district_quality_profile.csv` and
 `district_monthly_quality_trends.csv`. These are operational profiles based
-on derived quality flags, not synthetic ground-truth labels. Use District from
-DimFacility to filter FactReporting and the district-level aggregate visuals.
+on derived quality flags, not synthetic ground-truth labels. Use DimDistrict to filter DimFacility, FactDistrictProfile and FactDistrictMonthlyTrend; DimFacility then filters FactReporting.
 The district labels and all underlying performance values remain synthetic.
 
 
