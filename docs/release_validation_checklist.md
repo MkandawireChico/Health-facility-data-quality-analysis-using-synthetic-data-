@@ -11,6 +11,8 @@ intelligence platform. A mergeable pull request is not a validated release.
       pull request in dependency order.
 - [ ] Python compilation succeeds for `src/` and `dashboard/`.
 - [ ] Notebook JSON parses and every code cell passes AST syntax validation.
+- [ ] Execute the notebook from both the repository root and the `notebooks/` directory; confirm all exports resolve under `data/warehouse/analytics/`.
+- [ ] Confirm the notebook covers target attainment, resource allocation, commodity supply, cold-chain batches, equipment maintenance, infrastructure reliability and workforce planning.
 - [ ] Full `pytest -q` suite passes.
 - [ ] Full default platform build succeeds (120 facilities, 60 periods,
       288,000 synthetic fact records).
@@ -46,8 +48,10 @@ Do not merge a child before its parent. Do not bypass failed or missing checks.
 - [ ] Confirm SQLite persistence limitations on Streamlit Community Cloud are
       disclosed.
 - [ ] Rebuild and refresh the expanded Power BI semantic model in Power BI
-      Desktop; validate Power Query refresh, relationships, DAX measures,
-      report navigation and exported visuals.
+      Desktop; validate all query files in `dashboard/powerquery/`, relationships,
+      DAX measures, report navigation and exported visuals.
+- [ ] Save the expanded thirteen-page report as a new PBIX and distinguish it
+      clearly from the original 960-record baseline PBIX.
 
 ## 4. Data governance and release documentation
 
