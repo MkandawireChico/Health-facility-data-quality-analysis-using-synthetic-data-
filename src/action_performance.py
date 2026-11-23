@@ -28,17 +28,26 @@ def build_action_performance(actions: pd.DataFrame, as_of=None) -> dict[str, pd.
     allowed = {"Open", "In progress", "Resolved", "Escalated"}
     if not data["Status"].isin(allowed).all():
         raise ValueError("Action register contains unsupported statuses")
-    data["Month"] = pd.to_datetime(data["Month"], errors="coerce")
+    data["Month"] = pd.to_datetime(
+        data["Month"], format="%Y-%m-%d", errors="coerce"
+    )
     if data["Month"].isna().any():
         raise ValueError("Action register contains invalid reporting months")
     data["District"] = data["Facility"].str.extract(r"\(([^()]*)\)\s*\[[^]]+\]\s*$", expand=False)
     if data["District"].isna().any() or data["District"].str.strip().eq("").any():
         raise ValueError("Action facility labels must end with (District) [Facility_ID]")
     data["District"] = data["District"].str.strip()
-    due = pd.to_datetime(data["Due date"], errors="coerce")
+    due_text = data["Due date"].fillna("").astype(str).str.strip()
+    due = pd.to_datetime(
+        due_text.where(due_text.ne(""), pd.NA),
+        format="%Y-%m-%d",
+        errors="coerce",
+    )
+    if (due_text.ne("") & due.isna()).any():
+        raise ValueError("Action register contains invalid due dates")
     reference = pd.Timestamp(as_of if as_of is not None else pd.Timestamp.now().date())
-    if reference.tzinfo is not None:
-        raise ValueError("Performance reference date must be timezone-naive")
+    if pd.isna(reference) or reference.tzinfo is not None:
+        raise ValueError("Performance reference date must be a valid timezone-naive date")
     unresolved = data["Status"].ne("Resolved")
     data["Overdue"] = unresolved & due.notna() & due.lt(reference.normalize())
     data["Due date parsed"] = due
