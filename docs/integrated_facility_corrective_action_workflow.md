@@ -29,3 +29,11 @@ The SQLite database is suitable for a local demonstration or a single persistent
 ## Interpretation
 
 All facility priority inputs and simulated reporting periods are synthetic. The priority register is a transparent triage aid, not a verified facility assessment or a clinical, safety, staffing, procurement or resource-allocation recommendation. Assigning an action does not establish that a real-world problem exists or that the suggested response is approved.
+
+## Performance monitoring
+
+Saved integrated facility actions are summarised across the portfolio, by district and by reporting month. The dashboard reports total tracked actions, resolved actions, resolution rate, open/in-progress/escalated workload and overdue unresolved actions. District summaries include tracked workload, status counts, overdue count and resolution rate. Monthly trend charts show action throughput and the share of records marked Resolved.
+
+Overdue is calculated by comparing a non-empty due date with the dashboard's current date; resolved actions are excluded. A blank or invalid due date is not counted as overdue. Reporting month is the synthetic month attached to the action record, not the date the action was edited.
+
+These are workflow-process measures, not outcome verification. A record marked Resolved is counted as resolved even though the application does not independently validate that the underlying facility issue has been corrected. Historical summaries depend on the action records retained in the configured SQLite database.
