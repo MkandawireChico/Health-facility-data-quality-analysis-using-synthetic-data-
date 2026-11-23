@@ -12,8 +12,10 @@ monitoring, district comparisons or facility rankings.
 
 ## Peer-group anomaly detection
 
-Reported values are compared within the same District, Programme and Indicator
-cohort. The detector requires at least eight non-null peer observations by
+Reported values are compared across facilities within the same reporting
+Month, District, Programme and Indicator cohort. Month-scoping prevents the
+detector from mixing seasonal or longer-term changes across the five-year
+series. The detector requires at least eight non-null peer observations by
 default.
 
 1. Calculate the peer median and median absolute deviation (MAD).
