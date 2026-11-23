@@ -684,10 +684,29 @@ with tabs[6]:
                 file_name="statistical_peer_anomalies.csv", mime="text/csv",
             )
         st.markdown("**Monthly issue-rate monitoring**")
-        st.dataframe(result["control"], use_container_width=True, hide_index=True)
+        control_chart = result["control"].copy()
+        if not control_chart.empty:
+            control_chart["Month"] = pd.to_datetime(control_chart["Month"], errors="coerce")
+            st.plotly_chart(
+                px.line(
+                    control_chart,
+                    x="Month",
+                    y=["Issue_Rate", "Centre_Line", "Lower_Control_Limit", "Upper_Control_Limit"],
+                    markers=True,
+                    title="Monthly issue rate with retrospective p-chart limits",
+                    labels={"value": "Proportion of records", "variable": "Series"},
+                ),
+                use_container_width=True,
+            )
+        st.caption(
+            "The centre line is the pooled issue proportion. Limits use month-specific "
+            "denominators, so lower-volume months have wider bands. These are retrospective "
+            "descriptive limits, not prospective alert thresholds."
+        )
+        st.dataframe(control_chart, use_container_width=True, hide_index=True)
         st.download_button(
             "Download monthly monitoring output",
-            data=result["control"].to_csv(index=False).encode("utf-8"),
+            data=control_chart.to_csv(index=False).encode("utf-8"),
             file_name="monthly_issue_control_chart.csv", mime="text/csv",
         )
         if result["synthetic_truth_available"]:
