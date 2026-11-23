@@ -15,9 +15,22 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-REQUIRED = {"Month", "District", "Programme", "Indicator", "Reported_Value",
-            "Facility_ID", "Quality_Missing_Reported_Value",
-            "Quality_Source_Discrepancy", "Quality_Late_Submission"}
+REQUIRED = {
+    "Month", "District", "Programme", "Indicator", "Reported_Value",
+    "Facility_ID", "Quality_Missing_Reported_Value",
+    "Quality_Source_Discrepancy", "Quality_Late_Submission",
+}
+
+
+def _as_bool(series: pd.Series) -> pd.Series:
+    """Parse boolean flags safely, including values loaded from CSV text."""
+    if pd.api.types.is_bool_dtype(series):
+        return series.fillna(False)
+    if pd.api.types.is_numeric_dtype(series):
+        return series.fillna(0).ne(0)
+    return series.astype("string").str.strip().str.lower().isin(
+        {"true", "1", "yes", "y"}
+    )
 
 
 def detect_peer_anomalies(data: pd.DataFrame, min_group_size: int = 8,
@@ -70,26 +83,50 @@ def detect_peer_anomalies(data: pd.DataFrame, min_group_size: int = 8,
 
 
 def build_monthly_control_chart(data: pd.DataFrame, min_baseline_months: int = 6) -> pd.DataFrame:
-    """Create descriptive 3-sigma limits for monthly detected-issue rates.
+    """Create descriptive 3-sigma limits for monthly operational issue rates.
 
-    Limits are based on the full observed period, so this is retrospective
+    The operational definition aligns with the quality analytics profile:
+    missing values, source discrepancies, outliers (>1.5x target) and late
+    submissions. Limits use the full observed period, so this is retrospective
     monitoring rather than a prospective alerting/control-chart service.
     """
-    required = {"Month", "Quality_Missing_Reported_Value",
-                "Quality_Source_Discrepancy", "Quality_Late_Submission"}
+    required = {
+        "Month", "Reported_Value", "Target_Value",
+        "Quality_Missing_Reported_Value", "Quality_Source_Discrepancy",
+        "Quality_Late_Submission",
+    }
     missing = required - set(data.columns)
     if missing:
-        raise ValueError(f"Staged data missing columns: {sorted(missing)}")
+        raise ValueError(f"Staged data missing control-chart inputs: {sorted(missing)}")
     work = data.copy()
     work["Month"] = pd.to_datetime(work["Month"], errors="coerce").dt.to_period("M").dt.to_timestamp()
-    issue_cols = ["Quality_Missing_Reported_Value", "Quality_Source_Discrepancy",
-                  "Quality_Late_Submission"]
-    for col in issue_cols:
-        work[col] = work[col].fillna(False).astype(bool)
+    flag_cols = [
+        "Quality_Missing_Reported_Value",
+        "Quality_Source_Discrepancy",
+        "Quality_Late_Submission",
+    ]
+    for col in flag_cols:
+        work[col] = _as_bool(work[col])
+    reported = pd.to_numeric(work["Reported_Value"], errors="coerce")
+    target = pd.to_numeric(work["Target_Value"], errors="coerce")
+    work["Operational_Detected_Outlier"] = (
+        (reported / target.where(target.gt(0))).gt(1.5).fillna(False)
+    )
+    issue_cols = flag_cols + ["Operational_Detected_Outlier"]
     work["Any_Detected_Issue"] = work[issue_cols].any(axis=1)
-    monthly = (work.dropna(subset=["Month"]).groupby("Month")
-               .agg(Records=("Any_Detected_Issue", "size"),
-                    Issue_Records=("Any_Detected_Issue", "sum")).reset_index())
+    monthly = (
+        work.dropna(subset=["Month"])
+        .groupby("Month")
+        .agg(
+            Records=("Any_Detected_Issue", "size"),
+            Issue_Records=("Any_Detected_Issue", "sum"),
+            Missing_Records=("Quality_Missing_Reported_Value", "sum"),
+            Source_Discrepancy_Records=("Quality_Source_Discrepancy", "sum"),
+            Outlier_Records=("Operational_Detected_Outlier", "sum"),
+            Late_Records=("Quality_Late_Submission", "sum"),
+        )
+        .reset_index()
+    )
     monthly["Issue_Rate"] = monthly["Issue_Records"] / monthly["Records"].replace(0, np.nan)
     if len(monthly) >= min_baseline_months:
         centre = float(monthly["Issue_Rate"].mean())
@@ -127,6 +164,10 @@ def run_statistical_monitoring(staged_path: Path, output_dir: Path) -> dict[str,
         ].value_counts().to_dict(),
         "months_monitored": int(len(control)),
         "months_outside_descriptive_limits": int(control["Outside_Descriptive_Limits"].sum()),
+        "control_chart_issue_types": [
+            "missing reported values", "source discrepancies",
+            "reported values above 1.5x target", "late submissions",
+        ],
         "control_limits_are_retrospective": True,
         "ground_truth_fields_used": False,
         "caution": "Statistical signals are review prompts, not proof of reporting error or clinical risk."
