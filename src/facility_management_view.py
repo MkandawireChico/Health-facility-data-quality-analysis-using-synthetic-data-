@@ -53,6 +53,15 @@ def build_facility_management_view(
         raise ValueError("Priority register contains missing facility identifiers")
     if priorities["Facility_ID"].duplicated().any():
         raise ValueError("Priority register contains duplicate facility identifiers")
+    score_columns = [
+        "Integrated_Priority_Score", "Data_Quality_Priority_Score",
+        "Resource_Gap_Priority_Score", "Operational_Priority_Score",
+        "Supply_Cold_Chain_Priority_Score",
+    ]
+    for column in score_columns:
+        values = pd.to_numeric(priorities[column], errors="coerce")
+        if values.isna().any() or not values.between(0, 100).all():
+            raise ValueError(f"Priority register contains invalid {column} values")
     selected_priority = priorities.loc[priorities["Facility_ID"].eq(selected_id)]
     if selected_priority.empty:
         raise ValueError(f"Unknown facility identifier: {selected_id}")
@@ -65,6 +74,8 @@ def build_facility_management_view(
         actions["Facility_ID"] = pd.Series(dtype="string")
     else:
         actions["Facility_ID"] = actions["Facility"].map(extract_facility_id)
+        if not actions["Facility_ID"].isin(priorities["Facility_ID"]).all():
+            raise ValueError("Action register references facility identifiers absent from the priority register")
         if actions["Record_ID"].isna().any() or actions["Record_ID"].astype(str).str.strip().eq("").any():
             raise ValueError("Action register contains missing record identifiers")
         if actions["Record_ID"].duplicated().any():
