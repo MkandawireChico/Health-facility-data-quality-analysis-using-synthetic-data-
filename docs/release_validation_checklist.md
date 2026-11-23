@@ -19,6 +19,11 @@ intelligence platform. A mergeable pull request is not a validated release.
 - [ ] Platform output manifest lists only existing generated artifacts.
 - [ ] Generated validation artifact is inspected for expected files and
       summary metrics.
+- [ ] Run the Streamlit release-readiness checks; investigate every FAIL and
+      document every WARNING. Confirm local manifest hashes and sizes where a
+      platform build summary is available.
+- [ ] Do not interpret DATA_CHECKS_PASS as proof of CI, deployment, notebook,
+      browser or Power BI verification.
 
 ## 2. Merge sequence
 
