@@ -60,6 +60,11 @@ def test_invalid_inputs_and_export_artifacts(tmp_path):
         build_workforce_profiles(sample_facilities().drop(columns=["District"]))
     with pytest.raises(ValueError,match="At least one facility"):
         build_workforce_profiles(sample_facilities().iloc[:0])
+    for invalid_population in ["not-a-number", float("nan"), float("inf"), -1]:
+        invalid = sample_facilities()
+        invalid.loc[0, "Catchment_Population"] = invalid_population
+        with pytest.raises(ValueError, match="Catchment_Population"):
+            build_workforce_profiles(invalid)
     with pytest.raises(ValueError,match="periods"):
         build_workforce_profiles(sample_facilities(),periods=0)
     with pytest.raises(ValueError,match="periods"):
