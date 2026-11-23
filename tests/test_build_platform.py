@@ -610,8 +610,8 @@ def test_integrated_facility_priority_register_ranks_cross_domain_pressures(tmp_
     ])
     resource = pd.DataFrame([
         {"Facility_ID": "F1", "Facility_Name": "Alpha", "District": "North",
-         "Illustrative_Requirement_Units": 10, "Synthetic_Available_Units": 9,
-         "Baseline_Gap_Units": 1, "Baseline_Capacity_Coverage_Pct": 90},
+         "Illustrative_Requirement_Units": 10, "Synthetic_Available_Units": 11,
+         "Baseline_Gap_Units": 0, "Baseline_Capacity_Coverage_Pct": 110},
         {"Facility_ID": "F2", "Facility_Name": "Beta", "District": "South",
          "Illustrative_Requirement_Units": 10, "Synthetic_Available_Units": 5,
          "Baseline_Gap_Units": 5, "Baseline_Capacity_Coverage_Pct": 50},
