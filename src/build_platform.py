@@ -506,6 +506,8 @@ def _build_integrated_facility_priority(
     ]
     normalized = []
     for frame, label, measures in sources:
+        if label == "quality" and "Facility_Name" not in frame.columns and "Facility" in frame.columns:
+            frame = frame.rename(columns={"Facility": "Facility_Name"})
         required = set(identity) | measures
         if not required.issubset(frame.columns):
             raise RuntimeError(f"{label} priority source is missing required columns")
