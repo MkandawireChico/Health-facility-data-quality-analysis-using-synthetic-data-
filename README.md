@@ -109,14 +109,17 @@ The app prefers `data/raw/synthetic_health_facility_data.csv` and falls back to 
 4. Deploy. Streamlit installs packages from the repository `requirements.txt`.
 5. If deployment reports a missing file or dependency, use the app's **Manage app** logs to identify and resolve the issue before sharing the URL.
 
-The repository includes automated tests for the reporting intake pipeline and a Streamlit `AppTest` smoke test in CI. These verify core logic and that the app renders without a runtime exception; they are not a substitute for a visual browser review of the deployed app.
+The repository includes automated tests for the reporting intake pipeline, expanded planning modules and a Streamlit `AppTest` smoke test in CI. These tests are intended to verify core logic and app rendering; they are not a substitute for a visual browser review of the deployed app. **Current validation status:** the latest expanded feature branch has not yet completed a successful CI run because GitHub Actions runner allocation is blocked by the repository billing limit. Treat the expanded branch as unvalidated until the release checklist is completed.
 
 ### Power BI report
 
-The Power BI dashboard is implemented and included in the repository:
+The repository contains a **completed baseline Power BI report** for the original 960-record demonstration. The expanded 288,000-record platform has a separate semantic-model implementation pack, including Power Query templates, DAX measures and a thirteen-page report specification; the expanded PBIX has **not** yet been assembled or refreshed in Power BI Desktop.
 
 - Power BI file: [dashboard/health_facility_data_quality_dashboard.pbix](dashboard/health_facility_data_quality_dashboard.pbix)
 - Dashboard documentation: [dashboard/powerbi_dashboard_documentation.md](dashboard/powerbi_dashboard_documentation.md)
+- Expanded model, query and DAX implementation specification: [dashboard/powerbi_expanded_model.md](dashboard/powerbi_expanded_model.md)
+- Expanded thirteen-page report build guide: [dashboard/powerbi_report_build_guide.md](dashboard/powerbi_report_build_guide.md)
+- Release gate and manual verification steps: [docs/release_validation_checklist.md](docs/release_validation_checklist.md)
 - Data Quality Overview: [dashboard/Data_Quality_Overview.png](dashboard/Data_Quality_Overview.png)
 - Facility Performance: [dashboard/Facility_Performance.png](dashboard/Facility_Performance.png)
 - Source Consistency: [dashboard/Source_Consistency.png](dashboard/Source_Consistency.png)
