@@ -253,10 +253,19 @@ def run_supply_chain_planning(
     }
     for key, filename in outputs.items():
         result[key].to_csv(output_dir / filename, index=False)
+    summary = result["scenario_summary"].iloc[0]
+    plan = result["replenishment_plan"]
     report = {
         **result["assumptions"],
         "facility_count": int(facilities["Facility_ID"].nunique()),
         "inventory_records": int(len(result["inventory_ledger"])),
+        "latest_snapshot_month": str(summary["snapshot_month"]),
+        "facility_commodity_pairs_with_recent_stockout": int(plan["Recent_Stockout_Days"].gt(0).sum()),
+        "requested_replenishment_units": int(summary["requested_replenishment_units"]),
+        "allocated_replenishment_units": int(summary["allocated_replenishment_units"]),
+        "unfunded_replenishment_units": int(summary["unfunded_replenishment_units"]),
+        "allocated_cost_credits": int(summary["allocated_cost_credits"]),
+        "unspent_budget_credits": int(summary["unspent_budget_credits"]),
         "outputs": list(outputs.values()),
     }
     (output_dir / "supply_chain_planning_report.json").write_text(json.dumps(report, indent=2, default=str))
