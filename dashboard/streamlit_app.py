@@ -14,6 +14,7 @@ import streamlit as st
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from action_store import ActionRegisterStore, build_action_record_id
+from target_attainment import build_target_attainment_profiles
 from reporting import (
     REQUIRED_COLUMNS, assess_dataset, build_issue_register, facility_summary,
     validate_dataset,
@@ -553,6 +554,7 @@ with tabs[6]:
                         predicted = add_operational_predictions(platform_data)
                         monthly, facility_profile, programme_profile = build_operational_profiles(platform_data)
                         district_profile, district_monthly = build_district_profiles(platform_data)
+                        attainment = build_target_attainment_profiles(platform_data)
                         peer = detect_peer_anomalies(platform_data)
                         control = build_monthly_control_chart(platform_data)
                         metrics = None
@@ -578,6 +580,7 @@ with tabs[6]:
                             "programme": programme_profile,
                             "district": district_profile,
                             "district_monthly": district_monthly,
+                            "attainment": attainment,
                             "control": control,
                             "metrics": metrics,
                             "synthetic_truth_available": metrics is not None,
@@ -627,6 +630,10 @@ with tabs[6]:
             "district_monthly_quality_trends.csv": result["district_monthly"],
             "statistical_peer_anomalies.csv": result["peer_anomalies"],
             "monthly_issue_control_chart.csv": result["control"],
+            "facility_indicator_target_attainment.csv": result["attainment"]["facility_indicator"],
+            "district_indicator_target_attainment.csv": result["attainment"]["district_indicator"],
+            "programme_indicator_target_attainment.csv": result["attainment"]["programme_indicator"],
+            "monthly_indicator_target_attainment.csv": result["attainment"]["monthly_indicator"],
         }
         if result["metrics"] is not None:
             export_tables["synthetic_detector_evaluation_metrics.csv"] = result["metrics"]
@@ -722,6 +729,63 @@ with tabs[6]:
                 file_name="district_monthly_quality_trends.csv",
                 mime="text/csv",
                 key="download_district_monthly_trends",
+            )
+
+        st.markdown("**Target attainment and service-performance intelligence**")
+        st.caption(
+            "Attainment compares pooled reported values with pooled targets for the same programme and indicator. "
+            "It is not population coverage, unique people served, or an official performance measure. "
+            "The 80% review band is an illustrative portfolio threshold."
+        )
+        attainment = result["attainment"]
+        facility_attainment = attainment["facility_indicator"]
+        district_attainment = attainment["district_indicator"]
+        monthly_attainment = attainment["monthly_indicator"]
+        valid_facility_attainment = facility_attainment.dropna(subset=["attainment_pct"])
+        if not valid_facility_attainment.empty:
+            a1, a2, a3 = st.columns(3)
+            a1.metric("Facility-indicator combinations", f"{len(valid_facility_attainment):,}")
+            a2.metric("Below 80% of target", int(valid_facility_attainment["attainment_pct"].lt(80).sum()))
+            a3.metric("At or above target", int(valid_facility_attainment["attainment_pct"].ge(100).sum()))
+            under_target = valid_facility_attainment.sort_values("attainment_pct").head(20)
+            st.plotly_chart(
+                px.bar(
+                    under_target.sort_values("attainment_pct"),
+                    x="attainment_pct", y="Facility", color="Indicator", orientation="h",
+                    title="Lowest facility-level indicator attainment",
+                    labels={"attainment_pct": "Reported-to-target attainment (%)"},
+                    hover_data=["District", "Programme", "Indicator", "valid_attainment_records"],
+                ),
+                use_container_width=True,
+            )
+            st.dataframe(under_target, use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download facility-indicator target attainment",
+                data=facility_attainment.to_csv(index=False).encode("utf-8"),
+                file_name="facility_indicator_target_attainment.csv", mime="text/csv",
+            )
+        if not district_attainment.empty:
+            st.markdown("**District attainment by comparable indicator**")
+            st.dataframe(district_attainment, use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download district-indicator attainment",
+                data=district_attainment.to_csv(index=False).encode("utf-8"),
+                file_name="district_indicator_target_attainment.csv", mime="text/csv",
+            )
+        if not monthly_attainment.empty:
+            st.plotly_chart(
+                px.line(
+                    monthly_attainment, x="Month", y="attainment_pct", color="Indicator",
+                    facet_col="Programme", facet_col_wrap=2, markers=True,
+                    title="Monthly target attainment by programme and indicator",
+                    labels={"attainment_pct": "Reported-to-target attainment (%)"},
+                ),
+                use_container_width=True,
+            )
+            st.download_button(
+                "Download monthly indicator attainment",
+                data=monthly_attainment.to_csv(index=False).encode("utf-8"),
+                file_name="monthly_indicator_target_attainment.csv", mime="text/csv",
             )
 
         st.markdown("**Programme and indicator quality profile**")
