@@ -417,7 +417,13 @@ def _build_supply_cold_chain_resilience_view(facilities, stock_ledger, cold_chai
             raise RuntimeError(f"{label} reporting months do not match the other supply domain")
         for column in measures - {"Risk_Band", "Stockout_Flag"}:
             values = pd.to_numeric(data[column], errors="coerce")
-            if values.isna().any() or not np.isfinite(values.to_numpy(dtype=float)).all():
+            if column == "Cold_Chain_Risk_Score" and label == "cold-chain":
+                data_gap = data["Risk_Band"].eq("Data Gap")
+                if values[data_gap].notna().any() or values[~data_gap].isna().any():
+                    raise RuntimeError("Cold-chain risk scores must be missing only for explicit data-gap rows")
+                if not np.isfinite(values.dropna().to_numpy(dtype=float)).all():
+                    raise RuntimeError("Cold-chain risk scores contain non-finite values")
+            elif values.isna().any() or not np.isfinite(values.to_numpy(dtype=float)).all():
                 raise RuntimeError(f"{label} measure {column} contains invalid values")
             data[column] = values
         grouped = data.groupby(key, as_index=False).agg(
@@ -433,6 +439,7 @@ def _build_supply_cold_chain_resilience_view(facilities, stock_ledger, cold_chai
                 "Near_Expiry_90_Day_Units": ("Near_Expiry_90_Day_Units", "sum"),
                 "Temperature_Excursion_Days": ("Temperature_Excursion_Days", "sum"),
                 "High_Cold_Chain_Risk_Pairs": ("Risk_Band", lambda values: values.eq("High").sum()),
+                "Data_Gap_Cold_Chain_Pairs": ("Risk_Band", lambda values: values.eq("Data Gap").sum()),
                 "Mean_Cold_Chain_Risk_Score": ("Cold_Chain_Risk_Score", "mean")}
         )
         )
@@ -457,6 +464,7 @@ def _build_supply_cold_chain_resilience_view(facilities, stock_ledger, cold_chai
     joined["Supply_Review_Flag"] = (
         joined["Stockout_Commodity_Pairs"].gt(0)
         | joined["High_Cold_Chain_Risk_Pairs"].gt(0)
+        | joined["Data_Gap_Cold_Chain_Pairs"].gt(0)
         | joined["Temperature_Excursion_Days"].gt(0)
         | joined["Near_Expiry_90_Day_Units"].gt(0)
     )
@@ -491,8 +499,8 @@ def _build_integrated_facility_priority(
         }),
         (supply_latest, "supply", {
             "Supply_Review_Flag", "Stockout_Commodity_Pairs",
-            "High_Cold_Chain_Risk_Pairs", "Near_Expiry_90_Day_Units",
-            "Temperature_Excursion_Days",
+            "High_Cold_Chain_Risk_Pairs", "Data_Gap_Cold_Chain_Pairs",
+            "Near_Expiry_90_Day_Units", "Temperature_Excursion_Days",
         }),
         (quality_benchmark, "quality", {
             "records", "detected_issue_records", "detected_issue_rate_pct",
@@ -564,7 +572,7 @@ def _build_integrated_facility_priority(
         if not combined[column].between(0, 100).all():
             raise RuntimeError(f"Operational measure {column} must be between 0 and 100")
     for column in ["Stockout_Commodity_Pairs", "High_Cold_Chain_Risk_Pairs",
-                   "Near_Expiry_90_Day_Units", "Temperature_Excursion_Days",
+                   "Data_Gap_Cold_Chain_Pairs", "Near_Expiry_90_Day_Units", "Temperature_Excursion_Days",
                    "missing_records", "source_discrepancy_records", "outlier_records",
                    "late_records", "Illustrative_Requirement_Units",
                    "Synthetic_Available_Units", "Baseline_Gap_Units"]:
