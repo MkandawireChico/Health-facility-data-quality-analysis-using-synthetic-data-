@@ -395,8 +395,13 @@ def _build_supply_cold_chain_resilience_view(facilities, stock_ledger, cold_chai
         if data[key + identity].isna().any().any():
             raise RuntimeError(f"{label} source contains missing facility-month identity")
         data["Facility_ID"] = data["Facility_ID"].astype(str).str.strip()
-        if data["Facility_ID"].eq("").any():
-            raise RuntimeError(f"{label} source contains blank facility identifiers")
+        for column in identity:
+            data[column] = data[column].astype(str).str.strip()
+        data["Commodity_ID"] = data["Commodity_ID"].astype(str).str.strip()
+        if data["Facility_ID"].eq("").any() or data["Commodity_ID"].eq("").any():
+            raise RuntimeError(f"{label} source contains blank facility or commodity identifiers")
+        if data[identity[0]].eq("").any() or data[identity[1:]].eq("").any().any():
+            raise RuntimeError(f"{label} source contains blank facility metadata")
         data["Month"] = pd.to_datetime(data["Month"], errors="coerce").dt.to_period("M").dt.to_timestamp()
         if data["Month"].isna().any():
             raise RuntimeError(f"{label} source contains invalid reporting months")
@@ -415,6 +420,13 @@ def _build_supply_cold_chain_resilience_view(facilities, stock_ledger, cold_chai
             month_reference = months
         elif months != month_reference:
             raise RuntimeError(f"{label} reporting months do not match the other supply domain")
+        if label == "stock":
+            if not data["Stockout_Flag"].isin([True, False, 0, 1]).all():
+                raise RuntimeError("Stockout_Flag must contain Boolean values")
+            data["Stockout_Flag"] = data["Stockout_Flag"].astype(bool)
+        else:
+            if not data["Risk_Band"].isin(["Low", "Medium", "High", "Data Gap"]).all():
+                raise RuntimeError("Cold-chain Risk_Band contains an unsupported category")
         for column in measures - {"Risk_Band", "Stockout_Flag"}:
             values = pd.to_numeric(data[column], errors="coerce")
             if column == "Cold_Chain_Risk_Score" and label == "cold-chain":
@@ -425,6 +437,10 @@ def _build_supply_cold_chain_resilience_view(facilities, stock_ledger, cold_chai
                     raise RuntimeError("Cold-chain risk scores contain non-finite values")
             elif values.isna().any() or not np.isfinite(values.to_numpy(dtype=float)).all():
                 raise RuntimeError(f"{label} measure {column} contains invalid values")
+            if column != "Cold_Chain_Risk_Score" and values.lt(0).any():
+                raise RuntimeError(f"{label} measure {column} cannot be negative")
+            if column == "Cold_Chain_Risk_Score" and not values.dropna().between(0, 100).all():
+                raise RuntimeError("Cold-chain risk scores must be between 0 and 100")
             data[column] = values
         grouped = data.groupby(key, as_index=False).agg(
             Facility_Name=("Facility_Name", "first"),
