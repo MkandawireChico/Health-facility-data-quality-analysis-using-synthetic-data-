@@ -88,6 +88,6 @@ def test_peer_groups_are_scoped_to_reporting_month():
     data = peer_data([100, 101, 99, 102, 98, 100, 101, 99, 500], monthly=False)
     data.loc[8, "Month"] = pd.Timestamp("2024-02-01")
     result = detect_peer_anomalies(data)
-    assert result["Peer_Group_Size"].eq(8).all() is False
+    assert result.loc[:7, "Peer_Group_Size"].eq(8).all()
     assert result.loc[8, "Peer_Group_Size"] == 1
     assert not result.loc[8, "Statistical_Anomaly"]
