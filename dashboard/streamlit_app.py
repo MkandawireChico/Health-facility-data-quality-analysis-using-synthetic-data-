@@ -607,7 +607,7 @@ with tabs[6]:
                             _build_operational_resilience_views(
                                 resource_facilities,
                                 equipment["facility_monthly_summary"],
-                                infrastructure["monthly_infrastructure_reliability"],
+                                infrastructure["monthly_reliability"],
                                 workforce["monthly_workforce"],
                                 integration_path,
                             )
