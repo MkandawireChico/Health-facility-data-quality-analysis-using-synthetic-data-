@@ -8,7 +8,7 @@ The full cohort is synthetic. Display a visible banner on every page:
 
 > SYNTHETIC PORTFOLIO DATA — facility names, district comparisons, populations and performance metrics are illustrative and are not Ministry of Health or actual facility results.
 
-Use a light canvas, high-contrast text, restrained accent colours, consistent spacing and descriptive titles. Do not rely on colour alone to convey severity; pair status colours with labels and icons.
+Import `dashboard/powerbi_theme.json` through View → Themes → Browse for themes before building pages. It supplies the accessible light palette, high-contrast text and consistent typography. Use descriptive titles and do not rely on colour alone to convey severity; pair status colours with labels and icons.
 
 ## Global canvas and navigation
 
