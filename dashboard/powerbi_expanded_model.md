@@ -41,7 +41,7 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | DimIndicator | One row per programme-indicator pair | Indicator_Key, Programme, Indicator |
 | DimDistrict | One row per district label | District |
 | DimSource | One row per reporting source | Source |
-| DimCommodity | One row per illustrative commodity | Commodity_ID, Commodity, Programme, Unit |
+| DimCommodity | One row per illustrative commodity | Commodity_ID, Commodity, Programme, Unit |\n| DimEquipmentType | One row per illustrative equipment type | Equipment_Type, Category, Criticality |\n| FactEquipmentAssetRegister (asset dimension role) | One row per synthetic asset | Asset_ID, Facility_ID, Equipment_Type, Install_Date, Asset_Status |
 
 ### Facts
 
@@ -57,7 +57,7 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | FactMonthlyQualityTrend | Month | Operational issue volumes and rates |
 | FactPeerAnomaly | Anomalous reporting record | Statistical review queue and peer score |
 | FactFacilityCommodityStock | Facility × commodity × month | Synthetic opening stock, receipts, demand, unmet demand and stockout estimates |
-| FactCommodityReplenishmentPlan | Facility × commodity snapshot | Requested, funded and unfunded replenishment units under an abstract budget |
+| FactCommodityReplenishmentPlan | Facility × commodity snapshot | Requested, funded and unfunded replenishment units under an abstract budget |\n| FactEquipmentAssetMonthly | Asset × month | Breakdowns, planned/unplanned downtime, uptime, PM completion, condition and risk |\n| FactFacilityEquipmentMonthly | Facility × month | Aggregated equipment uptime, breakdowns, PM and maintenance costs |\n| FactEquipmentMaintenanceWorkOrders | Work order event | Preventive and corrective maintenance events and statuses |\n| FactEquipmentLatestAssetRisk | Asset × latest month | Latest asset risk and operating snapshot |
 
 ### Relationships
 
@@ -121,7 +121,7 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 4. The FactReporting query removes all `Ground_Truth_*` fields before loading; keep detector evaluation as a separate synthetic-only governance table.
 5. Create `DimDistrict` using `dashboard/dax/dimension_tables.dax`, then create the relationships listed above. Mark DimDate as the date table and sort MonthName by MonthNumber.
 6. Add measures from `dashboard/dax/health_data_quality_measures.dax`.
-7. Add the DAX resource and commodity measures and build the eleven report pages using the layout plan.
+7. Add the DAX resource, commodity, cold-chain and equipment measures and build the eleven report pages using the layout plan.
 8. Validate filter behaviour at facility, district, month, programme and indicator levels.
 9. Keep the synthetic-data disclaimer visible on every report page and in exported PDFs.
 
@@ -170,7 +170,7 @@ The query files are executable Power Query M templates, not screenshots or mocku
 | FactResourceAllocationScenario | Facility-level allocations and residual gaps by scenario |
 | DimCommodity | Illustrative commodity catalogue keyed by Commodity_ID |
 | FactFacilityCommodityStock | Facility × commodity × month simulated stock ledger |
-| FactCommodityReplenishmentPlan | Latest-snapshot budget-constrained replenishment worklist |
+| FactCommodityReplenishmentPlan | Latest-snapshot budget-constrained replenishment worklist |\n| DimEquipmentType | Illustrative equipment type catalogue |\n| FactEquipmentAssetRegister | One row per asset; serves as the asset dimension |\n| FactEquipmentAssetMonthly | Asset-month maintenance and uptime performance |\n| FactFacilityEquipmentMonthly | Facility-month equipment aggregate |\n| FactEquipmentMaintenanceWorkOrders | Preventive/corrective work-order events |\n| FactEquipmentLatestAssetRisk | Latest-month asset risk snapshot |
 
 Create `DimDistrict` from the DAX dimension-table script. Connect it to DimFacility, FactDistrictProfile and FactDistrictMonthlyTrend using single-direction one-to-many relationships. The district aggregate facts are separate from the facility reporting fact; do not create fact-to-fact joins.
 
