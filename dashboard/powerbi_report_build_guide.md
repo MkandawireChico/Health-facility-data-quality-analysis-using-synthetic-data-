@@ -266,3 +266,21 @@ Interpretation:
 - Availability is not verified clinical service availability and does not establish patient impact.
 - Infrastructure/equipment association is not causal.
 - Upgrade packages, avoided-hour assumptions and abstract credits are not quotations, MWK, procurement specifications or operational recommendations.
+
+
+## Page 13 — Workforce capacity and staffing intelligence
+
+**Decision question:** Where do synthetic role vacancies and monthly staffing availability indicate potential capacity pressure in the model?
+
+Layout:
+- KPI strip: latest mean workforce coverage, baseline vacancies, high review-priority facilities and mean absence rate.
+- Monthly workforce coverage and absence trend.
+- Facility review table with establishment, filled, vacant, absent and available-on-duty positions.
+- Role-level filled positions versus vacancies.
+- Role-level recruitment scenario with abstract cost credits, funded and unfunded positions.
+
+Interpretation:
+- Establishments, filled positions, absences and overtime are synthetic.
+- Catchment population is a workload proxy, not patient volume or service utilisation.
+- Role mixes are not official Malawi staffing norms or safe-staffing thresholds.
+- Recruitment credits are abstract, not MWK or salary estimates. This is not an approved HR plan.
