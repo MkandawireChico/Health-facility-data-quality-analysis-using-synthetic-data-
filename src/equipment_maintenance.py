@@ -66,7 +66,7 @@ def build_equipment_maintenance_profiles(
     seed: int = 42,
 ) -> dict[str, Any]:
     """Build synthetic asset register, monthly performance and maintenance events."""
-    if not isinstance(periods, int) or periods < 1:
+    if isinstance(periods, bool) or not isinstance(periods, (int, np.integer)) or periods < 1:
         raise ValueError("periods must be a positive integer")
     fac = _validate_facilities(facilities)
     months = pd.date_range(pd.Timestamp(start_month).to_period("M").to_timestamp(), periods=periods, freq="MS")
