@@ -94,6 +94,8 @@ def test_invalid_inputs_fail_clearly():
         build_cold_chain_profiles(facility_dimension().iloc[0:0])
     with pytest.raises(ValueError, match="periods"):
         build_cold_chain_profiles(facility_dimension(), periods=0)
+    with pytest.raises(ValueError, match="periods"):
+        build_cold_chain_profiles(facility_dimension(), periods=True)
     with pytest.raises(ValueError, match="Temperature bounds"):
         build_cold_chain_profiles(facility_dimension(), temperature_min_c=8, temperature_max_c=2)
     with pytest.raises(ValueError, match="unique"):
