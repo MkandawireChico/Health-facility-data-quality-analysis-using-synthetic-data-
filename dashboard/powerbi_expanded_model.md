@@ -105,7 +105,7 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 
 1. Run `python src/build_platform.py` from the repository root.
 2. In Power BI Desktop, create a text parameter named `pWarehouseRoot` pointing to the generated `data/warehouse` folder (no trailing slash).
-3. Create/load the queries in `dashboard/powerquery/`: `FactReporting`, `DimFacility`, `DimIndicator`, `DimDate`, `DimSource`, `FactSourceObservation`, `FactMonthlyQualityTrend`, `FactMonthlyIssueControlChart`, `FactDistrictProfile`, `FactDistrictMonthlyTrend`, `FactPeerAnomaly`, `FactDetectorEvaluation`, `FactFacilityIndicatorAttainment`, `FactDistrictIndicatorAttainment` and `FactMonthlyIndicatorAttainment`.
+3. Create/load the queries in `dashboard/powerquery/`: `FactReporting`, `DimFacility`, `DimIndicator`, `DimDate`, `DimSource`, `FactSourceObservation`, `FactMonthlyQualityTrend`, `FactMonthlyIssueControlChart`, `FactDistrictProfile`, `FactDistrictMonthlyTrend`, `FactPeerAnomaly`, `FactDetectorEvaluation`, `FactFacilityIndicatorAttainment`, `FactDistrictIndicatorAttainment`, `FactMonthlyIndicatorAttainment` and `FactProgrammeIndicatorAttainment`.
 4. The FactReporting query removes all `Ground_Truth_*` fields before loading; keep detector evaluation as a separate synthetic-only governance table.
 5. Create `DimDistrict` using `dashboard/dax/dimension_tables.dax`, then create the relationships listed above. Mark DimDate as the date table and sort MonthName by MonthNumber.
 6. Add measures from `dashboard/dax/health_data_quality_measures.dax`.
