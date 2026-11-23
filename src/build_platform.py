@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pandas as pd
+
 from scale_data_generator import ScaledHealthDataGenerator
 from etl_pipeline import run_pipeline
 from quality_analytics import run_quality_analytics
