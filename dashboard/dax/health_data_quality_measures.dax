@@ -133,3 +133,35 @@ AVERAGE ( FactDetectorEvaluation[false_positive_rate] )
 // - Reported Value Availability Rate is not a clinical completeness measure.
 // - Macro detector metrics describe injected synthetic defects only.
 // - Do not use synthetic metrics to claim real-world detector performance.
+
+
+// District and longitudinal monitoring measures
+District Reporting Records =
+SUM ( FactDistrictMonthlyTrend[records] )
+
+District Detected Issue Records =
+SUM ( FactDistrictMonthlyTrend[detected_issue_records] )
+
+District Weighted Issue Rate =
+DIVIDE ( [District Detected Issue Records], [District Reporting Records] )
+
+Districts Represented =
+DISTINCTCOUNT ( FactDistrictMonthlyTrend[District] )
+
+District-Month Review Signals =
+CALCULATE (
+    COUNTROWS ( FactMonthlyIssueControlChart ),
+    FactMonthlyIssueControlChart[Outside_Descriptive_Limits] = TRUE ()
+)
+
+Monthly Control Centre Line =
+MAX ( FactMonthlyIssueControlChart[Centre_Line] )
+
+Monthly Upper Descriptive Limit =
+MAX ( FactMonthlyIssueControlChart[Upper_Control_Limit] )
+
+Monthly Lower Descriptive Limit =
+MAX ( FactMonthlyIssueControlChart[Lower_Control_Limit] )
+
+// District rates are weighted by reporting volume. Do not average district
+// percentages to calculate a combined rate. Control limits are retrospective.
