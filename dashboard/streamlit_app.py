@@ -542,6 +542,7 @@ with tabs[6]:
         st.caption(f"Selected file: {platform_file.name} · {platform_file.size / (1024 * 1024):.1f} MB")
         resource_pool_input = st.number_input("Illustrative resource pool (abstract units)", min_value=0, max_value=10000, value=120, step=10, help="Scenario input only; units are not staff headcounts or a monetary budget.")
         supply_budget_input = st.number_input("Commodity replenishment budget (abstract credits)", min_value=0, max_value=10000000, value=50000, step=1000, help="Synthetic budget credits only; not MWK or an approved procurement allocation.")
+        workforce_budget_input = st.number_input("Workforce recruitment scenario budget (abstract credits)", min_value=0, max_value=10000000, value=50000, step=1000, help="Separate synthetic recruitment scenario budget; credits are not MWK, salaries or an approved HR allocation.")
         if st.button("Analyse expanded reporting platform", type="primary", key="run_platform_analysis"):
             try:
                 platform_data = pd.read_csv(platform_file)
@@ -584,7 +585,7 @@ with tabs[6]:
                         )
                         workforce = build_workforce_profiles(
                             resource_facilities, periods=24, start_month="2025-01-01", seed=42,
-                            recruitment_budget_credits=int(supply_budget_input),
+                            recruitment_budget_credits=int(workforce_budget_input),
                         )
                         metrics = None
                         if set(truth_required).issubset(platform_data.columns):
