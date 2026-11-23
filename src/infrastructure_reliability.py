@@ -208,9 +208,12 @@ def build_infrastructure_profiles(
     ).reset_index(drop=True)
     scenarios["Selected_Package_For_Facility"] = False
     best_indices = scenarios.groupby("Facility_ID")["Avoided_Hours_Per_100_Credits"].idxmax()
-    best_indices = scenarios.loc[best_indices].sort_values(
-        "Avoided_Hours_Per_100_Credits", ascending=False
-    ).index
+    best_indices = scenarios.loc[best_indices]
+    # Do not recommend or fund a package when the simulated baseline has no
+    # interruption exposure for the package to mitigate.
+    best_indices = best_indices.loc[
+        best_indices["Illustrative_Avoided_Interruption_Hours"].gt(0)
+    ].sort_values("Avoided_Hours_Per_100_Credits", ascending=False).index
     scenarios.loc[best_indices, "Selected_Package_For_Facility"] = True
     scenarios["Within_Illustrative_Budget"] = False
     remaining = int(budget_credits)
