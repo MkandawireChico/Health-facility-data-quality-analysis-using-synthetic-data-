@@ -441,3 +441,8 @@ All assets, failures, maintenance events, condition scores and costs are synthet
 The expanded platform now includes a synthetic infrastructure reliability layer covering power interruptions and backup response, water shortages and storage buffering, connectivity downtime, monthly domain availability, a composite resilience review score, descriptive comparisons with simulated equipment uptime, and illustrative facility upgrade scenarios under an abstract credit ceiling.
 
 See [infrastructure reliability methodology](docs/infrastructure_reliability_methodology.md). All infrastructure configurations, interruptions, scores, and upgrade assumptions are synthetic. They are not utility-provider observations, engineering assessments, verified clinical service availability, or procurement advice. Abstract credits are not MWK.
+
+
+## Workforce capacity and staffing intelligence
+
+A further synthetic planning layer models facility-role establishments, filled and vacant posts, monthly absence and overtime, catchment-based workload proxies, facility coverage review bands, and a role-level recruitment scenario under an abstract credit ceiling. The role categories and weights are illustrative, not official Malawi staffing norms. No employee or patient records are generated. Catchment population is not patient volume; recruitment credits are not MWK. See [workforce planning methodology](docs/workforce_planning_methodology.md).
