@@ -57,8 +57,12 @@ def test_invalid_inputs_and_export_artifacts(tmp_path):
         build_workforce_profiles(sample_facilities().iloc[:0])
     with pytest.raises(ValueError,match="periods"):
         build_workforce_profiles(sample_facilities(),periods=0)
-    with pytest.raises(ValueError,match="non-negative"):
+    with pytest.raises(ValueError,match="periods"):
+        build_workforce_profiles(sample_facilities(),periods=True)
+    with pytest.raises(ValueError,match="non-negative integer"):
         build_workforce_profiles(sample_facilities(),recruitment_budget_credits=-1)
+    with pytest.raises(ValueError,match="non-negative integer"):
+        build_workforce_profiles(sample_facilities(),recruitment_budget_credits=1000.5)
     path=tmp_path/"facilities.csv"
     sample_facilities().to_csv(path,index=False)
     report=run_workforce_planning(path,tmp_path/"analytics",periods=3,seed=3)
