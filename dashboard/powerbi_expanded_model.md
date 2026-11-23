@@ -105,7 +105,8 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 6. **Detector governance** — precision, recall, F1 and confusion counts on synthetic injected defects; display a persistent synthetic-evaluation disclaimer.
 7. **Target attainment** — facility, district and monthly reported-to-target attainment by programme-indicator pair; show valid-record denominators and under-target review bands.
 8. **Resource allocation scenarios** — compare synthetic capacity gaps and three constrained allocation heuristics; keep assumptions and limitations visible.
-9. **Commodity availability and replenishment** — monitor synthetic stockouts, unmet demand, days of cover and budget-constrained replenishment.\n10. **Cold-chain and expiry intelligence** — review synthetic temperature excursions, monitoring coverage, FEFO batch balances, near-expiry stock, expired quantities and facility-commodity risk bands.
+9. **Commodity availability and replenishment** — monitor synthetic stockouts, unmet demand, days of cover and budget-constrained replenishment. 
+10. **Cold-chain and expiry intelligence** — review synthetic temperature excursions, monitoring coverage, FEFO batch balances, near-expiry stock, expired quantities and facility-commodity risk bands.
 
 ## Build instructions
 
