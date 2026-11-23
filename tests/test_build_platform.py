@@ -495,3 +495,35 @@ def test_operational_planning_population_rejects_duplicate_resource_scenario_row
     samples[2] = pd.concat([samples[2], samples[2].iloc[[0]]], ignore_index=True)
     with pytest.raises(RuntimeError, match="duplicate facility-scenario"):
         _validate_operational_planning_population(*samples, 2)
+
+
+def test_operational_resilience_views_reconcile_all_three_domains(tmp_path):
+    import pandas as pd
+    from build_platform import _build_operational_resilience_views
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1", "F2"]})
+    base = [{"Facility_ID": f, "Facility_Name": n, "District": d, "Month": m}
+        for f, n, d in [("F1", "Alpha", "North"), ("F2", "Beta", "South")]
+        for m in ["2024-01-01", "2024-02-01"]]
+    equipment = pd.DataFrame([{**r, "Mean_Operational_Uptime_Pct": 96, "Total_Downtime_Hours": 2, "High_Risk_Assets": 1, "PM_Overdue": 0} for r in base])
+    infrastructure = pd.DataFrame([{**r, "Infrastructure_Resilience_Score": 80, "Unserved_Power_Interruption_Hours": 1, "Unserved_Water_Shortage_Hours": 2, "Connectivity_Downtime_Hours": 3} for r in base])
+    workforce = pd.DataFrame([{**r, "Workforce_Coverage_Pct": 60 if r["Facility_ID"] == "F2" else 90, "Workforce_Pressure_Index": 20, "Vacant_Positions": 2, "Absent_Positions": 1} for r in base])
+    result = _build_operational_resilience_views(facilities, equipment, infrastructure, workforce, tmp_path)
+    assert result == {"facility_month_records": 4, "facilities_reconciled": 2, "months_reconciled": 2, "latest_review_priority_facilities": 1}
+    latest = pd.read_csv(tmp_path / "facility_latest_operational_resilience.csv")
+    assert latest.loc[latest["Facility_ID"].eq("F2"), "Operational_Review_Domains"].iloc[0] == "workforce"
+
+
+def test_operational_resilience_views_reject_domain_population_drift(tmp_path):
+    import pandas as pd
+    import pytest
+    from build_platform import _build_operational_resilience_views
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1"]})
+    base = {"Facility_ID": "F1", "Facility_Name": "Alpha", "District": "North", "Month": "2024-01-01"}
+    equipment = pd.DataFrame([{**base, "Mean_Operational_Uptime_Pct": 98, "Total_Downtime_Hours": 1, "High_Risk_Assets": 0, "PM_Overdue": 0}])
+    infrastructure = pd.DataFrame([{**base, "Infrastructure_Resilience_Score": 90, "Unserved_Power_Interruption_Hours": 0, "Unserved_Water_Shortage_Hours": 0, "Connectivity_Downtime_Hours": 0}])
+    workforce = pd.DataFrame([{**base, "Workforce_Coverage_Pct": 90, "Workforce_Pressure_Index": 10, "Vacant_Positions": 0, "Absent_Positions": 0}])
+    workforce.loc[0, "Facility_ID"] = "F2"
+    with pytest.raises(RuntimeError, match="facility population"):
+        _build_operational_resilience_views(facilities, equipment, infrastructure, workforce, tmp_path)
