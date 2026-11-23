@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import hashlib
 import io
 import json
 import os
@@ -15,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from action_store import ActionRegisterStore, build_action_record_id
 from target_attainment import build_target_attainment_profiles
+from platform_input_validation import validate_platform_extract
 from reporting import (
     REQUIRED_COLUMNS, assess_dataset, build_issue_register, facility_summary,
     validate_dataset,
@@ -516,11 +518,16 @@ with tabs[6]:
         "Staged facility reporting data", type=["csv"], key="platform_staged_upload",
         help="Expected to contain Facility_ID, Facility, District, Month, Programme, Indicator, Reported_Value, Target_Value and ETL Quality_* flags."
     )
-    platform_required = [
-        "Facility_ID", "Facility", "District", "Month", "Programme", "Indicator",
-        "Reported_Value", "Target_Value", "Quality_Missing_Reported_Value",
-        "Quality_Source_Discrepancy", "Quality_Late_Submission",
-    ]
+
+    # Do not leave results from a previous upload visible after the input changes.
+    if platform_file is not None:
+        upload_signature = hashlib.sha256(platform_file.getvalue()).hexdigest()
+        if st.session_state.get("expanded_platform_upload_signature") != upload_signature:
+            st.session_state.pop("expanded_platform_result", None)
+            st.session_state["expanded_platform_upload_signature"] = upload_signature
+    else:
+        st.session_state.pop("expanded_platform_result", None)
+        st.session_state.pop("expanded_platform_upload_signature", None)
     truth_required = [
         "Ground_Truth_Missing", "Ground_Truth_Source_Discrepancy",
         "Ground_Truth_Outlier", "Ground_Truth_Late",
@@ -546,9 +553,11 @@ with tabs[6]:
         if st.button("Analyse expanded reporting platform", type="primary", key="run_platform_analysis"):
             try:
                 platform_data = pd.read_csv(platform_file)
-                missing_platform = sorted(set(platform_required) - set(platform_data.columns))
-                if missing_platform:
-                    st.error("This is not a staged platform extract. Missing columns: " + ", ".join(missing_platform))
+                platform_errors = validate_platform_extract(platform_data)
+                if platform_errors:
+                    st.error("This staged extract cannot be analysed:")
+                    for message in platform_errors:
+                        st.write(f"• {message}")
                 else:
                     from quality_analytics import add_operational_predictions, build_operational_profiles, build_district_profiles, evaluate_detectors
                     from statistical_monitoring import detect_peer_anomalies, build_monthly_control_chart
