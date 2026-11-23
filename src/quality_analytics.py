@@ -108,7 +108,9 @@ def evaluate_detectors(data: pd.DataFrame) -> pd.DataFrame:
 def build_operational_profiles(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Build monthly, facility and programme profiles without ground-truth fields."""
     predicted = add_operational_predictions(data)
-    required = {"Month", "Facility_ID", "District", "Programme", "Indicator"}
+    required = {
+        "Month", "Facility_ID", "Facility", "District", "Programme", "Indicator",
+    }
     missing = sorted(required - set(predicted.columns))
     if missing:
         raise ValueError(f"Staged data missing profile dimensions: {missing}")
