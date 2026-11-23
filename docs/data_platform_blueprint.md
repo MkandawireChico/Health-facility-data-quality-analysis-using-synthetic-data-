@@ -233,3 +233,12 @@ Outputs include `facility_indicator_target_attainment.csv`, `district_indicator_
 ## Corrective action register identity and lifecycle
 
 Corrective-action record identifiers are generated from the selected source name and the facility-month-programme-indicator grain. They do not depend on dataframe row order or active filters. The dashboard exposes all saved actions, status totals, overdue actions, CSV export and field-level audit history. The default SQLite database persists on a durable local filesystem; Streamlit Community Cloud does not guarantee durable local storage or multi-instance consistency. A managed database and authentication are still required for production multi-user use.
+
+
+## Commodity availability and replenishment intelligence
+
+`src/supply_chain_planning.py` adds a synthetic commodity stock-card simulation for eight illustrative commodities across each facility and reporting month. It calculates opening stock, receipts, demand, fulfilled consumption, unmet demand, closing stock and estimated stockout days. The latest snapshot is converted into a replenishment worklist using a configurable lead-time-plus-buffer stock target and a deterministic priority-per-credit budget allocation.
+
+The pipeline exports a commodity catalogue, facility-commodity stock ledger, replenishment plan, summary and methodology report. Streamlit includes monthly stockout trends, commodity risk comparisons and a budget-constrained worklist; Power BI receives a commodity dimension and stock/replenishment facts.
+
+All commodity data, consumption rates, receipts, stockouts and unit costs are synthetic. Budget credits are not MWK; the commodity list is illustrative, not an approved national catalogue. Monthly stockout-day estimates are approximations, not observed daily stock-card events. See `docs/supply_chain_methodology.md`.
