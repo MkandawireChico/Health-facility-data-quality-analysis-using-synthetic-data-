@@ -75,6 +75,8 @@ def build_platform(
             "monthly_trends": str(analytics_dir / "monthly_quality_trends.csv"),
             "facility_benchmark": str(analytics_dir / "facility_quality_benchmark.csv"),
             "programme_profile": str(analytics_dir / "programme_indicator_quality_profile.csv"),
+            "district_profile": str(analytics_dir / "district_quality_profile.csv"),
+            "district_monthly_trends": str(analytics_dir / "district_monthly_quality_trends.csv"),
             "peer_anomalies": str(analytics_dir / "statistical_peer_anomalies.csv"),
             "monthly_control_chart": str(analytics_dir / "monthly_issue_control_chart.csv"),
         },
