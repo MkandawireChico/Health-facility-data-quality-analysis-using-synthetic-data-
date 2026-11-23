@@ -487,6 +487,7 @@ def test_operational_planning_population_rejects_incomplete_workforce_month_grid
 
 
 def test_operational_planning_population_rejects_duplicate_resource_scenario_rows():
+    import pandas as pd
     import pytest
     from build_platform import _validate_operational_planning_population
 
