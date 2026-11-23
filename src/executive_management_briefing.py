@@ -88,10 +88,16 @@ def build_executive_management_briefing(
         if not actions["Status"].isin(ALLOWED_STATUSES).all():
             raise ValueError("Action register contains unsupported statuses")
         due_text = actions["Due date"].fillna("").astype(str).str.strip()
-        due = pd.to_datetime(due_text.where(due_text.ne(""), pd.NA), errors="coerce")
+        due = pd.to_datetime(
+            due_text.where(due_text.ne(""), pd.NA),
+            format="%Y-%m-%d",
+            errors="coerce",
+        )
         if (due_text.ne("") & due.isna()).any():
             raise ValueError("Action register contains invalid due dates")
-        action_month = pd.to_datetime(actions["Month"], errors="coerce")
+        action_month = pd.to_datetime(
+            actions["Month"], format="%Y-%m-%d", errors="coerce"
+        )
         if action_month.isna().any():
             raise ValueError("Action register contains invalid reporting months")
         actions["Overdue"] = actions["Status"].ne("Resolved") & due.notna() & due.lt(reference)
@@ -108,7 +114,10 @@ def build_executive_management_briefing(
             if status in status_counts.columns else 0
         )
     queue["action_resolution_rate_pct"] = (
-        100 * queue["resolved_actions"] / queue["actions_tracked"].replace(0, pd.NA)
+        100
+        * queue["resolved_actions"].div(
+            queue["actions_tracked"].where(queue["actions_tracked"].ne(0))
+        )
     ).fillna(0).round(2)
 
     def recommendation(row: pd.Series) -> str:
@@ -152,7 +161,10 @@ def build_executive_management_briefing(
         escalated_actions=("escalated_actions", "sum"),
     )
     district["resolution_rate_pct"] = (
-        100 * district["resolved_actions"] / district["tracked_actions"].replace(0, pd.NA)
+        100
+        * district["resolved_actions"].div(
+            district["tracked_actions"].where(district["tracked_actions"].ne(0))
+        )
     ).fillna(0).round(2)
     district["mean_priority_score"] = district["mean_priority_score"].round(2)
     district = district.sort_values(
