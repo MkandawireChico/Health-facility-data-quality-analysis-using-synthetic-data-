@@ -279,7 +279,7 @@ monitoring code does not use synthetic ground-truth labels.
 The Streamlit app now includes an **Expanded platform** tab. Upload a staged
 multi-year reporting CSV to view monthly issue trends, facility follow-up rates,
 programme/indicator profiles, MAD/IQR peer anomalies and retrospective monthly
-issue-rate monitoring. If synthetic ground-truth labels are present, the page
+issue-rate monitoring with a denominator-aware retrospective p-chart visual. If synthetic ground-truth labels are present, the page
 also reports detector evaluation metrics; without those labels it deliberately
 does not invent precision or recall values.
 
