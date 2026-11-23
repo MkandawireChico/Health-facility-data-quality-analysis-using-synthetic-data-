@@ -16,6 +16,7 @@ from supply_chain_planning import run_supply_chain_planning
 from cold_chain_planning import run_cold_chain_planning
 from equipment_maintenance import run_equipment_maintenance
 from infrastructure_reliability import run_infrastructure_planning
+from workforce_planning import run_workforce_planning
 
 
 def build_platform(
@@ -64,6 +65,9 @@ def build_platform(
     infrastructure_report = run_infrastructure_planning(
         facility_path, analytics_dir, periods=periods, start_month=start_month,
         seed=seed, equipment_monthly_path=analytics_dir / "facility_equipment_monthly_summary.csv",
+    )
+    workforce_report = run_workforce_planning(
+        facility_path, analytics_dir, periods=periods, start_month=start_month, seed=seed,
     )
 
     if manifest["actual_record_count"] != generator.expected_record_count:
@@ -115,6 +119,12 @@ def build_platform(
         "infrastructure_latest_mean_resilience_score": infrastructure_report["latest_mean_resilience_score"],
         "infrastructure_equipment_association_months": infrastructure_report["equipment_association_facility_months"],
         "infrastructure_assumptions": infrastructure_report["limitations"],
+        "workforce_facility_month_records": workforce_report["facility_month_records"],
+        "workforce_latest_mean_coverage_pct": workforce_report["latest_mean_coverage_pct"],
+        "workforce_latest_high_risk_facilities": workforce_report["latest_high_review_priority_facilities"],
+        "workforce_baseline_vacancies": workforce_report["total_baseline_vacancies"],
+        "workforce_funded_recruitment_positions": workforce_report["funded_recruitment_positions"],
+        "workforce_assumptions": workforce_report["limitations"],
         "months_monitored": statistical_report["months_monitored"],
         "ground_truth_used_for_operational_monitoring": False,
         "outputs": {
@@ -161,6 +171,11 @@ def build_platform(
             "equipment_infrastructure_association": str(analytics_dir / "equipment_infrastructure_association.csv"),
             "infrastructure_upgrade_scenarios": str(analytics_dir / "infrastructure_upgrade_scenarios.csv"),
             "infrastructure_planning_report": str(analytics_dir / "infrastructure_planning_report.json"),
+            "workforce_establishment": str(analytics_dir / "facility_workforce_establishment.csv"),
+            "monthly_workforce_capacity": str(analytics_dir / "facility_monthly_workforce_capacity.csv"),
+            "latest_workforce_capacity": str(analytics_dir / "facility_latest_workforce_capacity.csv"),
+            "workforce_recruitment_scenario": str(analytics_dir / "workforce_recruitment_scenario.csv"),
+            "workforce_planning_report": str(analytics_dir / "workforce_planning_report.json"),
         },
     }
     (output_dir / "platform_build_summary.json").write_text(json.dumps(summary, indent=2))
