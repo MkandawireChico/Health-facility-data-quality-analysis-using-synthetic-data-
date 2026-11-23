@@ -4,7 +4,7 @@ let
         [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]
     ),
     Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
-    Types = Table.TransformColumnTypes(Headers, {
+    Types = Table.TransformColumnTypes(OperationalOnly, {
         {"Record_ID", type text}, {"Facility_ID", type text},
         {"Month", type date}, {"District", type text},
         {"Programme", type text}, {"Indicator", type text},
