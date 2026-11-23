@@ -122,7 +122,23 @@ Interactions:
 - Do not use FactDetectorEvaluation to filter operational issue rates or facility rankings.
 - Explain that injected defects are controlled and may be easier to detect than real reporting problems.
 
-## Optional page 7 — Facility detail
+## Page 7 — Target attainment
+
+**Decision question:** Which facility, district and programme-indicator combinations are below their illustrative targets, and is the reporting evidence sufficient?
+
+Layout:
+- Facility-indicator combinations below 80% of target, with valid record counts and data percentage.
+- District comparison by the same programme-indicator pair.
+- Monthly attainment trends by programme and indicator.
+- A table showing reported totals, target totals, attainment percentage and performance band.
+
+Interactions:
+- Filter by programme and indicator before comparing facilities or districts.
+- Do not combine unrelated indicators into a single facility score.
+- Treat 80% as an illustrative review band, not an official service standard.
+- Do not describe these ratios as population coverage or unique people served.
+
+## Optional page 8 — Facility detail
 
 Only add this page if the report remains readable:
 - facility profile and synthetic catchment attributes;
