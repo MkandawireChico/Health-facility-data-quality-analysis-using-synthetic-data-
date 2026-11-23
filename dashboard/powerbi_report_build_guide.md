@@ -227,6 +227,25 @@ Interpretation:
 
 ## Companion Streamlit analysis export
 
-The Expanded Platform workspace provides a ZIP handover package alongside its individual CSV downloads. The package contains the management summary JSON, monthly quality trends, facility benchmark, programme/indicator profile, district and district-month profiles, statistical peer anomalies, monthly issue-control output, target-attainment facts, resource-capacity/allocation scenario tables, commodity stock ledger and replenishment worklist, cold-chain temperature monitoring, batch ledger and expiry-risk summary. Detector evaluation metrics are included only when synthetic ground-truth labels are present. The summary carries an explicit synthetic-data disclaimer and records whether synthetic evaluation was performed.
+The Expanded Platform workspace provides a ZIP handover package alongside its individual CSV downloads. The package contains the management summary JSON, monthly quality trends, facility benchmark, programme/indicator profile, district and district-month profiles, statistical peer anomalies, monthly issue-control output, target-attainment facts, resource-capacity/allocation scenario tables, commodity stock ledger and replenishment worklist, cold-chain temperature monitoring, batch ledger and expiry-risk summary, equipment asset register, asset-month performance, facility-month equipment summary, maintenance work orders and latest asset-risk snapshot. Detector evaluation metrics are included only when synthetic ground-truth labels are present. The summary carries an explicit synthetic-data disclaimer and records whether synthetic evaluation was performed.
 
 The guide does not substitute for a completed Power BI Desktop refresh and visual review.
+
+
+## Page 11 — Equipment maintenance and uptime intelligence
+
+**Decision question:** Which synthetic assets have the greatest simulated downtime exposure, overdue preventive maintenance or elevated lifecycle risk?
+
+Layout:
+- KPI strip: registered assets, mean operational uptime, high-risk assets and latest-month open work orders.
+- Monthly trend for operational uptime and service availability, clearly distinguishing planned from unplanned downtime.
+- Preventive-maintenance completion trend.
+- High-priority asset review table with facility, equipment type, criticality, age, breakdown downtime, condition score and risk band.
+- Work-order queue showing preventive/corrective type, priority, status, due date, downtime and abstract cost credits.
+- Asset register and asset-month performance drill-through.
+
+Interpretation:
+- All asset records and events are synthetic. The equipment mix does not describe actual facility holdings.
+- Expected asset lives, failure probabilities, PM intervals, criticality and risk weights are modelling assumptions, not engineering standards or manufacturer recommendations.
+- Service availability excludes planned maintenance downtime; operational uptime includes it.
+- Abstract maintenance credits are not MWK. The metrics are not verified clinical service availability or a maintenance instruction.
