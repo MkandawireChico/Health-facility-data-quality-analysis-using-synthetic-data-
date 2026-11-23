@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import hashlib
 import os
 import sys
 
@@ -293,28 +294,45 @@ with tabs[3]:
 
 with tabs[4]:
     st.subheader("Corrective action register")
-    st.write("Assign an owner, record the next action, and track the status of each flagged record.")
+    st.write("Assign accountability, document root causes, track due dates and retain a field-level change history.")
+
+    database_path = os.getenv(
+        "HEALTH_DATA_ACTION_DB",
+        str(ROOT / "data" / "warehouse" / "corrective_actions.sqlite"),
+    )
+    try:
+        action_store = ActionRegisterStore(database_path)
+        persisted_actions = action_store.get_actions()
+    except Exception as exc:
+        action_store = None
+        persisted_actions = st.session_state.get("action_register", {})
+        st.warning(
+            f"SQLite persistence is unavailable: {exc}. Changes will remain in this browser session only."
+        )
+
     flagged_rows = filtered[filtered["Requires_Follow_Up"]].copy()
-    if flagged_rows.empty:
-        st.success("No flagged records in the current selection.")
-    else:
-        database_path = os.getenv("HEALTH_DATA_ACTION_DB", str(ROOT / "data" / "warehouse" / "corrective_actions.sqlite"))
-        try:
-            action_store = ActionRegisterStore(database_path)
-            persisted_actions = action_store.get_actions()
-        except Exception as exc:
-            action_store = None
-            persisted_actions = {}
-            st.warning(f"SQLite action persistence is unavailable in this environment: {exc}. Session-only editing remains available.")
+    if not flagged_rows.empty:
         key_cols = ["Facility", "Month", "Programme", "Indicator"]
-        flagged_rows["Record_ID"] = flagged_rows[key_cols].astype(str).agg("|".join, axis=1)
-        flagged_rows["Record_ID"] += "|" + flagged_rows.index.astype(str)
-        if "action_register" not in st.session_state:
-            st.session_state.action_register = {}
+        record_ids = []
+        for _, row in flagged_rows.iterrows():
+            month_key = (
+                pd.Timestamp(row["Month"]).strftime("%Y-%m-%d")
+                if pd.notna(row["Month"]) else ""
+            )
+            identity = "||".join([
+                source_name,
+                str(row["Facility"]),
+                month_key,
+                str(row["Programme"]),
+                str(row["Indicator"]),
+            ])
+            record_ids.append("ACT-" + hashlib.sha256(identity.encode("utf-8")).hexdigest()[:20])
+        flagged_rows["Record_ID"] = record_ids
+
         action_rows = []
         for _, row in flagged_rows.iterrows():
             rid = row["Record_ID"]
-            saved = st.session_state.action_register.get(rid, persisted_actions.get(rid, {}))
+            saved = persisted_actions.get(rid, {})
             action_rows.append({
                 "Record_ID": rid,
                 "Facility": row["Facility"],
@@ -334,12 +352,21 @@ with tabs[4]:
             action_df,
             use_container_width=True,
             hide_index=True,
-            disabled=["Record_ID", "Facility", "Month", "Programme", "Indicator", "Primary issue", "Issue count"],
+            disabled=[
+                "Record_ID", "Facility", "Month", "Programme", "Indicator",
+                "Primary issue", "Issue count",
+            ],
             column_config={
-                "Status": st.column_config.SelectboxColumn("Status", options=["Open", "In progress", "Resolved", "Escalated"], required=True),
+                "Status": st.column_config.SelectboxColumn(
+                    "Status",
+                    options=["Open", "In progress", "Resolved", "Escalated"],
+                    required=True,
+                ),
                 "Assigned owner": st.column_config.TextColumn("Assigned owner"),
                 "Root cause": st.column_config.TextColumn("Root cause", width="medium"),
-                "Corrective action / notes": st.column_config.TextColumn("Corrective action / notes", width="large"),
+                "Corrective action / notes": st.column_config.TextColumn(
+                    "Corrective action / notes", width="large"
+                ),
                 "Due date": st.column_config.TextColumn("Due date (YYYY-MM-DD)"),
             },
             key="action_editor",
@@ -351,38 +378,69 @@ with tabs[4]:
                     f"SQLite save: {save_result['inserted']:,} new · "
                     f"{save_result['updated']:,} updated · {save_result['unchanged']:,} unchanged"
                 )
+                persisted_actions = action_store.get_actions()
             except Exception as exc:
-                st.warning(f"Could not save the action register to SQLite: {exc}")
-        st.session_state.action_register = {
-            row["Record_ID"]: {
-                "Status": row["Status"],
-                "Assigned owner": row["Assigned owner"],
-                "Root cause": row["Root cause"],
-                "Corrective action / notes": row["Corrective action / notes"],
-                "Due date": row["Due date"],
+                st.warning(f"Could not save action changes: {exc}")
+        else:
+            st.session_state["action_register"] = {
+                row["Record_ID"]: {
+                    "Status": row["Status"],
+                    "Assigned owner": row["Assigned owner"],
+                    "Root cause": row["Root cause"],
+                    "Corrective action / notes": row["Corrective action / notes"],
+                    "Due date": row["Due date"],
+                }
+                for _, row in edited.iterrows()
             }
-            for _, row in edited.iterrows()
-        }
-        a, b, c = st.columns(3)
-        a.metric("Open", int((edited["Status"] == "Open").sum()))
-        b.metric("In progress", int((edited["Status"] == "In progress").sum()))
-        c.metric("Resolved", int((edited["Status"] == "Resolved").sum()))
+            persisted_actions = st.session_state["action_register"]
+    else:
+        st.info("There are no new follow-up records in the current filter selection. Previously saved actions remain available below.")
+
+    if persisted_actions:
+        all_action_rows = [
+            {"Record_ID": record_id, **fields}
+            for record_id, fields in persisted_actions.items()
+        ]
+        all_actions_df = pd.DataFrame(all_action_rows)
+        today = pd.Timestamp.now().normalize()
+        due_dates = pd.to_datetime(all_actions_df["Due date"], errors="coerce")
+        unresolved = ~all_actions_df["Status"].eq("Resolved")
+        overdue = unresolved & due_dates.notna() & due_dates.lt(today)
+
+        st.markdown("**Action portfolio**")
+        k1, k2, k3, k4, k5 = st.columns(5)
+        k1.metric("Total actions", f"{len(all_actions_df):,}")
+        k2.metric("Open", int(all_actions_df["Status"].eq("Open").sum()))
+        k3.metric("In progress", int(all_actions_df["Status"].eq("In progress").sum()))
+        k4.metric("Resolved", int(all_actions_df["Status"].eq("Resolved").sum()))
+        k5.metric("Overdue", int(overdue.sum()))
+
+        st.dataframe(
+            all_actions_df.sort_values(
+                ["Status", "Due date"], na_position="last"
+            ),
+            use_container_width=True,
+            hide_index=True,
+        )
         st.download_button(
-            "Download corrective action register",
-            data=edited.to_csv(index=False).encode("utf-8"),
+            "Download complete corrective action register",
+            data=all_actions_df.to_csv(index=False).encode("utf-8"),
             file_name="health_facility_corrective_action_register.csv",
             mime="text/csv",
+            key="download_complete_action_register",
         )
+
         if action_store is not None:
             st.caption(
-                f"Actions are persisted locally in SQLite at {database_path}. "
-                "Set HEALTH_DATA_ACTION_DB to change the path. Streamlit Community Cloud "
-                "storage is ephemeral and is not a shared multi-user database; download regular backups."
+                f"Local SQLite database: {database_path}. Actions and field-level history persist "
+                "on a persistent local filesystem. Streamlit Community Cloud storage is ephemeral "
+                "and is not a shared multi-user database; export regular backups."
             )
             with st.expander("Action audit history"):
-                history_options = edited["Record_ID"].head(500).tolist()
                 selected_history_id = st.selectbox(
-                    "Record to inspect", history_options, key="action_history_record"
+                    "Record to inspect",
+                    list(persisted_actions.keys()),
+                    key="action_history_record",
                 )
                 history = action_store.history(selected_history_id)
                 if history.empty:
@@ -390,10 +448,9 @@ with tabs[4]:
                 else:
                     st.dataframe(history, use_container_width=True, hide_index=True)
         else:
-            st.caption(
-                "Action assignments are session-scoped because local SQLite persistence is unavailable. "
-                "Download the register to preserve the work."
-            )
+            st.caption("Action assignments are session-scoped because SQLite is unavailable.")
+    else:
+        st.info("The action register is currently empty. Flagged records will appear here when they require follow-up.")
 
 with tabs[5]:
     st.subheader("Data intake and quality assurance")
@@ -487,12 +544,13 @@ with tabs[6]:
                 if missing_platform:
                     st.error("This is not a staged platform extract. Missing columns: " + ", ".join(missing_platform))
                 else:
-                    from quality_analytics import add_operational_predictions, build_operational_profiles, evaluate_detectors
+                    from quality_analytics import add_operational_predictions, build_operational_profiles, build_district_profiles, evaluate_detectors
                     from statistical_monitoring import detect_peer_anomalies, build_monthly_control_chart
 
                     with st.spinner("Running peer anomaly detection and longitudinal monitoring..."):
                         predicted = add_operational_predictions(platform_data)
                         monthly, facility_profile, programme_profile = build_operational_profiles(platform_data)
+                        district_profile, district_monthly = build_district_profiles(platform_data)
                         peer = detect_peer_anomalies(platform_data)
                         control = build_monthly_control_chart(platform_data)
                         metrics = None
@@ -516,6 +574,8 @@ with tabs[6]:
                             "monthly": monthly,
                             "facility": facility_profile,
                             "programme": programme_profile,
+                            "district": district_profile,
+                            "district_monthly": district_monthly,
                             "control": control,
                             "metrics": metrics,
                             "synthetic_truth_available": metrics is not None,
@@ -552,6 +612,66 @@ with tabs[6]:
                    labels={"detected_issue_rate_pct": "Detected issue rate (%)"}),
             use_container_width=True,
         )
+        st.markdown("**District performance and data-quality intelligence**")
+        st.caption(
+            "District labels are geographic context for this synthetic portfolio. "
+            "These generated metrics do not represent actual district or Ministry of Health performance."
+        )
+        district_profile = result["district"].copy()
+        district_monthly = result["district_monthly"].copy()
+        if not district_profile.empty:
+            district_left, district_right = st.columns(2)
+            district_left.plotly_chart(
+                px.bar(
+                    district_profile.sort_values("detected_issue_rate_pct"),
+                    x="detected_issue_rate_pct",
+                    y="District",
+                    orientation="h",
+                    title="Detected issue rate by district",
+                    labels={"detected_issue_rate_pct": "Detected issue rate (%)"},
+                ),
+                use_container_width=True,
+            )
+            district_right.plotly_chart(
+                px.bar(
+                    district_profile.sort_values("records"),
+                    x="records",
+                    y="District",
+                    orientation="h",
+                    title="Reporting volume by district",
+                    labels={"records": "Facility-month-indicator records"},
+                ),
+                use_container_width=True,
+            )
+            st.dataframe(district_profile, use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download district quality benchmark",
+                data=district_profile.to_csv(index=False).encode("utf-8"),
+                file_name="district_quality_benchmark.csv",
+                mime="text/csv",
+                key="download_district_quality_benchmark",
+            )
+        if not district_monthly.empty:
+            st.plotly_chart(
+                px.line(
+                    district_monthly,
+                    x="Month",
+                    y="detected_issue_rate_pct",
+                    color="District",
+                    markers=True,
+                    title="Monthly quality issue trends by district",
+                    labels={"detected_issue_rate_pct": "Detected issue rate (%)"},
+                ),
+                use_container_width=True,
+            )
+            st.download_button(
+                "Download district monthly trends",
+                data=district_monthly.to_csv(index=False).encode("utf-8"),
+                file_name="district_monthly_quality_trends.csv",
+                mime="text/csv",
+                key="download_district_monthly_trends",
+            )
+
         st.markdown("**Programme and indicator quality profile**")
         st.dataframe(result["programme"], use_container_width=True, hide_index=True)
         st.markdown("**Statistical peer anomalies**")
