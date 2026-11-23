@@ -49,6 +49,9 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | FactReporting | Facility × month × programme × indicator | Reported value, target, submission dates, ETL quality flags |
 | FactSourceObservation | Record × source | Normalized paper, EMR and DHIS2 source values for reconciliation |
 | FactDetectorEvaluation | Defect × evaluation run | Synthetic-only precision, recall, F1 and confusion counts |
+| FactFacilityIndicatorAttainment | Facility × programme × indicator | Pooled reported-to-target attainment by comparable indicator |
+| FactDistrictIndicatorAttainment | District × programme × indicator | District comparison at comparable indicator grain |
+| FactMonthlyIndicatorAttainment | Month × programme × indicator | Monthly target-attainment trend by indicator |
 | FactMonthlyQualityTrend | Month | Operational issue volumes and rates |
 | FactPeerAnomaly | Anomalous reporting record | Statistical review queue and peer score |
 | FactFacilityIndicatorAttainment | Facility × programme × indicator | Pooled reported-to-target attainment by comparable indicator |
