@@ -60,8 +60,12 @@ def build_executive_management_briefing(
     priority["Integrated_Priority_Rank"] = pd.to_numeric(
         priority["Integrated_Priority_Rank"], errors="coerce"
     )
-    if priority["Integrated_Priority_Rank"].isna().any():
-        raise ValueError("Priority register contains invalid ranks")
+    if (
+        priority["Integrated_Priority_Rank"].isna().any()
+        or priority["Integrated_Priority_Rank"].lt(1).any()
+        or priority["Integrated_Priority_Rank"].duplicated().any()
+    ):
+        raise ValueError("Priority register contains invalid or duplicate ranks")
     expected_score = priority[list(COMPONENTS.values())].mean(axis=1).round(2)
     score_difference = (
         expected_score - priority["Integrated_Priority_Score"].round(2)
