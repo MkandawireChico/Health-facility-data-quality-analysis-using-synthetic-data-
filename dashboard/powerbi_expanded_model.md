@@ -40,7 +40,7 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | DimDate | One row per calendar month | MonthStart, Year, Quarter, MonthNumber, MonthName |
 | DimIndicator | One row per programme-indicator pair | Indicator_Key, Programme, Indicator |
 | DimDistrict | One row per district label | District |
-| DimSource | One row per reporting source | Source |
+| DimSource | One row per reporting source | Source |\n| DimCommodity | One row per illustrative commodity | Commodity_ID, Commodity, Programme, Unit |
 
 ### Facts
 
@@ -54,7 +54,7 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | FactMonthlyIndicatorAttainment | Month × programme × indicator | Monthly target-attainment trend by indicator |
 | FactProgrammeIndicatorAttainment | Programme × indicator | Overall comparable indicator attainment profile |
 | FactMonthlyQualityTrend | Month | Operational issue volumes and rates |
-| FactPeerAnomaly | Anomalous reporting record | Statistical review queue and peer score |
+| FactPeerAnomaly | Anomalous reporting record | Statistical review queue and peer score |\n| FactFacilityCommodityStock | Facility × commodity × month | Synthetic opening stock, receipts, demand, unmet demand and stockout estimates |\n| FactCommodityReplenishmentPlan | Facility × commodity snapshot | Requested, funded and unfunded replenishment units under an abstract budget |
 
 ### Relationships
 
@@ -96,7 +96,7 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 4. **Source reconciliation** — source value distributions, absolute spread and source review queue.
 5. **Statistical monitoring** — MAD/IQR peer anomalies and retrospective monthly issue-rate limits. Signals are review prompts, not proof of error.
 6. **Detector governance** — precision, recall, F1 and confusion counts on synthetic injected defects; display a persistent synthetic-evaluation disclaimer.
-7. **Target attainment** — facility, district and monthly reported-to-target attainment by programme-indicator pair; show valid-record denominators and under-target review bands.\n8. **Resource allocation scenarios** — compare synthetic capacity gaps and three constrained allocation heuristics; keep assumptions and limitations visible.
+7. **Target attainment** — facility, district and monthly reported-to-target attainment by programme-indicator pair; show valid-record denominators and under-target review bands.\n8. **Resource allocation scenarios** — compare synthetic capacity gaps and three constrained allocation heuristics; keep assumptions and limitations visible.\n9. **Commodity availability and replenishment** — monitor synthetic stockouts, unmet demand, days of cover and budget-constrained replenishment.
 
 ## Build instructions
 
