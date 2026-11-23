@@ -378,6 +378,22 @@ reporting volume and monthly trends, with CSV exports. District names are
 geographic labels for a synthetic scenario and do not represent actual
 district or Ministry of Health performance.
 
+### Target attainment and programme performance
+
+The new `src/target_attainment.py` layer calculates pooled reported-to-target
+attainment at facility-indicator, district-indicator, programme-indicator and
+month-indicator grain. Values are compared only within the same programme and
+indicator; the platform does not aggregate unlike service indicators into a
+single facility score. Missing/invalid months, missing or negative reported
+values, and missing/non-positive targets are excluded from both numerator and
+denominator, with valid-data percentages retained. Illustrative review bands
+are below 80%, 80–99.9%, and at/above 100%; they are not official Malawi service
+standards. These outputs are not population coverage or unique people served.
+The Streamlit Expanded Platform now includes under-target facility-indicator
+review, district comparisons, monthly indicator trends and CSV/ZIP exports.
+Power BI query templates are provided for facility, district and monthly
+attainment facts. All underlying records and targets remain synthetic.
+
 ### Corrective action workflow improvements
 
 Corrective action IDs are now stable across dataframe sorting and filter
