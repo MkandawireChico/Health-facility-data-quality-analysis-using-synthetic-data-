@@ -116,3 +116,9 @@ def test_district_profiles_are_volume_normalised_and_ground_truth_free():
 def test_district_profile_rejects_missing_dimensions():
     with pytest.raises(ValueError, match="district dimensions"):
         build_district_profiles(analytics_fixture().drop(columns=["District"]))
+
+def test_operational_profiles_reject_missing_facility_label():
+    data = analytics_fixture().drop(columns=["Facility"])
+    with pytest.raises(ValueError, match="Facility"):
+        build_operational_profiles(data)
+\n
