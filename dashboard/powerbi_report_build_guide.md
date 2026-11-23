@@ -2,7 +2,7 @@
 
 ## Status and intended use
 
-This guide is the implementation specification for the expanded six-page Power BI report. It complements the semantic-model, Power Query and DAX files in this folder. The existing PBIX is still the original 960-record report; the expanded 288,000-record report must be assembled and saved in Power BI Desktop. No expanded PBIX or new screenshots are claimed by this guide.
+This guide is the implementation specification for the expanded seven-page Power BI report. It complements the semantic-model, Power Query and DAX files in this folder. The existing PBIX is still the original 960-record report; the expanded 288,000-record report must be assembled and saved in Power BI Desktop. No expanded PBIX or new screenshots are claimed by this guide.
 
 The full cohort is synthetic. Display a visible banner on every page:
 
@@ -14,7 +14,7 @@ Import `dashboard/powerbi_theme.json` through View → Themes → Browse for the
 
 - Canvas: 16:9 widescreen; suggested working page size 1280 × 720.
 - Header: report title, page subtitle and synthetic-data banner.
-- Left navigation rail: six clearly labelled page buttons using page-navigation bookmarks.
+- Left navigation rail: seven clearly labelled page buttons using page-navigation bookmarks.
 - Global slicers: reporting year/month, district, programme and indicator.
 - Keep facility selection on pages where it is meaningful; avoid applying facility filters to district aggregate facts unless the filter path is explicitly designed.
 - Add a visible Reset filters bookmark on every page.
