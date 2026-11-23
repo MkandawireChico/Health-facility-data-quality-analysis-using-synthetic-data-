@@ -45,7 +45,12 @@ def _validate_facilities(facilities: pd.DataFrame) -> pd.DataFrame:
         raise ValueError("Facility_ID values must be unique")
     for column in ["Facility_Name", "District", "Facility_Type", "Urban_Rural"]:
         result[column] = result[column].fillna("Unknown").astype(str).str.strip()
-    result["Catchment_Population"] = pd.to_numeric(result["Catchment_Population"], errors="coerce").fillna(0).clip(lower=0)
+    result["Catchment_Population"] = pd.to_numeric(result["Catchment_Population"], errors="coerce")
+    population = result["Catchment_Population"]
+    if population.isna().any() or not np.isfinite(population.to_numpy(dtype=float)).all():
+        raise ValueError("Catchment_Population must contain finite numeric values")
+    if population.lt(0).any():
+        raise ValueError("Catchment_Population must contain non-negative numeric values")
     return result
 
 
