@@ -345,11 +345,19 @@ DIVIDE (
     [Equipment Preventive Maintenance Due]
 ) * 100
 
-Equipment Open Work Orders =
-CALCULATE (
-    COUNTROWS ( FactEquipmentMaintenanceWorkOrders ),
-    FactEquipmentMaintenanceWorkOrders[Status] <> "Closed"
-)
+Equipment Open Work Orders Latest Month =
+VAR LatestWorkOrderMonth =
+    CALCULATE (
+        MAX ( FactEquipmentMaintenanceWorkOrders[Month] ),
+        REMOVEFILTERS ( DimDate )
+    )
+RETURN
+    CALCULATE (
+        COUNTROWS ( FactEquipmentMaintenanceWorkOrders ),
+        REMOVEFILTERS ( DimDate ),
+        FactEquipmentMaintenanceWorkOrders[Month] = LatestWorkOrderMonth,
+        FactEquipmentMaintenanceWorkOrders[Status] <> "Closed"
+    )
 
 Equipment Maintenance Cost Credits =
 SUM ( FactEquipmentAssetMonthly[Maintenance_Cost_Credits] )
