@@ -122,8 +122,11 @@ def build_monthly_control_chart(data: pd.DataFrame, min_baseline_months: int = 6
         work[col] = _as_bool(work[col])
     reported = pd.to_numeric(work["Reported_Value"], errors="coerce")
     target = pd.to_numeric(work["Target_Value"], errors="coerce")
+    finite_reported = pd.Series(np.isfinite(reported.to_numpy(dtype=float)), index=work.index)
+    finite_target = pd.Series(np.isfinite(target.to_numpy(dtype=float)), index=work.index)
+    valid_comparison = finite_reported & finite_target & target.gt(0)
     work["Operational_Detected_Outlier"] = (
-        (reported / target.where(target.gt(0))).gt(1.5).fillna(False)
+        (reported / target.where(valid_comparison)).gt(1.5).fillna(False)
     )
     issue_cols = flag_cols + ["Operational_Detected_Outlier"]
     work["Any_Detected_Issue"] = work[issue_cols].any(axis=1)
