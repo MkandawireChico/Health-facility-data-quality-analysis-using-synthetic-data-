@@ -31,6 +31,8 @@ def test_small_end_to_end_platform_build(tmp_path):
         "analytics/monthly_quality_trends.csv",
         "analytics/facility_quality_benchmark.csv",
         "analytics/programme_indicator_quality_profile.csv",
+        "analytics/district_quality_profile.csv",
+        "analytics/district_monthly_quality_trends.csv",
         "analytics/statistical_peer_anomalies.csv",
         "analytics/monthly_issue_control_chart.csv",
         "platform_build_summary.json",
