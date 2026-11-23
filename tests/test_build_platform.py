@@ -49,6 +49,11 @@ def test_small_end_to_end_platform_build(tmp_path):
         "analytics/commodity_replenishment_plan.csv",
         "analytics/commodity_replenishment_summary.csv",
         "analytics/supply_chain_planning_report.json",
+        "analytics/cold_chain_catalog.csv",
+        "analytics/facility_cold_chain_temperature_monitoring.csv",
+        "analytics/facility_commodity_batch_ledger.csv",
+        "analytics/cold_chain_expiry_risk_summary.csv",
+        "analytics/cold_chain_planning_report.json",
         "platform_build_summary.json",
     ]
     for relative in expected_files:
