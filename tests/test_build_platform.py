@@ -591,11 +591,11 @@ def test_integrated_facility_priority_register_ranks_cross_domain_pressures(tmp_
     supply = pd.DataFrame([
         {"Facility_ID": "F1", "Facility_Name": "Alpha", "District": "North",
          "Supply_Review_Flag": False, "Stockout_Commodity_Pairs": 0,
-         "High_Cold_Chain_Risk_Pairs": 0, "Near_Expiry_90_Day_Units": 0,
+         "High_Cold_Chain_Risk_Pairs": 0, "Data_Gap_Cold_Chain_Pairs": 0, "Near_Expiry_90_Day_Units": 0,
          "Temperature_Excursion_Days": 0},
         {"Facility_ID": "F2", "Facility_Name": "Beta", "District": "South",
          "Supply_Review_Flag": True, "Stockout_Commodity_Pairs": 2,
-         "High_Cold_Chain_Risk_Pairs": 1, "Near_Expiry_90_Day_Units": 5,
+         "High_Cold_Chain_Risk_Pairs": 1, "Data_Gap_Cold_Chain_Pairs": 0, "Near_Expiry_90_Day_Units": 5,
          "Temperature_Excursion_Days": 2},
     ])
     quality = pd.DataFrame([
@@ -638,7 +638,7 @@ def test_integrated_facility_priority_register_rejects_domain_population_drift(t
         "Infrastructure_Resilience_Score": 90, "Workforce_Coverage_Pct": 90,
         "Operational_Review_Flag": False, "Operational_Review_Domains": "none"}])
     supply = pd.DataFrame([{**base, "Supply_Review_Flag": False,
-        "Stockout_Commodity_Pairs": 0, "High_Cold_Chain_Risk_Pairs": 0,
+        "Stockout_Commodity_Pairs": 0, "High_Cold_Chain_Risk_Pairs": 0, "Data_Gap_Cold_Chain_Pairs": 0,
         "Near_Expiry_90_Day_Units": 0, "Temperature_Excursion_Days": 0}])
     quality = pd.DataFrame([{**base, "records": 10, "detected_issue_records": 0,
         "detected_issue_rate_pct": 0, "missing_records": 0,
@@ -651,3 +651,24 @@ def test_integrated_facility_priority_register_rejects_domain_population_drift(t
         _build_integrated_facility_priority(
             facilities, operational, supply, quality, resource, tmp_path
         )
+
+
+def test_supply_cold_chain_resilience_view_flags_explicit_temperature_data_gaps(tmp_path):
+    import pandas as pd
+    from build_platform import _build_supply_cold_chain_resilience_view
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1"]})
+    base = {"Facility_ID": "F1", "Facility_Name": "Alpha", "District": "North",
+        "Month": "2024-01-01"}
+    stock = pd.DataFrame([{**base, "Commodity_ID": "COM-001", "Demand_Units": 10,
+        "Unmet_Demand_Units": 0, "Closing_Stock_Units": 5, "Stockout_Days": 0,
+        "Stockout_Flag": False}])
+    cold = pd.DataFrame([{**base, "Commodity_ID": "CC-001", "Expired_Units": 0,
+        "Near_Expiry_90_Day_Units": 0, "Temperature_Excursion_Days": 0,
+        "Cold_Chain_Risk_Score": float("nan"), "Risk_Band": "Data Gap"}])
+
+    result = _build_supply_cold_chain_resilience_view(facilities, stock, cold, tmp_path)
+    latest = pd.read_csv(tmp_path / "facility_latest_supply_cold_chain_resilience.csv")
+    assert result["latest_supply_review_facilities"] == 1
+    assert latest.loc[0, "Data_Gap_Cold_Chain_Pairs"] == 1
+    assert bool(latest.loc[0, "Supply_Review_Flag"])
