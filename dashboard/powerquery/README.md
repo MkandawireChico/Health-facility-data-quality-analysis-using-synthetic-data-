@@ -50,9 +50,6 @@ Load these queries:
 - FactDistrictIndicatorAttainment
 - FactMonthlyIndicatorAttainment
 - FactProgrammeIndicatorAttainment
-- FactFacilityIndicatorAttainment
-- FactDistrictIndicatorAttainment
-- FactMonthlyIndicatorAttainment
 
 FactSourceObservation and DimIndicator reference the FactReporting query, so create FactReporting first. The other query creation order is flexible after FactReporting and DimFacility exist.
 
@@ -62,7 +59,7 @@ FactSourceObservation and DimIndicator reference the FactReporting query, so cre
 - FactPeerAnomaly also removes all Ground_Truth_* columns and retains only statistically flagged rows.
 - FactDetectorEvaluation is a separate aggregate governance table containing synthetic-label evaluation metrics. It must not filter operational facts.
 - FactDistrictProfile and FactDistrictMonthlyTrend are separate aggregates. Use DimDistrict (defined in dashboard/dax/dimension_tables.dax) to filter those district facts and DimFacility.
-- Target-attainment facts retain programme-indicator grain. Connect FactFacilityIndicatorAttainment to DimFacility and DimIndicator; FactDistrictIndicatorAttainment to DimDistrict and DimIndicator; and FactMonthlyIndicatorAttainment to DimDate and DimIndicator.
+- Target-attainment facts retain programme-indicator grain. Connect FactFacilityIndicatorAttainment to DimFacility and DimIndicator; FactDistrictIndicatorAttainment to DimDistrict and DimIndicator; FactMonthlyIndicatorAttainment to DimDate and DimIndicator; and FactProgrammeIndicatorAttainment to DimIndicator.
 - Attainment is pooled reported value divided by pooled target for the same indicator. It is not population coverage or unique people served.
 - Do not create direct fact-to-fact relationships.
 - Use single-direction one-to-many relationships from dimensions to facts.
