@@ -228,9 +228,9 @@ def _validate_operational_planning_population(
         actual_ids = set(frame["Facility_ID"].astype(str))
         if actual_ids != expected_ids:
             raise RuntimeError(f"{label} facility population does not match canonical dimension")
-        actual = frame.set_index("Facility_ID")[["Facility_Name", "District"]]
+        actual = frame.set_index("Facility_ID")[["Facility_Name", "District"]].sort_index()
         for column in ["Facility_Name", "District"]:
-            if not actual[column].astype(str).equals(metadata[column].astype(str)):
+            if not actual[column].astype(str).equals(metadata[column].astype(str).sort_index()):
                 raise RuntimeError(f"{label} {column} values do not match canonical dimension")
 
     if not {"Facility_ID", "Scenario"}.issubset(resource_scenarios.columns):
