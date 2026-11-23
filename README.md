@@ -15,7 +15,8 @@ The expanded default cohort models **120 synthetic facilities, six Malawi distri
 - **Statistical monitoring:** robust peer-group anomaly detection, monthly issue-rate trends and retrospective denominator-aware control limits.
 - **Programme intelligence:** indicator-specific target attainment at facility, district, programme and monthly grain, with valid-data denominators.
 - **Operational planning:** constrained resource allocation, commodity stockout and replenishment scenarios, cold-chain and batch-expiry review, equipment maintenance and uptime, infrastructure resilience, and workforce capacity scenarios.
-- **Decision support:** interactive Streamlit workspace, persistent local corrective-action register with audit history, downloadable analytical outputs, notebook analysis and a Power BI semantic-model implementation pack.
+- **Decision support:** interactive Streamlit workspace with an integrated facility priority register combining data quality, resource gaps, operational resilience and supply/cold-chain review; persistent local corrective-action register with audit history; downloadable analytical outputs; notebook analysis; and a Power BI semantic-model implementation pack.
+- **Integrated prioritisation methodology:** transparent equal-weighted synthetic screening, explicit time-scope labels, facility-population reconciliation and review-domain explanations. See [the methodology](docs/integrated_facility_priority_methodology.md).
 
 ## Baseline demonstration
 
