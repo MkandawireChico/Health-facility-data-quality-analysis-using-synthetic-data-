@@ -967,7 +967,7 @@ with tabs[6]:
                 action_performance = build_action_performance(priority_action_portfolio)
                 action_kpis = action_performance["kpis"]
                 k1, k2, k3, k4 = st.columns(4)
-                k1.metric("Resolution rate", pct(action_kpis["resolution_rate_pct"]))
+                k1.metric("Resolution rate", pct(action_kpis["resolution_rate_pct"] / 100))
                 k2.metric("Overdue unresolved", f"{action_kpis['overdue']:,}")
                 k3.metric("Escalated", f"{action_kpis['escalated']:,}")
                 k4.metric("Total tracked", f"{action_kpis['tracked']:,}")
