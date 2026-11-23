@@ -394,6 +394,8 @@ def _build_supply_cold_chain_resilience_view(facilities, stock_ledger, cold_chai
         data = frame.copy()
         if data[key + identity].isna().any().any():
             raise RuntimeError(f"{label} source contains missing facility-month identity")
+        if data["Commodity_ID"].isna().any():
+            raise RuntimeError(f"{label} source contains missing commodity identifiers")
         data["Facility_ID"] = data["Facility_ID"].astype(str).str.strip()
         for column in identity:
             data[column] = data[column].astype(str).str.strip()
