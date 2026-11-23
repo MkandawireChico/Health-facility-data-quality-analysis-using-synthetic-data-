@@ -69,6 +69,12 @@ def test_invalid_inputs_and_export_artifacts(tmp_path):
         build_workforce_profiles(sample_facilities(),periods=0)
     with pytest.raises(ValueError,match="periods"):
         build_workforce_profiles(sample_facilities(),periods=True)
+    for invalid_seed in [-1, 1.5, True, "7"]:
+        with pytest.raises(ValueError, match="seed must be a non-negative integer"):
+            build_workforce_profiles(sample_facilities(), seed=invalid_seed)
+    for invalid_start_month in ["not-a-date", "", "2024-01-01T00:00:00+02:00"]:
+        with pytest.raises(ValueError, match="start_month must be a valid timezone-naive date"):
+            build_workforce_profiles(sample_facilities(), start_month=invalid_start_month)
     with pytest.raises(ValueError,match="non-negative integer"):
         build_workforce_profiles(sample_facilities(),recruitment_budget_credits=-1)
     with pytest.raises(ValueError,match="non-negative integer"):
