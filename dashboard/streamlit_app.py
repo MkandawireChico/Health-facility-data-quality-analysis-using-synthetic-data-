@@ -362,7 +362,15 @@ with tabs[4]:
             },
             key="action_editor",
         )
-        if action_store is not None:
+        due_text = edited["Due date"].fillna("").astype(str).str.strip()
+        parsed_due = pd.to_datetime(due_text.where(due_text.ne(""), pd.NA), format="%Y-%m-%d", errors="coerce")
+        invalid_due = due_text.ne("") & parsed_due.isna()
+        if invalid_due.any():
+            st.error(
+                "Corrective action due dates must use YYYY-MM-DD. "
+                f"Invalid entries: {int(invalid_due.sum())}. No changes were saved."
+            )
+        elif action_store is not None:
             try:
                 save_result = action_store.upsert_actions(edited.to_dict(orient="records"))
                 st.caption(
