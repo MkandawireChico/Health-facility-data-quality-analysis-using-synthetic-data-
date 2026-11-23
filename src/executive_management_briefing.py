@@ -63,7 +63,10 @@ def build_executive_management_briefing(
     if priority["Integrated_Priority_Rank"].isna().any():
         raise ValueError("Priority register contains invalid ranks")
     expected_score = priority[list(COMPONENTS.values())].mean(axis=1).round(2)
-    if not expected_score.equals(priority["Integrated_Priority_Score"].round(2)):
+    score_difference = (
+        expected_score - priority["Integrated_Priority_Score"].round(2)
+    ).abs()
+    if score_difference.gt(0.01).any():
         raise ValueError("Integrated priority scores do not reconcile with component scores")
 
     actions = action_register.copy()
@@ -84,7 +87,13 @@ def build_executive_management_briefing(
             raise ValueError("Action register contains duplicate record identifiers")
         if not actions["Status"].isin(ALLOWED_STATUSES).all():
             raise ValueError("Action register contains unsupported statuses")
-        due = pd.to_datetime(actions["Due date"], errors="coerce")
+        due_text = actions["Due date"].fillna("").astype(str).str.strip()
+        due = pd.to_datetime(due_text.where(due_text.ne(""), pd.NA), errors="coerce")
+        if (due_text.ne("") & due.isna()).any():
+            raise ValueError("Action register contains invalid due dates")
+        action_month = pd.to_datetime(actions["Month"], errors="coerce")
+        if action_month.isna().any():
+            raise ValueError("Action register contains invalid reporting months")
         actions["Overdue"] = actions["Status"].ne("Resolved") & due.notna() & due.lt(reference)
 
     status_counts = actions.groupby("Facility_ID")["Status"].value_counts().unstack(fill_value=0)
