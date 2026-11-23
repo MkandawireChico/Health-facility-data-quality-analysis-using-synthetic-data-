@@ -131,3 +131,14 @@ Load `FactFacilityInfrastructureProfiles`, `FactMonthlyInfrastructureReliability
 - FactEquipmentInfrastructureAssociation is aggregated by interruption band only and has no facility/date relationship.
 - Do not create fact-to-fact relationships.
 - All utility configurations, interruptions, availability scores, upgrade assumptions and abstract credits are synthetic. See `docs/infrastructure_reliability_methodology.md`.
+
+
+## Workforce capacity and staffing model
+
+Load `FactFacilityWorkforceEstablishment`, `FactMonthlyWorkforceCapacity`, `FactLatestWorkforceCapacity` and `FactWorkforceRecruitmentScenario`.
+
+- Connect the three facility-grain facts to DimFacility using Facility_ID.
+- Connect the monthly capacity and latest snapshot facts to DimDate using Month.
+- FactWorkforceRecruitmentScenario is role-aggregate and has no facility/date key; do not connect it to facility facts.
+- Do not create fact-to-fact relationships.
+- Staffing data, role mixes, absence, overtime and workload proxies are synthetic. Role assumptions are not official staffing standards. See `docs/workforce_planning_methodology.md`.
