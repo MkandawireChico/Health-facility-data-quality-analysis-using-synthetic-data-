@@ -270,3 +270,50 @@ def test_generated_fact_grain_rejects_unknown_facility():
     ])
     with pytest.raises(RuntimeError, match="absent from the dimension"):
         _validate_generated_fact_grain(fact, facilities, 1, 1)
+
+
+def test_monthly_analytics_population_reconciles_across_all_views():
+    import pandas as pd
+    from build_platform import _validate_monthly_analytics_population
+
+    quality = pd.DataFrame({
+        "Month": ["2024-01-01", "2024-02-01"], "records": [12, 15],
+    })
+    monitoring = pd.DataFrame({
+        "Month": ["2024-01-01", "2024-02-01"], "Records": [12, 15],
+    })
+    attainment = pd.DataFrame({
+        "Month": ["2024-01-01", "2024-02-01"], "reporting_records": [12, 15],
+    })
+
+    assert _validate_monthly_analytics_population(
+        quality, monitoring, attainment
+    ) == {"months_reconciled": 2, "monthly_reporting_records": 27}
+
+
+def test_monthly_analytics_population_rejects_denominator_drift():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_monthly_analytics_population
+
+    quality = pd.DataFrame({"Month": ["2024-01-01"], "records": [12]})
+    monitoring = pd.DataFrame({"Month": ["2024-01-01"], "Records": [11]})
+    attainment = pd.DataFrame({"Month": ["2024-01-01"], "reporting_records": [12]})
+
+    with pytest.raises(RuntimeError, match="Monthly reporting population mismatch"):
+        _validate_monthly_analytics_population(quality, monitoring, attainment)
+
+
+def test_monthly_analytics_population_rejects_duplicate_month_rows():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_monthly_analytics_population
+
+    quality = pd.DataFrame({
+        "Month": ["2024-01-01", "2024-01-15"], "records": [6, 6],
+    })
+    monitoring = pd.DataFrame({"Month": ["2024-01-01"], "Records": [12]})
+    attainment = pd.DataFrame({"Month": ["2024-01-01"], "reporting_records": [12]})
+
+    with pytest.raises(RuntimeError, match="duplicate month rows"):
+        _validate_monthly_analytics_population(quality, monitoring, attainment)
