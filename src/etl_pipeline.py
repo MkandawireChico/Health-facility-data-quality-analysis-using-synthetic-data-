@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 FACT_REQUIRED = [
@@ -90,8 +91,12 @@ def stage_reporting_data(
     work["Quality_Invalid_Numeric_Count"] = 0
     work["Quality_Negative_Value_Count"] = 0
     for column in NUMERIC_FIELDS:
-        invalid = fact[column].notna().reset_index(drop=True) & work[column].isna()
-        negative = work[column].lt(0)
+        # Numeric coercion alone accepts +/- infinity; these values can poison
+        # aggregates and anomaly thresholds, so treat them as invalid inputs.
+        original_present = fact[column].notna().reset_index(drop=True)
+        finite = pd.Series(np.isfinite(work[column].to_numpy(dtype=float)), index=work.index)
+        invalid = original_present & (work[column].isna() | ~finite)
+        negative = work[column].lt(0) & finite
         work["Quality_Invalid_Numeric_Count"] += invalid.astype(int)
         work["Quality_Negative_Value_Count"] += negative.astype(int)
 
