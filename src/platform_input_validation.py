@@ -18,26 +18,13 @@ def validate_platform_extract(data: pd.DataFrame) -> list[str]:
         return ["The staged extract contains no reporting records."]
 
     missing = sorted(PLATFORM_REQUIRED_COLUMNS - set(data.columns))
-    errors = []
     if missing:
-        errors.append("Missing required columns: " + ", ".join(missing))
-        valid_months = pd.to_datetime(data["Month"], errors="coerce")
-    if valid_months.notna().sum() == 0:
-        errors.append("Month must contain at least one valid reporting period.")
+        return ["Missing required columns: " + ", ".join(missing)]
 
-    metadata_columns = ["Facility", "District", "Facility_Type", "Urban_Rural"]
-    inconsistent = []
-    for column in metadata_columns:
-        counts = data.groupby("Facility_ID", dropna=False)[column].nunique(dropna=False)
-        if counts.gt(1).any():
-            inconsistent.append(column)
-    if inconsistent:
-        errors.append(
-            "Facility_ID values map to conflicting metadata in: "
-            + ", ".join(inconsistent)
-        )
-
-    return errors
+    errors: list[str] = []
+    valid_months = pd.to_datetime(data["Month"], errors="coerce")
+    if valid_months.isna().any():
+        errors.append("Month must contain valid reporting periods for every record.")
 
     facility_dimensions = [
         "Facility_ID", "Facility", "District", "Facility_Type", "Urban_Rural",
@@ -53,11 +40,36 @@ def validate_platform_extract(data: pd.DataFrame) -> list[str]:
             + ", ".join(blank_dimensions)
         )
 
+    inconsistent = []
+    if not blank_dimensions:
+        for column in facility_dimensions[1:]:
+            counts = data.groupby("Facility_ID", dropna=False)[column].nunique(dropna=False)
+            if counts.gt(1).any():
+                inconsistent.append(column)
+    if inconsistent:
+        errors.append(
+            "Facility_ID values map to conflicting metadata in: "
+            + ", ".join(inconsistent)
+        )
+
     population = pd.to_numeric(data["Catchment_Population"], errors="coerce")
     finite_population = np.isfinite(population.to_numpy(dtype=float))
     if population.isna().any() or not finite_population.all() or population.lt(0).any():
         errors.append(
             "Catchment_Population must contain finite, non-negative numeric values."
         )
+
+    for column in ["Reported_Value", "Target_Value"]:
+        values = pd.to_numeric(data[column], errors="coerce")
+        if values.isna().any() or not np.isfinite(values.to_numpy(dtype=float)).all():
+            errors.append(f"{column} must contain finite numeric values.")
+
+    for column in [
+        "Quality_Missing_Reported_Value",
+        "Quality_Source_Discrepancy",
+        "Quality_Late_Submission",
+    ]:
+        if data[column].isna().any():
+            errors.append(f"{column} must not contain missing flags.")
 
     return errors
