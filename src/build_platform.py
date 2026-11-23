@@ -23,6 +23,55 @@ from workforce_planning import run_workforce_planning
 
 
 
+
+def _validate_generated_fact_grain(
+    fact: pd.DataFrame, facilities: pd.DataFrame, expected_records: int,
+    expected_periods: int,
+) -> dict[str, int]:
+    """Fail fast when generated facts violate the facility-month-indicator grain."""
+    key = ["Facility_ID", "Month", "Programme", "Indicator"]
+    missing = sorted(set(key) - set(fact.columns))
+    if missing:
+        raise RuntimeError(f"Generated fact is missing grain columns: {missing}")
+    if fact.empty or len(fact) != expected_records:
+        raise RuntimeError(
+            f"Generated fact row count mismatch: expected {expected_records}, got {len(fact)}"
+        )
+    if facilities.empty or facilities["Facility_ID"].isna().any():
+        raise RuntimeError("Generated facility dimension contains missing facility identifiers")
+    if facilities["Facility_ID"].duplicated().any():
+        raise RuntimeError("Generated facility dimension contains duplicate facility identifiers")
+    if fact[key].isna().any().any():
+        raise RuntimeError("Generated fact contains null natural-key values")
+    for column in ["Facility_ID", "Programme", "Indicator"]:
+        if fact[column].astype("string").str.strip().eq("").any():
+            raise RuntimeError(f"Generated fact contains blank {column} values")
+    if fact.duplicated(key).any():
+        raise RuntimeError("Generated fact contains duplicate facility-month-indicator keys")
+    if not fact["Facility_ID"].isin(facilities["Facility_ID"]).all():
+        raise RuntimeError("Generated fact references facilities absent from the dimension")
+
+    months = pd.to_datetime(fact["Month"], errors="coerce")
+    if months.isna().any():
+        raise RuntimeError("Generated fact contains invalid reporting months")
+    month_periods = months.dt.to_period("M")
+    if month_periods.nunique() != expected_periods:
+        raise RuntimeError("Generated fact reporting-period count does not match configuration")
+    indicators = fact[["Programme", "Indicator"]].drop_duplicates()
+    expected_per_facility_month = len(indicators)
+    counts = fact.assign(_month=month_periods).groupby(
+        ["Facility_ID", "_month"], observed=True
+    ).size()
+    expected_groups = len(facilities) * expected_periods
+    if len(counts) != expected_groups or not counts.eq(expected_per_facility_month).all():
+        raise RuntimeError("Generated fact has incomplete facility-month indicator coverage")
+    return {
+        "unique_facility_month_groups": int(len(counts)),
+        "indicators_per_facility_month": int(expected_per_facility_month),
+        "unique_natural_keys": int(len(fact)),
+    }
+
+
 def _build_artifact_manifest(outputs: dict[str, str], output_dir: Path) -> dict[str, dict[str, Any]]:
     """Validate build artifacts and return stable, relative integrity metadata."""
     root = Path(output_dir).resolve()
@@ -88,6 +137,9 @@ def build_platform(
         periods=periods,
     )
     fact, facilities, manifest = generator.generate()
+    grain_validation = _validate_generated_fact_grain(
+        fact, facilities, generator.expected_record_count, periods
+    )
     fact_path = raw_dir / "facility_reporting_fact.csv"
     facility_path = raw_dir / "facility_dimension.csv"
     fact.to_csv(fact_path, index=False)
@@ -141,6 +193,7 @@ def build_platform(
         "indicator_count": manifest["indicator_count"],
         "expected_fact_records": generator.expected_record_count,
         "generated_fact_records": manifest["actual_record_count"],
+        "generated_fact_grain_validation": grain_validation,
         "staged_records": staging_report["staged_rows"],
         "quarantined_records": staging_report["quarantined_rows"],
         "staging_yield_pct": staging_report["staging_yield_pct"],
