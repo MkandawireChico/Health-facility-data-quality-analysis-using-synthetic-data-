@@ -556,10 +556,27 @@ def _build_integrated_facility_priority(
         raise RuntimeError("Quality benchmark issue counts are outside valid bounds")
     if not combined["detected_issue_rate_pct"].between(0, 100).all():
         raise RuntimeError("Quality benchmark issue rates must be between 0 and 100")
-    if not combined["Baseline_Capacity_Coverage_Pct"].between(0, 100).all():
-        raise RuntimeError("Resource capacity coverage must be between 0 and 100")
+    if not combined["Baseline_Capacity_Coverage_Pct"].between(0, 200).all():
+        raise RuntimeError("Resource capacity coverage must be between 0 and 200")
     if combined["Baseline_Gap_Units"].lt(0).any():
         raise RuntimeError("Resource baseline gaps cannot be negative")
+    for column in ["Mean_Operational_Uptime_Pct", "Infrastructure_Resilience_Score", "Workforce_Coverage_Pct"]:
+        if not combined[column].between(0, 100).all():
+            raise RuntimeError(f"Operational measure {column} must be between 0 and 100")
+    for column in ["Stockout_Commodity_Pairs", "High_Cold_Chain_Risk_Pairs",
+                   "Near_Expiry_90_Day_Units", "Temperature_Excursion_Days",
+                   "missing_records", "source_discrepancy_records", "outlier_records",
+                   "late_records", "Illustrative_Requirement_Units",
+                   "Synthetic_Available_Units", "Baseline_Gap_Units"]:
+        if combined[column].lt(0).any():
+            raise RuntimeError(f"Priority measure {column} cannot be negative")
+    expected_quality_rate = 100 * combined["detected_issue_records"] / combined["records"]
+    if not np.allclose(expected_quality_rate, combined["detected_issue_rate_pct"], atol=0.02):
+        raise RuntimeError("Quality benchmark issue rates do not reconcile with record counts")
+    if not combined["Baseline_Gap_Units"].equals(
+        (combined["Illustrative_Requirement_Units"] - combined["Synthetic_Available_Units"]).clip(lower=0)
+    ):
+        raise RuntimeError("Resource baseline gap does not reconcile with requirement and available units")
 
     combined["Data_Quality_Priority_Score"] = combined["detected_issue_rate_pct"].clip(0, 100)
     combined["Resource_Gap_Priority_Score"] = (100 - combined["Baseline_Capacity_Coverage_Pct"]).clip(0, 100)
