@@ -251,3 +251,23 @@ Relationships:
 - FactEquipmentInfrastructureAssociation is an aggregate band table; it has no facility or date key and should not be joined to facility-level facts.
 
 Do not create fact-to-fact relationships. The infrastructure/equipment comparison is descriptive and not causal. All configurations, interruptions, resilience scores and upgrade costs are synthetic. Abstract credits are not MWK; see `docs/infrastructure_reliability_methodology.md`.
+
+
+## Workforce capacity and staffing scenario facts
+
+| Fact | Grain | Purpose |
+|---|---|---|
+| FactFacilityWorkforceEstablishment | Facility × role | Synthetic establishment, filled posts and vacancy baseline |
+| FactMonthlyWorkforceCapacity | Facility × month | Filled/on-duty positions, absence, overtime and workload/capacity proxies |
+| FactLatestWorkforceCapacity | Facility × latest month | Latest staffing coverage and review band |
+| FactWorkforceRecruitmentScenario | Role | Vacancy totals and abstract-budget recruitment scenario |
+
+Relationships:
+- DimFacility[Facility_ID] 1 → * FactFacilityWorkforceEstablishment[Facility_ID]
+- DimFacility[Facility_ID] 1 → * FactMonthlyWorkforceCapacity[Facility_ID]
+- DimDate[MonthStart] 1 → * FactMonthlyWorkforceCapacity[Month]
+- DimFacility[Facility_ID] 1 → * FactLatestWorkforceCapacity[Facility_ID]
+- DimDate[MonthStart] 1 → * FactLatestWorkforceCapacity[Month]
+- FactWorkforceRecruitmentScenario is role-aggregate and has no facility or date key; do not connect it to facility facts.
+
+Use single-direction dimension-to-fact relationships and no fact-to-fact joins. All staffing values and role assumptions are synthetic. Catchment population is a workload proxy, not patient volume. Role mixes are not official staffing norms. Recruitment credits are not MWK. See `docs/workforce_planning_methodology.md`.
