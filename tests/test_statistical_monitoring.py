@@ -14,6 +14,7 @@ def peer_data(values):
         "Month": pd.date_range("2024-01-01", periods=n, freq="MS"),
         "District": ["Lilongwe"] * n, "Programme": ["HIV"] * n,
         "Indicator": ["ART clients"] * n, "Reported_Value": values,
+        "Target_Value": [100] * n,
         "Facility_ID": [f"F{i}" for i in range(n)],
         "Quality_Missing_Reported_Value": [False] * n,
         "Quality_Source_Discrepancy": [False] * n,
@@ -47,6 +48,24 @@ def test_monthly_control_chart_has_descriptive_limits():
     assert len(result) == 12
     assert result["Centre_Line"].notna().all()
     assert result["Control_Status"].isin(["Within descriptive limits", "Review signal"]).all()
+
+
+def test_monthly_control_chart_includes_outlier_detector():
+    data = peer_data([100] * 12)
+    data.loc[0, "Reported_Value"] = 180
+    result = build_monthly_control_chart(data)
+    assert result.loc[0, "Outlier_Records"] == 1
+    assert result.loc[0, "Issue_Records"] == 1
+    assert result.loc[0, "Issue_Rate"] == pytest.approx(1.0)
+
+
+def test_monthly_control_chart_parses_csv_boolean_strings():
+    data = peer_data([100] * 12)
+    data["Quality_Late_Submission"] = ["False"] * 12
+    data.loc[0, "Quality_Late_Submission"] = "True"
+    result = build_monthly_control_chart(data)
+    assert result.loc[0, "Late_Records"] == 1
+    assert result["Late_Records"].sum() == 1
 
 
 def test_short_history_does_not_create_limits():
