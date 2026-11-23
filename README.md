@@ -333,7 +333,7 @@ workflow artifact.
 
 The expanded platform includes a separate Power BI implementation pack:
 [`dashboard/powerbi_expanded_model.md`](dashboard/powerbi_expanded_model.md).
-It documents the star schema, relationship design, six-page report plan and
+It documents the star schema, relationship design, seven-page report plan and
 synthetic-data governance. The accessible light theme is in
 [`dashboard/powerbi_theme.json`](dashboard/powerbi_theme.json), and the report
 build and visual QA guide is in
