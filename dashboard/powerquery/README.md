@@ -49,6 +49,7 @@ Load these queries:
 - FactFacilityIndicatorAttainment
 - FactDistrictIndicatorAttainment
 - FactMonthlyIndicatorAttainment
+- FactProgrammeIndicatorAttainment
 - FactFacilityIndicatorAttainment
 - FactDistrictIndicatorAttainment
 - FactMonthlyIndicatorAttainment
