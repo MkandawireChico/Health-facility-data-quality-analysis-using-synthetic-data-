@@ -60,6 +60,14 @@ def test_invalid_inputs_fail_clearly():
         build_supply_chain_profiles(facility_dimension(), periods=0)
     with pytest.raises(ValueError, match="budget_credits"):
         build_supply_chain_profiles(facility_dimension(), budget_credits=-1)
+    with pytest.raises(ValueError, match="budget_credits"):
+        build_supply_chain_profiles(facility_dimension(), budget_credits=True)
+    with pytest.raises(ValueError, match="periods"):
+        build_supply_chain_profiles(facility_dimension(), periods=True)
+    with pytest.raises(ValueError, match="lead_time_days"):
+        build_supply_chain_profiles(facility_dimension(), lead_time_days=True)
+    with pytest.raises(ValueError, match="buffer_days"):
+        build_supply_chain_profiles(facility_dimension(), buffer_days=True)
     with pytest.raises(ValueError, match="unique"):
         build_supply_chain_profiles(pd.concat([facility_dimension(), facility_dimension().iloc[[0]]]))
 
