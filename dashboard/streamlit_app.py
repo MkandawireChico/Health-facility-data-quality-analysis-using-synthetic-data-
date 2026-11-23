@@ -980,10 +980,12 @@ with tabs[6]:
             use_container_width=True,
         )
         st.markdown("**Latest batch and facility review worklist**")
+        risk_order = {"High": 0, "Medium": 1, "Low": 2, "Data Gap": 3}
+        latest_cold["Risk_Order"] = latest_cold["Risk_Band"].map(risk_order).fillna(4)
         cold_worklist = latest_cold.sort_values(
-            ["Risk_Band", "Cold_Chain_Risk_Score", "Near_Expiry_90_Day_Units"],
-            ascending=[True, False, False],
-        )
+            ["Risk_Order", "Cold_Chain_Risk_Score", "Near_Expiry_90_Day_Units"],
+            ascending=[True, False, False], na_position="last",
+        ).drop(columns=["Risk_Order"])
         cold_columns = [
             "Facility_Name", "District", "Commodity", "Risk_Band", "Cold_Chain_Risk_Score",
             "Temperature_Excursion_Days", "Temperature_Data_Coverage_Pct",
