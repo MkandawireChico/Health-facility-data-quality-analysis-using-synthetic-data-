@@ -254,10 +254,13 @@ def build_equipment_maintenance_profiles(
         asset_register[["Asset_ID", "Install_Date", "Expected_Life_Years_Assumption", "Synthetic_Replacement_Cost_Credits"]],
         on="Asset_ID", how="left", validate="one_to_one",
     )
+    latest_asset_status["Risk_Order"] = latest_asset_status["Risk_Band"].map(
+        {"High": 0, "Medium": 1, "Low": 2}
+    ).fillna(3)
     latest_asset_status = latest_asset_status.sort_values(
-        ["Risk_Band", "Equipment_Risk_Score", "Unplanned_Downtime_Hours"],
-        ascending=[False, False, False],
-    )
+        ["Risk_Order", "Equipment_Risk_Score", "Unplanned_Downtime_Hours"],
+        ascending=[True, False, False],
+    ).drop(columns=["Risk_Order"])
 
     assumptions = {
         "synthetic_data": True,
