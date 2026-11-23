@@ -108,7 +108,7 @@ def test_control_limits_use_pooled_rate_and_month_specific_denominators():
     pooled_rate = 6 / 21
     expected_se = np.sqrt(pooled_rate * (1 - pooled_rate) / result["Records"])
 
-    assert result["Centre_Line"].eq(pytest.approx(pooled_rate)).all()
+    np.testing.assert_allclose(result["Centre_Line"], pooled_rate)
     np.testing.assert_allclose(
         result["Upper_Control_Limit"],
         np.minimum(1.0, pooled_rate + 3 * expected_se),
