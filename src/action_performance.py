@@ -67,15 +67,16 @@ def build_action_performance(actions: pd.DataFrame, as_of=None) -> dict[str, pd.
     district["resolution_rate_pct"] = (
         100 * district["resolved_actions"] / district["tracked_actions"]
     ).round(2)
+    data["Month_Period"] = data["Month"].dt.to_period("M").astype(str)
     monthly = (
-        data.groupby(data["Month"].dt.to_period("M"), as_index=False)
+        data.groupby("Month_Period", as_index=False)
         .agg(
             tracked_actions=("Status", "size"),
             resolved_actions=("Status", lambda values: int(values.eq("Resolved").sum())),
             overdue_actions=("Overdue", "sum"),
         )
+        .rename(columns={"Month_Period": "Month"})
     )
-    monthly["Month"] = monthly["Month"].astype(str)
     monthly["resolution_rate_pct"] = (
         100 * monthly["resolved_actions"] / monthly["tracked_actions"]
     ).round(2)
