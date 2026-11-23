@@ -28,7 +28,10 @@ TEMPERATURE_MIN_C = 2.0
 TEMPERATURE_MAX_C = 8.0
 
 
-def _temperature_month(rng: np.random.Generator, month: pd.Timestamp) -> dict[str, Any]:
+def _temperature_month(
+    rng: np.random.Generator, month: pd.Timestamp,
+    temperature_min_c: float, temperature_max_c: float,
+) -> dict[str, Any]:
     """Create daily synthetic sensor observations for one facility-month."""
     days = int(month.days_in_month)
     observed_mask = rng.random(days) >= 0.04
@@ -45,7 +48,7 @@ def _temperature_month(rng: np.random.Generator, month: pd.Timestamp) -> dict[st
             else:
                 daily_max[excursion_index] = rng.uniform(8.3, 12.0)
         excursion = observed_mask & (
-            (daily_min < TEMPERATURE_MIN_C) | (daily_max > TEMPERATURE_MAX_C)
+            (daily_min < temperature_min_c) | (daily_max > temperature_max_c)
         )
         observed_mean = daily_mean[observed_mask]
         observed_min = np.minimum(daily_min, daily_max)[observed_mask]
@@ -112,13 +115,14 @@ def build_cold_chain_profiles(
     temperature_rows: list[dict[str, Any]] = []
     batch_rows: list[dict[str, Any]] = []
     risk_rows: list[dict[str, Any]] = []
+    inventory_state: dict[tuple[str, str], list[dict[str, Any]]] = {}
 
     for facility_index, facility in fac.reset_index(drop=True).iterrows():
         facility_id = str(facility["Facility_ID"])
         sensor_id = f"SENSOR-{facility_id}"
         population_factor = max(float(facility["Catchment_Population"]), 0.0) / 10000
         for month in months:
-            temp = _temperature_month(rng, month)
+            temp = _temperature_month(rng, month, temperature_min_c, temperature_max_c)
             temp["Sensor_ID"] = sensor_id
             temp.update({
                 "Facility_ID": facility_id,
@@ -129,11 +133,6 @@ def build_cold_chain_profiles(
                 "Assumed_Minimum_Temperature_C": temperature_min_c,
                 "Assumed_Maximum_Temperature_C": temperature_max_c,
             })
-            # Re-evaluate excursion flags against the configured bounds.
-            # The generated raw summaries are a consistent, transparent monitoring proxy.
-            temp["Temperature_Excursion_Flag"] = bool(
-                temp["Excursion_Days"] > 0
-            )
             temperature_rows.append(temp)
 
             for commodity in COLD_CHAIN_CATALOG:
@@ -146,8 +145,6 @@ def build_cold_chain_profiles(
                 receipt_qty = int(rng.poisson(max(base_demand * 1.15, 0)))
                 lots: list[dict[str, Any]] = []
                 # Keep a lot-level inventory state for this facility and commodity.
-                if "inventory_state" not in locals():
-                    inventory_state = {}
                 state_key = (facility_id, commodity_id)
                 lots = inventory_state.setdefault(state_key, [])
 
@@ -166,7 +163,6 @@ def build_cold_chain_profiles(
                             "Month": month,
                             "Opening_Stock_Units": opening,
                             "Receipts_Units": 0,
-                            "Demand_Units": demand,
                             "Fulfilled_Consumption_Units": 0,
                             "Expired_Units": expired,
                             "Closing_Stock_Units": 0,
@@ -257,7 +253,6 @@ def build_cold_chain_profiles(
                         "Month": month,
                         "Opening_Stock_Units": int(lot["opening_units"]),
                         "Receipts_Units": int(lot["receipts_units"]),
-                        "Demand_Units": demand,
                         "Fulfilled_Consumption_Units": int(lot["consumed_units"]),
                         "Expired_Units": int(expired),
                         "Closing_Stock_Units": closing,
