@@ -343,8 +343,11 @@ Reusable DAX measures are in
 and calculated dimensions in
 [`dashboard/dax/dimension_tables.dax`](dashboard/dax/dimension_tables.dax).
 Power Query M templates for the reporting fact, dimensions, source observations,
-district intelligence, monthly trends, statistical anomalies and detector
-evaluation are in `dashboard/powerquery/`.
+district intelligence, monthly trends, statistical anomalies, detector
+evaluation and facility/district/monthly target attainment are in
+`dashboard/powerquery/`. Target-attainment calculations and interpretation
+safeguards are documented in
+[`docs/target_attainment_methodology.md`](docs/target_attainment_methodology.md).
 
 This is an implementation pack for rebuilding the expanded semantic model in
 Power BI Desktop. The existing PBIX remains the original 960-row report until
