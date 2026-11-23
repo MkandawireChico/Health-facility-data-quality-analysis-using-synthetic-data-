@@ -2,7 +2,7 @@
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from action_store import ActionRegisterStore
+from action_store import ActionRegisterStore, build_action_record_id
 
 
 def sample_action(**updates):
@@ -61,3 +61,17 @@ def test_empty_record_ids_are_ignored(tmp_path):
     assert store.upsert_actions([{"Record_ID": "  "}]) == {
         "inserted": 0, "updated": 0, "unchanged": 0
     }
+
+
+def test_action_record_id_is_stable_across_row_order_and_date_formats():
+    first = build_action_record_id(
+        "cohort.csv", "Facility A", "2025-01-01", "HIV", "ART"
+    )
+    reordered = build_action_record_id(
+        "cohort.csv", "Facility A", pd.Timestamp("2025-01-01"), "HIV", "ART"
+    )
+    other_source = build_action_record_id(
+        "another.csv", "Facility A", "2025-01-01", "HIV", "ART"
+    )
+    assert first == reordered
+    assert first != other_source
