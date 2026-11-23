@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+import infrastructure_reliability as infrastructure_module
 from infrastructure_reliability import build_infrastructure_profiles, run_infrastructure_planning
 
 
@@ -64,6 +65,27 @@ def test_scenario_budget_is_never_exceeded_and_facility_pairs_complete():
     assert not scenarios.loc[~scenarios["Selected_Package_For_Facility"], "Within_Illustrative_Budget"].any()
     assert scenarios["Facility_ID"].nunique() == 3
     assert scenarios["Synthetic_Data"].all()
+
+
+def test_zero_benefit_upgrade_scenarios_do_not_consume_budget(monkeypatch):
+    monkeypatch.setattr(infrastructure_module, "INFRASTRUCTURE_UPGRADES", [
+        {
+            "Upgrade": "No-benefit test package",
+            "Domain": "Test",
+            "Cost_Credits": 100,
+            "Power_Reduction_Factor": 0.0,
+            "Water_Reduction_Factor": 0.0,
+            "Connectivity_Reduction_Factor": 0.0,
+        }
+    ])
+    result = build_infrastructure_profiles(
+        facilities(), periods=2, seed=5, budget_credits=500
+    )
+    scenarios = result["upgrade_scenarios"]
+    assert scenarios["Illustrative_Avoided_Interruption_Hours"].eq(0).all()
+    assert not scenarios["Selected_Package_For_Facility"].any()
+    assert not scenarios["Within_Illustrative_Budget"].any()
+    assert scenarios["Budget_Credits_Unallocated"].eq(500).all()
 
 
 def test_invalid_inputs_and_output_artifacts(tmp_path):
