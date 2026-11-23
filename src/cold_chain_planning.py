@@ -92,7 +92,7 @@ def build_cold_chain_profiles(
     missing = REQUIRED_FACILITY_COLUMNS - set(facilities.columns)
     if missing:
         raise ValueError(f"Facility dimension missing required columns: {sorted(missing)}")
-    if not isinstance(periods, (int, np.integer)) or periods < 1:
+    if isinstance(periods, bool) or not isinstance(periods, (int, np.integer)) or periods < 1:
         raise ValueError("periods must be a positive integer")
     if not np.isfinite(temperature_min_c) or not np.isfinite(temperature_max_c) or temperature_min_c >= temperature_max_c:
         raise ValueError("Temperature bounds must be finite and minimum must be below maximum")
