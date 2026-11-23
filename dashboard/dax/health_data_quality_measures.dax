@@ -373,3 +373,50 @@ AVERAGE ( FactEquipmentAssetMonthly[Condition_Score] )
 
 Equipment Mean Risk Score =
 AVERAGE ( FactEquipmentLatestAssetRisk[Equipment_Risk_Score] )
+
+
+// Facility infrastructure and utilities reliability. All underlying data is synthetic.
+Infrastructure Mean Resilience Score =
+AVERAGE ( FactLatestInfrastructureResilience[Infrastructure_Resilience_Score] )
+
+Infrastructure High Review-Priority Facilities =
+CALCULATE (
+    DISTINCTCOUNT ( FactLatestInfrastructureResilience[Facility_ID] ),
+    FactLatestInfrastructureResilience[Infrastructure_Risk_Band] = "High"
+)
+
+Power Availability Rate =
+DIVIDE (
+    SUM ( FactMonthlyInfrastructureReliability[Power_Availability_Pct] ),
+    COUNTROWS ( FactMonthlyInfrastructureReliability )
+) / 100
+
+Water Availability Rate =
+DIVIDE (
+    SUM ( FactMonthlyInfrastructureReliability[Water_Availability_Pct] ),
+    COUNTROWS ( FactMonthlyInfrastructureReliability )
+) / 100
+
+Connectivity Availability Rate =
+DIVIDE (
+    SUM ( FactMonthlyInfrastructureReliability[Connectivity_Availability_Pct] ),
+    COUNTROWS ( FactMonthlyInfrastructureReliability )
+) / 100
+
+Unserved Power Interruption Hours =
+SUM ( FactMonthlyInfrastructureReliability[Unserved_Power_Interruption_Hours] )
+
+Unserved Water Shortage Hours =
+SUM ( FactMonthlyInfrastructureReliability[Unserved_Water_Shortage_Hours] )
+
+Connectivity Downtime Hours =
+SUM ( FactMonthlyInfrastructureReliability[Connectivity_Downtime_Hours] )
+
+Facilities with Funded Infrastructure Scenario =
+CALCULATE (
+    DISTINCTCOUNT ( FactInfrastructureUpgradeScenarios[Facility_ID] ),
+    FactInfrastructureUpgradeScenarios[Within_Illustrative_Budget] = TRUE ()
+)
+
+// Infrastructure metrics are simulated availability proxies, not clinical
+// service availability. Upgrade credits are abstract, not MWK.
