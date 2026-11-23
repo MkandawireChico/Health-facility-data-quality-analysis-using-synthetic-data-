@@ -126,6 +126,70 @@ def _validate_monthly_analytics_population(
     }
 
 
+def _validate_quality_profile_population(
+    staged: pd.DataFrame,
+    facility_profile: pd.DataFrame,
+    district_profile: pd.DataFrame,
+    programme_profile: pd.DataFrame,
+) -> dict[str, int]:
+    """Reconcile disjoint quality profile totals back to the staged fact population."""
+    if not {"Facility_ID", "District", "Programme", "Indicator"}.issubset(staged.columns):
+        raise RuntimeError("Staged fact is missing quality profile reconciliation dimensions")
+
+    expected_records = len(staged)
+    expected_facilities = int(staged["Facility_ID"].nunique())
+    expected_districts = int(staged["District"].nunique())
+    expected_programme_indicators = int(
+        staged[["Programme", "Indicator"]].drop_duplicates().shape[0]
+    )
+    specifications = [
+        (facility_profile, "Facility_ID", "facility", expected_facilities),
+        (district_profile, "District", "district", expected_districts),
+        (
+            programme_profile,
+            None,
+            "programme-indicator",
+            expected_programme_indicators,
+        ),
+    ]
+    for frame, dimension, label, expected_groups in specifications:
+        required = {"records"} | ({dimension} if dimension else {"Programme", "Indicator"})
+        if not required.issubset(frame.columns):
+            raise RuntimeError(f"{label} quality profile is missing required columns")
+        if frame.empty or frame["records"].isna().any():
+            raise RuntimeError(f"{label} quality profile has missing record counts")
+        raw_counts = frame["records"]
+        if raw_counts.map(lambda value: isinstance(value, (bool, np.bool_))).any():
+            raise RuntimeError(f"{label} quality profile has invalid record counts")
+        counts = pd.to_numeric(raw_counts, errors="coerce")
+        if (
+            counts.isna().any()
+            or counts.lt(0).any()
+            or not np.isfinite(counts).all()
+            or not np.equal(counts, np.floor(counts)).all()
+        ):
+            raise RuntimeError(f"{label} quality profile has invalid record counts")
+        if int(counts.sum()) != expected_records:
+            raise RuntimeError(
+                f"{label} quality profile population does not reconcile with staged records"
+            )
+        if len(frame) != expected_groups:
+            raise RuntimeError(
+                f"{label} quality profile group count does not reconcile with staged facts"
+            )
+        if dimension and frame[dimension].duplicated().any():
+            raise RuntimeError(f"{label} quality profile contains duplicate groups")
+        if not dimension and frame[["Programme", "Indicator"]].duplicated().any():
+            raise RuntimeError("programme-indicator quality profile contains duplicate groups")
+
+    return {
+        "staged_records": expected_records,
+        "facilities_reconciled": expected_facilities,
+        "districts_reconciled": expected_districts,
+        "programme_indicator_groups_reconciled": expected_programme_indicators,
+    }
+
+
 def _build_artifact_manifest(outputs: dict[str, str], output_dir: Path) -> dict[str, dict[str, Any]]:
     """Validate build artifacts and return stable, relative integrity metadata."""
     root = Path(output_dir).resolve()
@@ -243,6 +307,13 @@ def build_platform(
         pd.read_csv(analytics_dir / "monthly_indicator_target_attainment.csv"),
     )
 
+    quality_profile_population = _validate_quality_profile_population(
+        pd.read_csv(staged_path),
+        pd.read_csv(analytics_dir / "facility_quality_benchmark.csv"),
+        pd.read_csv(analytics_dir / "district_quality_profile.csv"),
+        pd.read_csv(analytics_dir / "programme_indicator_quality_profile.csv"),
+    )
+
     summary = {
         "synthetic_data": True,
         "seed": seed,
@@ -255,6 +326,7 @@ def build_platform(
         "generated_fact_grain_validation": grain_validation,
         "staged_records": staging_report["staged_rows"],
         "monthly_analytics_population": monthly_population,
+        "quality_profile_population": quality_profile_population,
         "quarantined_records": staging_report["quarantined_rows"],
         "staging_yield_pct": staging_report["staging_yield_pct"],
         "detector_evaluation_scope": quality_report["evaluation_scope"],
