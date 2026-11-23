@@ -27,6 +27,13 @@ def build_platform(
     periods: int = 60,
 ) -> dict[str, Any]:
     """Generate, stage, evaluate and statistically monitor a synthetic cohort."""
+    if isinstance(seed, bool) or not isinstance(seed, int):
+        raise ValueError("seed must be an integer")
+    if isinstance(facility_count, bool) or not isinstance(facility_count, int) or facility_count < 1:
+        raise ValueError("facility_count must be a positive integer")
+    if isinstance(periods, bool) or not isinstance(periods, int) or periods < 1:
+        raise ValueError("periods must be a positive integer")
+
     output_dir = Path(output_dir)
     raw_dir = output_dir / "raw"
     staged_dir = output_dir / "staged"
@@ -69,13 +76,6 @@ def build_platform(
     workforce_report = run_workforce_planning(
         facility_path, analytics_dir, periods=periods, start_month=start_month, seed=seed,
     )
-
-    if isinstance(seed, bool) or not isinstance(seed, int):
-        raise ValueError("seed must be an integer")
-    if isinstance(facility_count, bool) or not isinstance(facility_count, int) or facility_count < 1:
-        raise ValueError("facility_count must be a positive integer")
-    if isinstance(periods, bool) or not isinstance(periods, int) or periods < 1:
-        raise ValueError("periods must be a positive integer")
 
     if manifest["actual_record_count"] != generator.expected_record_count:
         raise RuntimeError("Generated record count does not match configured fact grain")
