@@ -47,6 +47,19 @@ def test_perfect_detector_confusion_metrics_and_outlier_rule():
     assert metrics.loc["late", "specificity"] == 1
 
 
+def test_non_finite_values_do_not_create_operational_outlier_signals():
+    data = analytics_fixture()
+    data.loc[0, "Reported_Value"] = float("inf")
+    data.loc[1, "Target_Value"] = float("inf")
+    data.loc[2, "Reported_Value"] = float("1e308")
+    data.loc[2, "Target_Value"] = float("1e-308")
+
+    result = add_operational_predictions(data)
+
+    assert not result.loc[[0, 1, 2], "Operational_Detected_Outlier"].any()
+    assert result.loc[[0, 1, 2], "Operational_Outlier_Ratio"].isna().all()
+
+
 def test_operational_predictions_do_not_depend_on_ground_truth():
     data = analytics_fixture()
     first = add_operational_predictions(data)
