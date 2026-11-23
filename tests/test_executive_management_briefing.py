@@ -47,7 +47,7 @@ def test_briefing_kpis_domain_counts_and_priority_order():
     assert result["kpis"]["facilities"] == 3
     assert result["kpis"]["high_review"] == 1
     assert result["kpis"]["overdue_actions"] == 2
-    assert result["kpis"]["action_resolution_rate_pct"] == pytest.approx(100 / 3 * 100)
+    assert result["kpis"]["action_resolution_rate_pct"] == pytest.approx(100 / 3)
     assert result["management_queue"]["Facility_ID"].tolist() == ["F-001", "F-003", "F-002"]
     assert result["domains"].iloc[0]["facilities_flagged"] == 3
 
