@@ -190,6 +190,111 @@ def _validate_quality_profile_population(
     }
 
 
+
+def _validate_operational_planning_population(
+    facilities: pd.DataFrame,
+    resource_capacity: pd.DataFrame,
+    resource_scenarios: pd.DataFrame,
+    workforce_establishment: pd.DataFrame,
+    workforce_monthly: pd.DataFrame,
+    workforce_latest: pd.DataFrame,
+    expected_periods: int,
+) -> dict[str, int]:
+    """Reconcile resource and workforce outputs to the canonical facility dimension."""
+    required_facility = {"Facility_ID", "Facility_Name", "District"}
+    if not required_facility.issubset(facilities.columns):
+        raise RuntimeError("Canonical facility dimension is missing planning identity columns")
+    if facilities.empty or facilities["Facility_ID"].isna().any():
+        raise RuntimeError("Canonical facility dimension has missing facility identifiers")
+    if facilities["Facility_ID"].astype("string").str.strip().eq("").any():
+        raise RuntimeError("Canonical facility dimension has blank facility identifiers")
+    if facilities["Facility_ID"].duplicated().any():
+        raise RuntimeError("Canonical facility dimension contains duplicate facility identifiers")
+
+    expected_ids = set(facilities["Facility_ID"].astype(str))
+    metadata = facilities.set_index("Facility_ID")[["Facility_Name", "District"]]
+    facility_outputs = [
+        (resource_capacity, "resource capacity"),
+        (workforce_latest, "latest workforce"),
+    ]
+    for frame, label in facility_outputs:
+        required = {"Facility_ID", "Facility_Name", "District"}
+        if not required.issubset(frame.columns):
+            raise RuntimeError(f"{label} output is missing facility identity columns")
+        if frame.empty or frame["Facility_ID"].isna().any():
+            raise RuntimeError(f"{label} output has missing facility identifiers")
+        if frame["Facility_ID"].duplicated().any():
+            raise RuntimeError(f"{label} output contains duplicate facility rows")
+        actual_ids = set(frame["Facility_ID"].astype(str))
+        if actual_ids != expected_ids:
+            raise RuntimeError(f"{label} facility population does not match canonical dimension")
+        actual = frame.set_index("Facility_ID")[["Facility_Name", "District"]]
+        for column in ["Facility_Name", "District"]:
+            if not actual[column].astype(str).equals(metadata[column].astype(str)):
+                raise RuntimeError(f"{label} {column} values do not match canonical dimension")
+
+    if not {"Facility_ID", "Scenario"}.issubset(resource_scenarios.columns):
+        raise RuntimeError("Resource scenario output is missing facility or scenario keys")
+    if resource_scenarios[["Facility_ID", "Scenario"]].isna().any().any():
+        raise RuntimeError("Resource scenario output contains missing natural keys")
+    expected_scenarios = {"gap_priority", "equity", "equal"}
+    if set(resource_scenarios["Scenario"].astype(str)) != expected_scenarios:
+        raise RuntimeError("Resource scenario output does not contain the three expected strategies")
+    if resource_scenarios.duplicated(["Facility_ID", "Scenario"]).any():
+        raise RuntimeError("Resource scenario output contains duplicate facility-scenario rows")
+    for scenario, group in resource_scenarios.groupby("Scenario"):
+        if set(group["Facility_ID"].astype(str)) != expected_ids:
+            raise RuntimeError(f"Resource scenario '{scenario}' facility population is incomplete")
+
+    if not {"Facility_ID", "Role"}.issubset(workforce_establishment.columns):
+        raise RuntimeError("Workforce establishment output is missing facility-role keys")
+    if workforce_establishment[["Facility_ID", "Role"]].isna().any().any():
+        raise RuntimeError("Workforce establishment output contains missing natural keys")
+    if workforce_establishment.duplicated(["Facility_ID", "Role"]).any():
+        raise RuntimeError("Workforce establishment output contains duplicate facility-role rows")
+    roles = set(workforce_establishment["Role"].astype(str))
+    if not roles:
+        raise RuntimeError("Workforce establishment output contains no role definitions")
+    for facility_id, group in workforce_establishment.groupby("Facility_ID"):
+        if set(group["Role"].astype(str)) != roles:
+            raise RuntimeError(f"Workforce establishment role coverage is incomplete for {facility_id}")
+    if set(workforce_establishment["Facility_ID"].astype(str)) != expected_ids:
+        raise RuntimeError("Workforce establishment facility population does not match canonical dimension")
+
+    required_monthly = {"Facility_ID", "Month"}
+    if not required_monthly.issubset(workforce_monthly.columns):
+        raise RuntimeError("Monthly workforce output is missing facility-month keys")
+    if workforce_monthly[list(required_monthly)].isna().any().any():
+        raise RuntimeError("Monthly workforce output contains missing natural keys")
+    if workforce_monthly.duplicated(["Facility_ID", "Month"]).any():
+        raise RuntimeError("Monthly workforce output contains duplicate facility-month rows")
+    months = pd.to_datetime(workforce_monthly["Month"], errors="coerce")
+    if months.isna().any():
+        raise RuntimeError("Monthly workforce output contains invalid reporting months")
+    month_periods = months.dt.to_period("M")
+    unique_months = set(month_periods.astype(str))
+    if len(unique_months) != expected_periods:
+        raise RuntimeError("Monthly workforce reporting-period count does not match build configuration")
+    expected_pairs = {(facility_id, month) for facility_id in expected_ids for month in unique_months}
+    actual_pairs = set(zip(workforce_monthly["Facility_ID"].astype(str), month_periods.astype(str)))
+    if actual_pairs != expected_pairs:
+        raise RuntimeError("Monthly workforce facility-month grid is incomplete or contains unknown facilities")
+    latest_month = month_periods.max()
+    latest_rows = workforce_latest.copy()
+    if "Month" not in latest_rows.columns:
+        raise RuntimeError("Latest workforce output is missing its reporting month")
+    latest_dates = pd.to_datetime(latest_rows["Month"], errors="coerce").dt.to_period("M")
+    if latest_dates.isna().any() or not latest_dates.eq(latest_month).all():
+        raise RuntimeError("Latest workforce output does not represent the final configured month")
+
+    return {
+        "facilities_reconciled": len(expected_ids),
+        "resource_scenarios_reconciled": len(expected_scenarios),
+        "workforce_roles_reconciled": len(roles),
+        "workforce_months_reconciled": len(unique_months),
+        "workforce_facility_month_rows": len(workforce_monthly),
+    }
+
 def _build_artifact_manifest(outputs: dict[str, str], output_dir: Path) -> dict[str, dict[str, Any]]:
     """Validate build artifacts and return stable, relative integrity metadata."""
     root = Path(output_dir).resolve()
@@ -314,6 +419,17 @@ def build_platform(
         pd.read_csv(analytics_dir / "programme_indicator_quality_profile.csv"),
     )
 
+
+    operational_planning_population = _validate_operational_planning_population(
+        facilities,
+        pd.read_csv(analytics_dir / "facility_resource_capacity.csv"),
+        pd.read_csv(analytics_dir / "resource_allocation_scenarios.csv"),
+        pd.read_csv(analytics_dir / "facility_workforce_establishment.csv"),
+        pd.read_csv(analytics_dir / "facility_monthly_workforce_capacity.csv"),
+        pd.read_csv(analytics_dir / "facility_latest_workforce_capacity.csv"),
+        periods,
+    )
+
     summary = {
         "synthetic_data": True,
         "seed": seed,
@@ -327,6 +443,7 @@ def build_platform(
         "staged_records": staging_report["staged_rows"],
         "monthly_analytics_population": monthly_population,
         "quality_profile_population": quality_profile_population,
+        "operational_planning_population": operational_planning_population,
         "quarantined_records": staging_report["quarantined_rows"],
         "staging_yield_pct": staging_report["staging_yield_pct"],
         "detector_evaluation_scope": quality_report["evaluation_scope"],
