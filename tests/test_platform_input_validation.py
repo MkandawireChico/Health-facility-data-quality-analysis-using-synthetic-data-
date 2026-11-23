@@ -56,3 +56,18 @@ def test_non_numeric_infinite_and_negative_catchment_values_are_rejected():
         data.loc[0, "Catchment_Population"] = invalid
         errors = validate_platform_extract(data)
         assert any("finite, non-negative numeric" in error for error in errors)
+
+
+
+def test_rejects_extract_without_any_valid_reporting_month():
+    data = valid_extract()
+    data["Month"] = "not-a-month"
+    errors = validate_platform_extract(data)
+    assert any("at least one valid reporting period" in error for error in errors)
+
+
+def test_rejects_conflicting_facility_metadata():
+    data = valid_extract()
+    data.loc[1, "District"] = "Mzimba"
+    errors = validate_platform_extract(data)
+    assert any("conflicting metadata" in error and "District" in error for error in errors)
