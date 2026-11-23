@@ -39,8 +39,14 @@ def detect_peer_anomalies(data: pd.DataFrame, min_group_size: int = 8,
     missing = REQUIRED - set(data.columns)
     if missing:
         raise ValueError(f"Staged data missing columns: {sorted(missing)}")
-    if min_group_size < 4 or robust_z_threshold <= 0:
-        raise ValueError("min_group_size must be >= 4 and threshold must be positive")
+    if (isinstance(min_group_size, bool)
+            or not isinstance(min_group_size, (int, np.integer))
+            or min_group_size < 4
+            or isinstance(robust_z_threshold, bool)
+            or not isinstance(robust_z_threshold, (int, float, np.integer, np.floating))
+            or not np.isfinite(robust_z_threshold)
+            or robust_z_threshold <= 0):
+        raise ValueError("min_group_size must be an integer >= 4 and threshold must be finite and positive")
     out = data.copy()
     out["Statistical_Anomaly"] = False
     out["Statistical_Anomaly_Score"] = np.nan
