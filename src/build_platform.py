@@ -375,6 +375,102 @@ def _build_operational_resilience_views(facilities, equipment_monthly, infrastru
         "latest_review_priority_facilities": int(latest["Operational_Review_Flag"].sum())}
 
 
+
+def _build_supply_cold_chain_resilience_view(facilities, stock_ledger, cold_chain_risk, output_dir):
+    """Aggregate commodity availability and cold-chain risk on a shared facility-month grain."""
+    key = ["Facility_ID", "Month"]
+    identity = ["Facility_Name", "District"]
+    expected_ids = set(facilities["Facility_ID"].astype(str))
+    specifications = [
+        (stock_ledger, "stock", {"Demand_Units", "Unmet_Demand_Units", "Closing_Stock_Units", "Stockout_Days", "Stockout_Flag"}),
+        (cold_chain_risk, "cold-chain", {"Expired_Units", "Near_Expiry_90_Day_Units", "Temperature_Excursion_Days", "Cold_Chain_Risk_Score", "Risk_Band"}),
+    ]
+    aggregates = []
+    month_reference = None
+    for frame, label, measures in specifications:
+        required = set(key + identity) | measures
+        if not required.issubset(frame.columns):
+            raise RuntimeError(f"{label} source is missing required supply resilience columns")
+        data = frame.copy()
+        if data[key + identity].isna().any().any():
+            raise RuntimeError(f"{label} source contains missing facility-month identity")
+        data["Facility_ID"] = data["Facility_ID"].astype(str).str.strip()
+        if data["Facility_ID"].eq("").any():
+            raise RuntimeError(f"{label} source contains blank facility identifiers")
+        data["Month"] = pd.to_datetime(data["Month"], errors="coerce").dt.to_period("M").dt.to_timestamp()
+        if data["Month"].isna().any():
+            raise RuntimeError(f"{label} source contains invalid reporting months")
+        if set(data["Facility_ID"]) != expected_ids:
+            raise RuntimeError(f"{label} facility population does not match canonical dimension")
+        if data[identity].isna().any().any():
+            raise RuntimeError(f"{label} source contains missing facility metadata")
+        if data.duplicated(key + ["Commodity_ID"]).any():
+            raise RuntimeError(f"{label} source contains duplicate facility-month-commodity keys")
+        months = set(data["Month"])
+        if month_reference is None:
+            month_reference = months
+        elif months != month_reference:
+            raise RuntimeError(f"{label} reporting months do not match the other supply domain")
+        for column in measures - {"Risk_Band", "Stockout_Flag"}:
+            values = pd.to_numeric(data[column], errors="coerce")
+            if values.isna().any() or not np.isfinite(values.to_numpy(dtype=float)).all():
+                raise RuntimeError(f"{label} measure {column} contains invalid values")
+            data[column] = values
+        grouped = data.groupby(key, as_index=False).agg(
+            Facility_Name=("Facility_Name", "first"),
+            District=("District", "first"),
+            **({"Demand_Units": ("Demand_Units", "sum"),
+                "Unmet_Demand_Units": ("Unmet_Demand_Units", "sum"),
+                "Closing_Stock_Units": ("Closing_Stock_Units", "sum"),
+                "Stockout_Days": ("Stockout_Days", "sum"),
+                "Stockout_Commodity_Pairs": ("Stockout_Flag", "sum")}
+               if label == "stock" else
+               {"Expired_Units": ("Expired_Units", "sum"),
+                "Near_Expiry_90_Day_Units": ("Near_Expiry_90_Day_Units", "sum"),
+                "Temperature_Excursion_Days": ("Temperature_Excursion_Days", "sum"),
+                "High_Cold_Chain_Risk_Pairs": ("Risk_Band", lambda values: values.eq("High").sum()),
+                "Mean_Cold_Chain_Risk_Score": ("Cold_Chain_Risk_Score", "mean")}
+        )
+        )
+        grouped["Facility_ID"] = grouped["Facility_ID"].astype(str)
+        if grouped.duplicated(key).any():
+            raise RuntimeError(f"{label} aggregation produced duplicate facility-month rows")
+        if set(grouped["Facility_ID"]) != expected_ids or len(grouped) != len(expected_ids) * len(month_reference):
+            raise RuntimeError(f"{label} facility-month grid is incomplete")
+        aggregates.append(grouped.sort_values(key).reset_index(drop=True))
+
+    stock, cold = aggregates
+    joined = stock.merge(cold, on=key, how="outer", suffixes=("_stock", "_cold"),
+        validate="one_to_one", indicator=True)
+    if not joined["_merge"].eq("both").all():
+        raise RuntimeError("Stock and cold-chain facility-month populations do not reconcile")
+    for column in identity:
+        if not joined[f"{column}_stock"].astype(str).equals(joined[f"{column}_cold"].astype(str)):
+            raise RuntimeError(f"Stock and cold-chain {column} metadata do not reconcile")
+    joined["Facility_Name"] = joined.pop("Facility_Name_stock")
+    joined["District"] = joined.pop("District_stock")
+    joined = joined.drop(columns=["Facility_Name_cold", "District_cold", "_merge"])
+    joined["Supply_Review_Flag"] = (
+        joined["Stockout_Commodity_Pairs"].gt(0)
+        | joined["High_Cold_Chain_Risk_Pairs"].gt(0)
+        | joined["Temperature_Excursion_Days"].gt(0)
+        | joined["Near_Expiry_90_Day_Units"].gt(0)
+    )
+    joined["Interpretation"] = "Synthetic stock and cold-chain scenario screening; not live inventory or product disposition advice."
+    joined["Synthetic_Data"] = True
+    joined = joined.sort_values(key).reset_index(drop=True)
+    latest = joined.loc[joined["Month"].eq(joined["Month"].max())].copy()
+    output_dir = Path(output_dir)
+    joined.to_csv(output_dir / "facility_monthly_supply_cold_chain_resilience.csv", index=False)
+    latest.to_csv(output_dir / "facility_latest_supply_cold_chain_resilience.csv", index=False)
+    return {
+        "facility_month_records": int(len(joined)),
+        "facilities_reconciled": int(joined["Facility_ID"].nunique()),
+        "months_reconciled": int(joined["Month"].nunique()),
+        "latest_supply_review_facilities": int(latest["Supply_Review_Flag"].sum()),
+    }
+
+
 def _build_artifact_manifest(outputs: dict[str, str], output_dir: Path) -> dict[str, dict[str, Any]]:
     """Validate build artifacts and return stable, relative integrity metadata."""
     root = Path(output_dir).resolve()
@@ -472,6 +568,14 @@ def build_platform(
         facility_path, analytics_dir, periods=periods, start_month=start_month, seed=seed,
     )
 
+
+    supply_cold_chain_resilience = _build_supply_cold_chain_resilience_view(
+        facilities,
+        pd.read_csv(analytics_dir / "facility_commodity_stock_ledger.csv"),
+        pd.read_csv(analytics_dir / "cold_chain_expiry_risk_summary.csv"),
+        analytics_dir,
+    )
+
     if manifest["actual_record_count"] != generator.expected_record_count:
         raise RuntimeError("Generated record count does not match configured fact grain")
     if manifest["facility_count"] != len(facilities):
@@ -534,6 +638,7 @@ def build_platform(
         "quality_profile_population": quality_profile_population,
         "operational_planning_population": operational_planning_population,
         "operational_resilience": operational_resilience,
+        "supply_cold_chain_resilience": supply_cold_chain_resilience,
         "quarantined_records": staging_report["quarantined_rows"],
         "staging_yield_pct": staging_report["staging_yield_pct"],
         "detector_evaluation_scope": quality_report["evaluation_scope"],
@@ -629,6 +734,8 @@ def build_platform(
             "latest_workforce_capacity": str(analytics_dir / "facility_latest_workforce_capacity.csv"),
             "monthly_operational_resilience": str(analytics_dir / "facility_monthly_operational_resilience.csv"),
             "latest_operational_resilience": str(analytics_dir / "facility_latest_operational_resilience.csv"),
+            "monthly_supply_cold_chain_resilience": str(analytics_dir / "facility_monthly_supply_cold_chain_resilience.csv"),
+            "latest_supply_cold_chain_resilience": str(analytics_dir / "facility_latest_supply_cold_chain_resilience.csv"),
             "workforce_recruitment_scenario": str(analytics_dir / "workforce_recruitment_scenario.csv"),
             "workforce_planning_report": str(analytics_dir / "workforce_planning_report.json"),
         },
