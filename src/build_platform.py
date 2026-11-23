@@ -295,6 +295,86 @@ def _validate_operational_planning_population(
         "workforce_facility_month_rows": len(workforce_monthly),
     }
 
+
+def _build_operational_resilience_views(facilities, equipment_monthly, infrastructure_monthly, workforce_monthly, output_dir):
+    """Create an auditable facility-month view across equipment, infrastructure and workforce."""
+    key = ["Facility_ID", "Month"]
+    identity = ["Facility_Name", "District"]
+    expected_ids = set(facilities["Facility_ID"].astype(str))
+    frames = [
+        (equipment_monthly, "equipment", {"Mean_Operational_Uptime_Pct", "Total_Downtime_Hours", "High_Risk_Assets", "PM_Overdue"}),
+        (infrastructure_monthly, "infrastructure", {"Infrastructure_Resilience_Score", "Unserved_Power_Interruption_Hours", "Unserved_Water_Shortage_Hours", "Connectivity_Downtime_Hours"}),
+        (workforce_monthly, "workforce", {"Workforce_Coverage_Pct", "Workforce_Pressure_Index", "Vacant_Positions", "Absent_Positions"}),
+    ]
+    normalized = []
+    reference_months = None
+    for frame, label, measures in frames:
+        required = set(key + identity) | measures
+        if not required.issubset(frame.columns):
+            raise RuntimeError(f"{label} operational output is missing required integration columns")
+        data = frame[list(required)].copy()
+        if data[key + identity].isna().any().any():
+            raise RuntimeError(f"{label} operational output has missing facility-month identity")
+        data["Facility_ID"] = data["Facility_ID"].astype(str).str.strip()
+        if data["Facility_ID"].eq("").any() or data.duplicated(key).any():
+            raise RuntimeError(f"{label} operational output has blank or duplicate facility-month keys")
+        month = pd.to_datetime(data["Month"], errors="coerce")
+        if month.isna().any():
+            raise RuntimeError(f"{label} operational output has invalid reporting months")
+        data["Month"] = month.dt.to_period("M").dt.to_timestamp()
+        month_set = set(data["Month"])
+        if reference_months is None:
+            reference_months = month_set
+        elif month_set != reference_months:
+            raise RuntimeError(f"{label} operational reporting months do not match other domains")
+        if set(data["Facility_ID"]) != expected_ids:
+            raise RuntimeError(f"{label} operational facility population does not match canonical dimension")
+        if len(data) != len(expected_ids) * len(reference_months):
+            raise RuntimeError(f"{label} operational facility-month grid is incomplete")
+        for column in measures:
+            values = pd.to_numeric(data[column], errors="coerce")
+            if values.isna().any() or not np.isfinite(values.to_numpy(dtype=float)).all():
+                raise RuntimeError(f"{label} operational measure {column} contains invalid values")
+            data[column] = values
+        normalized.append(data.sort_values(key).reset_index(drop=True))
+
+    base = normalized[0]
+    for other, label in zip(normalized[1:], ["infrastructure", "workforce"]):
+        joined = base[key + identity].merge(other[key + identity], on=key, how="outer",
+            suffixes=("_base", "_other"), validate="one_to_one", indicator=True)
+        if not joined["_merge"].eq("both").all():
+            raise RuntimeError(f"{label} facility-month keys do not reconcile")
+        for column in identity:
+            if not joined[f"{column}_base"].astype(str).equals(joined[f"{column}_other"].astype(str)):
+                raise RuntimeError(f"{label} facility metadata does not match equipment records")
+
+    combined = base
+    for other in normalized[1:]:
+        combined = combined.merge(other.drop(columns=identity), on=key, how="inner", validate="one_to_one")
+    combined["Operational_Review_Flag"] = (
+        combined["Mean_Operational_Uptime_Pct"].lt(95)
+        | combined["Infrastructure_Resilience_Score"].lt(70)
+        | combined["Workforce_Coverage_Pct"].lt(65)
+    )
+    combined["Operational_Review_Domains"] = combined.apply(
+        lambda row: ";".join(domain for domain, condition in [
+            ("equipment", row["Mean_Operational_Uptime_Pct"] < 95),
+            ("infrastructure", row["Infrastructure_Resilience_Score"] < 70),
+            ("workforce", row["Workforce_Coverage_Pct"] < 65),
+        ] if condition) or "none", axis=1)
+    combined["Interpretation"] = "Synthetic scenario screening flag; not a verified facility risk rating."
+    combined["Synthetic_Data"] = True
+    combined = combined.sort_values(key).reset_index(drop=True)
+    latest = combined.loc[combined["Month"].eq(combined["Month"].max())].copy()
+    output_dir = Path(output_dir)
+    combined.to_csv(output_dir / "facility_monthly_operational_resilience.csv", index=False)
+    latest.to_csv(output_dir / "facility_latest_operational_resilience.csv", index=False)
+    return {"facility_month_records": int(len(combined)),
+        "facilities_reconciled": int(combined["Facility_ID"].nunique()),
+        "months_reconciled": int(combined["Month"].nunique()),
+        "latest_review_priority_facilities": int(latest["Operational_Review_Flag"].sum())}
+
+
 def _build_artifact_manifest(outputs: dict[str, str], output_dir: Path) -> dict[str, dict[str, Any]]:
     """Validate build artifacts and return stable, relative integrity metadata."""
     root = Path(output_dir).resolve()
@@ -430,6 +510,15 @@ def build_platform(
         periods,
     )
 
+
+    operational_resilience = _build_operational_resilience_views(
+        facilities,
+        pd.read_csv(analytics_dir / "facility_equipment_monthly_summary.csv"),
+        pd.read_csv(analytics_dir / "facility_monthly_infrastructure_reliability.csv"),
+        pd.read_csv(analytics_dir / "facility_monthly_workforce_capacity.csv"),
+        analytics_dir,
+    )
+
     summary = {
         "synthetic_data": True,
         "seed": seed,
@@ -443,7 +532,7 @@ def build_platform(
         "staged_records": staging_report["staged_rows"],
         "monthly_analytics_population": monthly_population,
         "quality_profile_population": quality_profile_population,
-        "operational_planning_population": operational_planning_population,
+        "operational_planning_population": operational_planning_population,\n        "operational_resilience": operational_resilience,
         "quarantined_records": staging_report["quarantined_rows"],
         "staging_yield_pct": staging_report["staging_yield_pct"],
         "detector_evaluation_scope": quality_report["evaluation_scope"],
@@ -536,7 +625,7 @@ def build_platform(
             "infrastructure_planning_report": str(analytics_dir / "infrastructure_planning_report.json"),
             "workforce_establishment": str(analytics_dir / "facility_workforce_establishment.csv"),
             "monthly_workforce_capacity": str(analytics_dir / "facility_monthly_workforce_capacity.csv"),
-            "latest_workforce_capacity": str(analytics_dir / "facility_latest_workforce_capacity.csv"),
+            "latest_workforce_capacity": str(analytics_dir / "facility_latest_workforce_capacity.csv"),\n            "monthly_operational_resilience": str(analytics_dir / "facility_monthly_operational_resilience.csv"),\n            "latest_operational_resilience": str(analytics_dir / "facility_latest_operational_resilience.csv"),
             "workforce_recruitment_scenario": str(analytics_dir / "workforce_recruitment_scenario.csv"),
             "workforce_planning_report": str(analytics_dir / "workforce_planning_report.json"),
         },
