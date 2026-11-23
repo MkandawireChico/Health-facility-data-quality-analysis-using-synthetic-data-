@@ -174,8 +174,6 @@ The query files are executable Power Query M templates, not screenshots or mocku
 | FactProgrammeIndicatorAttainment | Overall programme-indicator attainment |
 | FactFacilityResourceCapacity | Facility baseline capacity requirement, synthetic availability and gap |
 | FactResourceAllocationScenario | Facility allocation and residual capacity by scenario |
-| FactFacilityResourceCapacity | Synthetic baseline requirement, availability and gap by facility |
-| FactResourceAllocationScenario | Facility-level allocations and residual gaps by scenario |
 | DimCommodity | Illustrative commodity catalogue keyed by Commodity_ID |
 | FactFacilityCommodityStock | Facility × commodity × month simulated stock ledger |
 | FactCommodityReplenishmentPlan | Latest-snapshot budget-constrained replenishment worklist |
