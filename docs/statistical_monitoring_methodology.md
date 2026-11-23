@@ -48,15 +48,24 @@ rate is:
 `Issue rate = records with at least one detected signal / all staged records`
 
 At least six distinct reporting months are required before descriptive limits
-are calculated. The centre line is the mean of monthly issue rates; limits are
-the centre line plus or minus three population standard deviations, clipped
-to the valid 0–1 range.
+are calculated. The centre line is the pooled issue proportion across all
+observed records (total issue records divided by total records). Each month has
+a denominator-aware three-standard-error band:
+
+`SE_month = sqrt(pooled_rate × (1 − pooled_rate) / monthly_records)`
+
+`Lower/upper limit = pooled_rate ± 3 × SE_month`, clipped to the valid 0–1
+range. This gives low-volume months wider limits than high-volume months and
+avoids treating monthly rates with very different denominators as equally
+precise.
 
 **Important:** the limits use the complete observed period. They are
 retrospective descriptive limits, not prospective limits for future alerts.
-With a short series, non-independent observations, changing reporting
-coverage or small denominators, these limits can be unstable. They should be
-interpreted alongside record volumes and the underlying issue counts.
+These are descriptive binomial p-chart limits, not a full prospective SPC
+implementation. With non-independent observations, changing reporting
+coverage, overdispersion or unstable definitions, the limits can still be
+misleading. They should be interpreted alongside record volumes and the
+underlying issue counts.
 
 ## Interpretation and governance
 
