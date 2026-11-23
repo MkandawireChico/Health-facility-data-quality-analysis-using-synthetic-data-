@@ -76,6 +76,21 @@ def test_analytical_quality_defects_are_flagged_not_quarantined():
     assert report["quality_issue_rows"] >= 4
 
 
+def test_non_finite_numeric_values_are_flagged_without_quarantine():
+    fact, facilities = sample_tables()
+    fact.loc[0, "Reported_Value"] = float("inf")
+    fact.loc[1, "Target_Value"] = float("-inf")
+    fact.loc[2, "Paper_Value"] = "not-numeric"
+    staged, quarantine, report = stage_reporting_data(fact, facilities)
+
+    assert quarantine.empty
+    assert len(staged) == len(fact)
+    assert staged.loc[0, "Quality_Invalid_Numeric_Count"] == 1
+    assert staged.loc[1, "Quality_Invalid_Numeric_Count"] == 1
+    assert staged.loc[2, "Quality_Invalid_Numeric_Count"] == 1
+    assert report["quality_issue_rows"] >= 3
+
+
 def test_required_schema_and_duplicate_facility_keys_are_enforced():
     fact, facilities = sample_tables()
     with pytest.raises(ValueError, match="Fact table missing"):
