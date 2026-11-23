@@ -224,6 +224,12 @@ The operational analytics module also writes:
 
 These profiles are created only from operational ETL flags and derived detector outputs. Ground-truth columns are not used. District labels are synthetic-scenario geography and must not be interpreted as real district performance. The Streamlit Expanded Platform view includes district comparisons and longitudinal trends.
 
+## Target-attainment and programme-performance layer
+
+`src/target_attainment.py` calculates pooled reported-to-target attainment at facility-indicator, district-indicator, programme-indicator and month-indicator grain. It compares only matching programme-indicator pairs; unlike indicators are never combined into a single facility score. Missing/invalid months, missing or negative reported values, and missing/non-positive targets are excluded from numerator and denominator, while valid-data percentages remain available for interpretation.
+
+Outputs include `facility_indicator_target_attainment.csv`, `district_indicator_target_attainment.csv`, `programme_indicator_target_attainment.csv`, `monthly_indicator_target_attainment.csv` and `target_attainment_report.json`. Illustrative bands are below 80%, 80–99.9%, and at/above 100%; they are not official service standards. These are not population coverage or unique people served. See `docs/target_attainment_methodology.md`.
+
 ## Corrective action register identity and lifecycle
 
 Corrective-action record identifiers are generated from the selected source name and the facility-month-programme-indicator grain. They do not depend on dataframe row order or active filters. The dashboard exposes all saved actions, status totals, overdue actions, CSV export and field-level audit history. The default SQLite database persists on a durable local filesystem; Streamlit Community Cloud does not guarantee durable local storage or multi-instance consistency. A managed database and authentication are still required for production multi-user use.
