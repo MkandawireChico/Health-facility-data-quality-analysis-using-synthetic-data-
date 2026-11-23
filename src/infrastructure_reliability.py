@@ -58,10 +58,12 @@ def build_infrastructure_profiles(
     budget_credits: int = 50000,
 ) -> dict[str, pd.DataFrame]:
     """Create facility profiles, facility-month interruption records and upgrade scenarios."""
-    if not isinstance(periods, int) or periods < 1:
+    if isinstance(periods, bool) or not isinstance(periods, (int, np.integer)) or periods < 1:
         raise ValueError("periods must be a positive integer")
-    if budget_credits < 0:
-        raise ValueError("budget_credits must be non-negative")
+    if (isinstance(budget_credits, bool)
+            or not isinstance(budget_credits, (int, np.integer))
+            or budget_credits < 0):
+        raise ValueError("budget_credits must be a non-negative integer")
     fac = _validate_facilities(facilities)
     months = pd.date_range(pd.Timestamp(start_month).to_period("M").to_timestamp(), periods=periods, freq="MS")
     rng = np.random.default_rng(seed)
