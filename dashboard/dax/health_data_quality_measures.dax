@@ -192,6 +192,12 @@ DIVIDE (
     SUM ( FactMonthlyIndicatorAttainment[target_total] )
 )
 
+Programme Indicator Target Attainment =
+DIVIDE (
+    SUM ( FactProgrammeIndicatorAttainment[reported_total] ),
+    SUM ( FactProgrammeIndicatorAttainment[target_total] )
+)
+
 Target Attainment Valid Records =
 SUM ( FactFacilityIndicatorAttainment[valid_attainment_records] )
 
