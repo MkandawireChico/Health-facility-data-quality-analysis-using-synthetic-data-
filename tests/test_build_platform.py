@@ -527,3 +527,47 @@ def test_operational_resilience_views_reject_domain_population_drift(tmp_path):
     workforce.loc[0, "Facility_ID"] = "F2"
     with pytest.raises(RuntimeError, match="facility population"):
         _build_operational_resilience_views(facilities, equipment, infrastructure, workforce, tmp_path)
+
+
+def test_supply_cold_chain_resilience_view_reconciles_monthly_facility_populations(tmp_path):
+    import pandas as pd
+    from build_platform import _build_supply_cold_chain_resilience_view
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1", "F2"]})
+    rows = [{"Facility_ID": f, "Facility_Name": n, "District": d, "Month": m}
+        for f, n, d in [("F1", "Alpha", "North"), ("F2", "Beta", "South")]
+        for m in ["2024-01-01", "2024-02-01"]]
+    stock = pd.DataFrame([{**r, "Commodity_ID": "COM-001", "Demand_Units": 10,
+        "Unmet_Demand_Units": 2, "Closing_Stock_Units": 4, "Stockout_Days": 3,
+        "Stockout_Flag": True} for r in rows])
+    cold = pd.DataFrame([{**r, "Commodity_ID": "CC-001", "Expired_Units": 1,
+        "Near_Expiry_90_Day_Units": 2, "Temperature_Excursion_Days": 1,
+        "Cold_Chain_Risk_Score": 75.0, "Risk_Band": "High"} for r in rows])
+
+    result = _build_supply_cold_chain_resilience_view(facilities, stock, cold, tmp_path)
+    assert result == {"facility_month_records": 4, "facilities_reconciled": 2,
+        "months_reconciled": 2, "latest_supply_review_facilities": 2}
+    latest = pd.read_csv(tmp_path / "facility_latest_supply_cold_chain_resilience.csv")
+    assert latest["Supply_Review_Flag"].all()
+    assert latest["Stockout_Commodity_Pairs"].eq(1).all()
+    assert latest["High_Cold_Chain_Risk_Pairs"].eq(1).all()
+
+
+def test_supply_cold_chain_resilience_view_rejects_monthly_population_drift(tmp_path):
+    import pandas as pd
+    import pytest
+    from build_platform import _build_supply_cold_chain_resilience_view
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1"]})
+    base = {"Facility_ID": "F1", "Facility_Name": "Alpha", "District": "North",
+        "Month": "2024-01-01"}
+    stock = pd.DataFrame([{**base, "Commodity_ID": "COM-001", "Demand_Units": 10,
+        "Unmet_Demand_Units": 0, "Closing_Stock_Units": 5, "Stockout_Days": 0,
+        "Stockout_Flag": False}])
+    cold = pd.DataFrame([{**base, "Commodity_ID": "CC-001", "Expired_Units": 0,
+        "Near_Expiry_90_Day_Units": 0, "Temperature_Excursion_Days": 0,
+        "Cold_Chain_Risk_Score": 10.0, "Risk_Band": "Low"}])
+    cold.loc[0, "Month"] = "2024-02-01"
+
+    with pytest.raises(RuntimeError, match="reporting months do not match"):
+        _build_supply_cold_chain_resilience_view(facilities, stock, cold, tmp_path)
