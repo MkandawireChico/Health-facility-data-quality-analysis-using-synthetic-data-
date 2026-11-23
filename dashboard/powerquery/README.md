@@ -59,6 +59,12 @@ Load these queries:
 - FactColdChainTemperature
 - FactCommodityBatchLedger
 - FactColdChainExpiryRisk
+- DimEquipmentType
+- FactEquipmentAssetRegister
+- FactEquipmentAssetMonthly
+- FactFacilityEquipmentMonthly
+- FactEquipmentMaintenanceWorkOrders
+- FactEquipmentLatestAssetRisk
 
 FactSourceObservation and DimIndicator reference the FactReporting query, so create FactReporting first. The other query creation order is flexible after FactReporting and DimFacility exist.
 
@@ -96,3 +102,16 @@ Load `DimColdChainCommodity`, `FactColdChainTemperature`, `FactCommodityBatchLed
 - Keep the batch ledger at Batch_ID × Month grain. Demand and consumption summaries belong to the facility-commodity-month expiry-risk fact, not a sum across repeated batch rows.
 - Use single-direction one-to-many dimension relationships. Never create direct fact-to-fact relationships.
 - Temperature limits, shelf lives, supplier identifiers, batch details and risk scores are synthetic assumptions. The generic 2–8°C range is not a product-specific standard.
+
+
+## Equipment maintenance and uptime model
+
+Load `DimEquipmentType`, `FactEquipmentAssetRegister`, `FactEquipmentAssetMonthly`, `FactFacilityEquipmentMonthly`, `FactEquipmentMaintenanceWorkOrders` and `FactEquipmentLatestAssetRisk` from the matching analytics CSV outputs.
+
+- Connect DimEquipmentType[Equipment_Type] to the equipment register, asset-month performance, maintenance work orders and latest asset-risk snapshot.
+- Connect DimFacility[Facility_ID] to each equipment fact that contains Facility_ID.
+- Connect DimDate[MonthStart] to the Month field in asset-month performance, facility-month summary, work orders and latest asset-risk snapshot. Keep the asset register separate from monthly facts; its Install_Date can use a role-playing date relationship if needed.
+- Connect FactEquipmentMaintenanceWorkOrders to the asset dimension through Asset_ID only if a dedicated DimAsset is created; otherwise avoid fact-to-fact relationships.
+- Do not sum asset-level downtime from the monthly asset fact and facility-month summary together; they are two grains of the same simulated performance.
+- Work-order costs should be aggregated from the work-order fact or from the monthly asset fact, not both.
+- All asset records, failure rates, service intervals, criticality weights and cost credits are synthetic assumptions. See `docs/equipment_maintenance_methodology.md`.
