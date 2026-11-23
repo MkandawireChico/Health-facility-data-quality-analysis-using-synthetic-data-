@@ -24,7 +24,7 @@ The equipment comparison groups paired facility-month observations by unserved p
 
 ## Upgrade scenario
 
-Four illustrative packages are evaluated for each facility: backup power, water storage, connectivity resilience and an integrated package. The engine selects the highest avoided-hours-per-100-credits package for each facility, then ranks those facility-level choices under a configurable abstract credit ceiling. This is a transparent scenario heuristic, not a validated optimisation, engineering design, procurement specification or recommendation. Credits are not MWK.
+Four illustrative packages are evaluated for each facility: backup power, water storage, connectivity resilience and an integrated package. The engine selects the highest avoided-hours-per-100-credits package for each facility only when the simulated package has positive avoided interruption hours. Facilities with no modeled interruption exposure receive no package selection and consume no budget. Eligible facility-level choices are then ranked under a configurable abstract credit ceiling. This is a transparent scenario heuristic, not a validated optimisation, engineering design, procurement specification or recommendation. Credits are not MWK.
 
 ## Outputs
 
