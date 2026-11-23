@@ -67,7 +67,7 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 ## Report page plan
 
 1. **Executive quality overview** — record volume, reporting-value availability, on-time rate, source review rate, distinct records requiring follow-up, monthly trend.
-2. **District and facility intelligence** — facility rates, volume context, follow-up ranking and district comparisons. Avoid presenting synthetic rankings as actual district performance.
+2. **District and facility intelligence** — district-month issue-rate trends, facility rates, volume context, follow-up ranking and district comparisons. Avoid presenting synthetic rankings as actual district performance.
 3. **Programme and indicator monitoring** — programme/indicator volume, reporting completeness and issue rates.
 4. **Source reconciliation** — source value distributions, absolute spread and source review queue.
 5. **Statistical monitoring** — MAD/IQR peer anomalies and retrospective monthly issue-rate limits. Signals are review prompts, not proof of error.
@@ -91,3 +91,12 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 - The current monthly control limits are retrospective descriptive limits.
 - Corrective-action ownership and audit history are not persisted in a shared database.
 - Production use would require validated definitions, access controls, audit trails, secure hosting, agreed refresh SLAs and domain review.
+
+
+### District profile outputs
+
+The analytical pipeline also exports `district_quality_profile.csv` and
+`district_monthly_quality_trends.csv`. These are operational profiles based
+on derived quality flags, not synthetic ground-truth labels. Use District from
+DimFacility to filter FactReporting and the district-level aggregate visuals.
+The district labels and all underlying performance values remain synthetic.
