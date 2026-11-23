@@ -111,7 +111,7 @@ Load `DimEquipmentType`, `FactEquipmentAssetRegister`, `FactEquipmentAssetMonthl
 - Connect DimEquipmentType[Equipment_Type] to the equipment register, asset-month performance, maintenance work orders and latest asset-risk snapshot.
 - Connect DimFacility[Facility_ID] to each equipment fact that contains Facility_ID.
 - Connect DimDate[MonthStart] to the Month field in asset-month performance, facility-month summary, work orders and latest asset-risk snapshot. Keep the asset register separate from monthly facts; its Install_Date can use a role-playing date relationship if needed.
-- Connect FactEquipmentMaintenanceWorkOrders to the asset dimension through Asset_ID only if a dedicated DimAsset is created; otherwise avoid fact-to-fact relationships.
+- Treat FactEquipmentAssetRegister as the unique asset dimension in this model (one row per Asset_ID). Connect it one-to-many to FactEquipmentAssetMonthly, FactEquipmentMaintenanceWorkOrders and FactEquipmentLatestAssetRisk using Asset_ID. It is named as a register extract but serves as the asset dimension.
 - Do not sum asset-level downtime from the monthly asset fact and facility-month summary together; they are two grains of the same simulated performance.
 - Work-order costs should be aggregated from the work-order fact or from the monthly asset fact, not both.
 - All asset records, failure rates, service intervals, criticality weights and cost credits are synthetic assumptions. See `docs/equipment_maintenance_methodology.md`.
