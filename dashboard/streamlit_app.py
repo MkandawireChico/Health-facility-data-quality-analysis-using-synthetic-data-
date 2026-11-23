@@ -541,6 +541,7 @@ with tabs[6]:
     else:
         st.caption(f"Selected file: {platform_file.name} · {platform_file.size / (1024 * 1024):.1f} MB")
         resource_pool_input = st.number_input("Illustrative resource pool (abstract units)", min_value=0, max_value=10000, value=120, step=10, help="Scenario input only; units are not staff headcounts or a monetary budget.")
+        supply_budget_input = st.number_input("Commodity replenishment budget (abstract credits)", min_value=0, max_value=10000000, value=50000, step=1000, help="Synthetic budget credits only; not MWK or an approved procurement allocation.")
         if st.button("Analyse expanded reporting platform", type="primary", key="run_platform_analysis"):
             try:
                 platform_data = pd.read_csv(platform_file)
@@ -551,8 +552,9 @@ with tabs[6]:
                     from quality_analytics import add_operational_predictions, build_operational_profiles, build_district_profiles, evaluate_detectors
                     from statistical_monitoring import detect_peer_anomalies, build_monthly_control_chart
                     from resource_planning import build_resource_planning_profiles
+                    from supply_chain_planning import build_supply_chain_profiles
 
-                    with st.spinner("Running peer anomaly detection and longitudinal monitoring..."):
+                    with st.spinner("Running quality, statistical, resource and commodity supply-chain analytics..."):
                         predicted = add_operational_predictions(platform_data)
                         monthly, facility_profile, programme_profile = build_operational_profiles(platform_data)
                         district_profile, district_monthly = build_district_profiles(platform_data)
@@ -562,6 +564,10 @@ with tabs[6]:
                         resource_columns = ["Facility_ID", "Facility", "District", "Facility_Type", "Urban_Rural", "Catchment_Population"]
                         resource_facilities = platform_data[resource_columns].drop_duplicates("Facility_ID").rename(columns={"Facility": "Facility_Name"})
                         resource = build_resource_planning_profiles(resource_facilities, resource_pool=int(resource_pool_input))
+                        supply = build_supply_chain_profiles(
+                            resource_facilities, periods=24, start_month="2025-01-01", seed=42,
+                            budget_credits=int(supply_budget_input),
+                        )
                         metrics = None
                         if set(truth_required).issubset(platform_data.columns):
                             metrics = evaluate_detectors(platform_data)
@@ -588,6 +594,7 @@ with tabs[6]:
                             "attainment": attainment,
                             "control": control,
                             "resource": resource,
+                            "supply": supply,
                             "metrics": metrics,
                             "synthetic_truth_available": metrics is not None,
                         }
@@ -618,6 +625,12 @@ with tabs[6]:
                 if pd.notna(result["issue_rate"]) else None
             ),
             "peer_anomaly_records": int(result["peer_anomaly_count"]),
+            "commodity_stockout_facility_item_pairs": int(result["supply"]["replenishment_plan"]["Recent_Stockout_Days"].gt(0).sum()),
+            "commodity_replenishment_requested_units": int(result["supply"]["replenishment_plan"]["Requested_Replenishment_Units"].sum()),
+            "commodity_replenishment_allocated_units": int(result["supply"]["replenishment_plan"]["Allocated_Replenishment_Units"].sum()),
+            "commodity_replenishment_budget_credits": int(result["supply"]["scenario_summary"]["budget_credits"].iloc[0]),
+            "commodity_supply_chain_assumptions": result["supply"]["assumptions"]["limitations"],
+            "commodity_supply_chain_interpretation": "All stock, demand, receipts, stockouts and costs are synthetic. Budget credits are not MWK; the commodity list is illustrative and the replenishment worklist is not an order.",
             "facility_indicator_combinations_with_valid_targets": int(len(valid_attainment_summary)),
             "facility_indicator_combinations_below_80_pct": int(valid_attainment_summary["attainment_pct"].lt(80).sum()),
             "facility_indicator_combinations_at_or_above_100_pct": int(valid_attainment_summary["attainment_pct"].ge(100).sum()),
@@ -648,6 +661,10 @@ with tabs[6]:
             "facility_resource_capacity.csv": result["resource"]["facility_capacity"],
             "resource_allocation_scenarios.csv": result["resource"]["scenario_allocations"],
             "resource_allocation_scenario_summary.csv": result["resource"]["scenario_summary"],
+            "commodity_catalog.csv": result["supply"]["commodity_catalog"],
+            "facility_commodity_stock_ledger.csv": result["supply"]["inventory_ledger"],
+            "commodity_replenishment_plan.csv": result["supply"]["replenishment_plan"],
+            "commodity_replenishment_summary.csv": result["supply"]["scenario_summary"],
         }
         if result["metrics"] is not None:
             export_tables["synthetic_detector_evaluation_metrics.csv"] = result["metrics"]
@@ -841,6 +858,84 @@ with tabs[6]:
             mime="text/csv",
             key="download_resource_scenario",
         )
+
+        st.markdown("**Commodity availability, stockout and replenishment intelligence**")
+        st.caption(
+            "This is a synthetic stock-card simulation. Commodity demand, receipts, unit costs and stockouts are generated examples—not actual facility inventory, procurement prices, national consumption standards or an approved essential commodities list. Budget credits are abstract and are not MWK."
+        )
+        supply = result["supply"]
+        stock_ledger = supply["inventory_ledger"]
+        replenishment = supply["replenishment_plan"]
+        supply_summary = supply["scenario_summary"].iloc[0]
+        s1, s2, s3, s4 = st.columns(4)
+        s1.metric("Facility–commodity pairs", f"{len(replenishment):,}")
+        s2.metric("Pairs with recent stockouts", f"{int(replenishment['Recent_Stockout_Days'].gt(0).sum()):,}")
+        s3.metric("Requested replenishment units", f"{int(replenishment['Requested_Replenishment_Units'].sum()):,}")
+        s4.metric("Unfunded replenishment units", f"{int(replenishment['Unfunded_Replenishment_Units'].sum()):,}")
+        monthly_stockouts = (
+            stock_ledger.groupby("Month", as_index=False)
+            .agg(
+                Facility_Commodity_Pairs=("Commodity_ID", "size"),
+                Stockout_Pairs=("Stockout_Flag", "sum"),
+                Unmet_Demand_Units=("Unmet_Demand_Units", "sum"),
+            )
+        )
+        monthly_stockouts["Stockout_Pair_Rate_Pct"] = (
+            100 * monthly_stockouts["Stockout_Pairs"] / monthly_stockouts["Facility_Commodity_Pairs"]
+        )
+        st.plotly_chart(
+            px.line(
+                monthly_stockouts, x="Month", y="Stockout_Pair_Rate_Pct", markers=True,
+                title="Monthly share of facility–commodity pairs with a simulated stockout",
+                labels={"Stockout_Pair_Rate_Pct": "Pairs with stockout (%)"},
+            ),
+            use_container_width=True,
+        )
+        commodity_risk = (
+            replenishment.groupby("Commodity", as_index=False)
+            .agg(
+                Facilities=("Facility_ID", "nunique"),
+                Recent_Stockout_Pairs=("Recent_Stockout_Days", lambda values: int(values.gt(0).sum())),
+                Requested_Units=("Requested_Replenishment_Units", "sum"),
+                Unfunded_Units=("Unfunded_Replenishment_Units", "sum"),
+            )
+            .sort_values("Recent_Stockout_Pairs", ascending=False)
+        )
+        st.dataframe(commodity_risk, use_container_width=True, hide_index=True)
+        st.markdown("**Budget-constrained replenishment worklist**")
+        st.caption(
+            f"Snapshot month: {pd.to_datetime(supply_summary['snapshot_month']).strftime('%B %Y')} · "
+            f"Budget: {int(supply_summary['budget_credits']):,} abstract credits · "
+            f"Allocated: {int(supply_summary['allocated_cost_credits']):,} credits · "
+            f"Unspent: {int(supply_summary['unspent_budget_credits']):,} credits"
+        )
+        supply_columns = [
+            "Facility_Name", "District", "Commodity", "Programme", "Closing_Stock_Units",
+            "Estimated_Days_of_Cover", "Recent_Stockout_Days", "Requested_Replenishment_Units",
+            "Allocated_Replenishment_Units", "Unfunded_Replenishment_Units",
+            "Allocated_Cost_Credits", "Post_Allocation_Days_of_Cover",
+        ]
+        supply_worklist = replenishment.sort_values(
+            ["Recent_Stockout_Days", "Estimated_Days_of_Cover", "Priority_Score"],
+            ascending=[False, True, False], na_position="first",
+        )
+        st.dataframe(supply_worklist[supply_columns], use_container_width=True, hide_index=True)
+        st.download_button(
+            "Download commodity replenishment worklist",
+            data=supply_worklist.to_csv(index=False).encode("utf-8"),
+            file_name="commodity_replenishment_worklist.csv",
+            mime="text/csv",
+            key="download_commodity_replenishment",
+        )
+        with st.expander("View simulated stock ledger"):
+            st.dataframe(stock_ledger.tail(500), use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download full simulated stock ledger",
+                data=stock_ledger.to_csv(index=False).encode("utf-8"),
+                file_name="facility_commodity_stock_ledger.csv",
+                mime="text/csv",
+                key="download_commodity_stock_ledger",
+            )
 
         st.markdown("**Programme and indicator quality profile**")
         st.dataframe(result["programme"], use_container_width=True, hide_index=True)

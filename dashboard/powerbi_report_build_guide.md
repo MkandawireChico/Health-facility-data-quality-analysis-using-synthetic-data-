@@ -154,7 +154,25 @@ Interpretation:
 - Catchment population is only a planning proxy, not patient volume or service coverage.
 - Allocation methods are heuristics, not validated optima or operational recommendations.
 
-## Optional page 9 — Facility detail
+
+## Page 9 — Commodity availability and replenishment
+
+**Decision question:** Which synthetic facility–commodity pairs show stockout signals, and how does a constrained budget affect replenishment?
+
+Layout:
+- Monthly share of facility–commodity pairs with a simulated stockout and total unmet demand.
+- Commodity comparison for recent stockout pairs and requested/unfunded units.
+- Replenishment worklist with days of cover, recent stockout days, requested units, allocated units and unfunded units.
+- Abstract budget-credit input and funding summary.
+
+Interpretation:
+- Inventory, demand, receipts, commodity catalogue and unit costs are synthetic.
+- Budget credits are not MWK and should not be presented as procurement expenditure.
+- Stockout days are monthly approximations, not observed daily stock-card events.
+- Commodity names are illustrative examples, not an approved national list.
+- The replenishment worklist is a scenario, not an order or operational recommendation.
+
+## Optional page 10 — Facility detail
 
 Only add this page if the report remains readable:
 - facility profile and synthetic catchment attributes;
@@ -190,6 +208,6 @@ Avoid exposing patient-level data. The current dataset has no patient-level reco
 
 ## Companion Streamlit analysis export
 
-The Expanded Platform workspace provides a ZIP handover package alongside its individual CSV downloads. The package contains the management summary JSON, monthly quality trends, facility benchmark, programme/indicator profile, district and district-month profiles, statistical peer anomalies, monthly issue-control output, target-attainment facts and resource-capacity/allocation scenario tables. Detector evaluation metrics are included only when synthetic ground-truth labels are present. The summary carries an explicit synthetic-data disclaimer and records whether synthetic evaluation was performed.
+The Expanded Platform workspace provides a ZIP handover package alongside its individual CSV downloads. The package contains the management summary JSON, monthly quality trends, facility benchmark, programme/indicator profile, district and district-month profiles, statistical peer anomalies, monthly issue-control output, target-attainment facts, resource-capacity/allocation scenario tables, commodity stock ledger and replenishment worklist. Detector evaluation metrics are included only when synthetic ground-truth labels are present. The summary carries an explicit synthetic-data disclaimer and records whether synthetic evaluation was performed.
 
 The guide does not substitute for a completed Power BI Desktop refresh and visual review.

@@ -410,3 +410,9 @@ is ephemeral and is not a managed multi-user database.
 ### Resource capacity planning and allocation scenarios
 
 The new `src/resource_planning.py` layer creates synthetic facility capacity profiles and compares three constrained allocation heuristics: largest-gap priority, rural-weighted equity and equal-share rounds. The pool is configurable and every strategy respects each facility's modelled gap. Outputs include baseline capacity, abstract requirement units, allocated units, residual gaps and scenario summaries. These are explicitly illustrative resource units—not staff headcounts, budgets, official Malawi staffing norms or operational recommendations. Catchment population is only a configurable planning proxy, not patient volume or service coverage. See `docs/resource_planning_methodology.md`. The one-command platform build now exports the resource planning tables and report; Streamlit includes a scenario laboratory and CSV downloads.
+
+### Commodity availability and replenishment intelligence
+
+The new `src/supply_chain_planning.py` module simulates monthly stock cards for eight illustrative commodities across the synthetic facility dimension. It calculates stock balances, fulfilled and unmet demand, estimated stockout days, days of cover and replenishment requirements based on a configurable lead-time-plus-buffer assumption. A deterministic priority-per-credit routine allocates a configurable abstract budget ceiling and exposes funded and unfunded units. The one-command platform build exports the commodity catalogue, stock ledger, replenishment plan and summary; Streamlit adds stockout trends, a commodity risk table and a downloadable replenishment worklist.
+
+All commodity records, demand, receipts and unit costs are synthetic. The commodity list is illustrative, budget credits are not MWK, and this is not an approved national catalogue or operational procurement recommendation. See `docs/supply_chain_methodology.md`.

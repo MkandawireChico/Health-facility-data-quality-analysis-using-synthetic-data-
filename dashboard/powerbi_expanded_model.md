@@ -41,6 +41,7 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | DimIndicator | One row per programme-indicator pair | Indicator_Key, Programme, Indicator |
 | DimDistrict | One row per district label | District |
 | DimSource | One row per reporting source | Source |
+| DimCommodity | One row per illustrative commodity | Commodity_ID, Commodity, Programme, Unit |
 
 ### Facts
 
@@ -55,6 +56,8 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | FactProgrammeIndicatorAttainment | Programme × indicator | Overall comparable indicator attainment profile |
 | FactMonthlyQualityTrend | Month | Operational issue volumes and rates |
 | FactPeerAnomaly | Anomalous reporting record | Statistical review queue and peer score |
+| FactFacilityCommodityStock | Facility × commodity × month | Synthetic opening stock, receipts, demand, unmet demand and stockout estimates |
+| FactCommodityReplenishmentPlan | Facility × commodity snapshot | Requested, funded and unfunded replenishment units under an abstract budget |
 
 ### Relationships
 
@@ -82,6 +85,10 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 - DimIndicator[Indicator_Key] 1 → * FactMonthlyIndicatorAttainment[Indicator_Key]
 - DimIndicator[Indicator_Key] 1 → * FactProgrammeIndicatorAttainment[Indicator_Key]
 
+- DimFacility[Facility_ID] 1 → * FactFacilityCommodityStock[Facility_ID] and FactCommodityReplenishmentPlan[Facility_ID]
+- DimCommodity[Commodity_ID] 1 → * FactFacilityCommodityStock[Commodity_ID] and FactCommodityReplenishmentPlan[Commodity_ID]
+- DimDate[MonthStart] 1 → * FactFacilityCommodityStock[Month]
+
 Use single-direction filtering from dimensions to facts. Avoid fact-to-fact relationships and ambiguous bidirectional filters. Detector evaluation is a separate governance fact and must not feed operational issue rates or facility rankings.
 
 ## Ground-truth governance
@@ -96,17 +103,19 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 4. **Source reconciliation** — source value distributions, absolute spread and source review queue.
 5. **Statistical monitoring** — MAD/IQR peer anomalies and retrospective monthly issue-rate limits. Signals are review prompts, not proof of error.
 6. **Detector governance** — precision, recall, F1 and confusion counts on synthetic injected defects; display a persistent synthetic-evaluation disclaimer.
-7. **Target attainment** — facility, district and monthly reported-to-target attainment by programme-indicator pair; show valid-record denominators and under-target review bands.\n8. **Resource allocation scenarios** — compare synthetic capacity gaps and three constrained allocation heuristics; keep assumptions and limitations visible.
+7. **Target attainment** — facility, district and monthly reported-to-target attainment by programme-indicator pair; show valid-record denominators and under-target review bands.
+8. **Resource allocation scenarios** — compare synthetic capacity gaps and three constrained allocation heuristics; keep assumptions and limitations visible.
+9. **Commodity availability and replenishment** — monitor synthetic stockouts, unmet demand, days of cover and budget-constrained replenishment.
 
 ## Build instructions
 
 1. Run `python src/build_platform.py` from the repository root.
 2. In Power BI Desktop, create a text parameter named `pWarehouseRoot` pointing to the generated `data/warehouse` folder (no trailing slash).
-3. Create/load the queries in `dashboard/powerquery/`: `FactReporting`, `DimFacility`, `DimIndicator`, `DimDate`, `DimSource`, `FactSourceObservation`, `FactMonthlyQualityTrend`, `FactMonthlyIssueControlChart`, `FactDistrictProfile`, `FactDistrictMonthlyTrend`, `FactPeerAnomaly`, `FactDetectorEvaluation`, `FactFacilityIndicatorAttainment`, `FactDistrictIndicatorAttainment`, `FactMonthlyIndicatorAttainment`, `FactProgrammeIndicatorAttainment`, `FactFacilityResourceCapacity` and `FactResourceAllocationScenario`.
+3. Create/load the queries in `dashboard/powerquery/`: `FactReporting`, `DimFacility`, `DimIndicator`, `DimDate`, `DimSource`, `FactSourceObservation`, `FactMonthlyQualityTrend`, `FactMonthlyIssueControlChart`, `FactDistrictProfile`, `FactDistrictMonthlyTrend`, `FactPeerAnomaly`, `FactDetectorEvaluation`, `FactFacilityIndicatorAttainment`, `FactDistrictIndicatorAttainment`, `FactMonthlyIndicatorAttainment`, `FactProgrammeIndicatorAttainment`, `FactFacilityResourceCapacity`, `FactResourceAllocationScenario`, `DimCommodity`, `FactFacilityCommodityStock` and `FactCommodityReplenishmentPlan`.
 4. The FactReporting query removes all `Ground_Truth_*` fields before loading; keep detector evaluation as a separate synthetic-only governance table.
 5. Create `DimDistrict` using `dashboard/dax/dimension_tables.dax`, then create the relationships listed above. Mark DimDate as the date table and sort MonthName by MonthNumber.
 6. Add measures from `dashboard/dax/health_data_quality_measures.dax`.
-7. Add the DAX resource measures and build the eight report pages using the layout plan.
+7. Add the DAX resource and commodity measures and build the nine report pages using the layout plan.
 8. Validate filter behaviour at facility, district, month, programme and indicator levels.
 9. Keep the synthetic-data disclaimer visible on every report page and in exported PDFs.
 
@@ -148,7 +157,14 @@ The query files are executable Power Query M templates, not screenshots or mocku
 | FactFacilityIndicatorAttainment | Facility-level attainment by programme-indicator pair |
 | FactDistrictIndicatorAttainment | District-level attainment by programme-indicator pair |
 | FactMonthlyIndicatorAttainment | Monthly attainment by programme-indicator pair |
-| FactProgrammeIndicatorAttainment | Overall programme-indicator attainment |\n| FactFacilityResourceCapacity | Synthetic baseline requirement, availability and gap by facility |\n| FactResourceAllocationScenario | Facility-level allocations and residual gaps by scenario |
+| FactProgrammeIndicatorAttainment | Overall programme-indicator attainment |
+| FactFacilityResourceCapacity | Facility baseline capacity requirement, synthetic availability and gap |
+| FactResourceAllocationScenario | Facility allocation and residual capacity by scenario |
+| FactFacilityResourceCapacity | Synthetic baseline requirement, availability and gap by facility |
+| FactResourceAllocationScenario | Facility-level allocations and residual gaps by scenario |
+| DimCommodity | Illustrative commodity catalogue keyed by Commodity_ID |
+| FactFacilityCommodityStock | Facility × commodity × month simulated stock ledger |
+| FactCommodityReplenishmentPlan | Latest-snapshot budget-constrained replenishment worklist |
 
 Create `DimDistrict` from the DAX dimension-table script. Connect it to DimFacility, FactDistrictProfile and FactDistrictMonthlyTrend using single-direction one-to-many relationships. The district aggregate facts are separate from the facility reporting fact; do not create fact-to-fact joins.
 
@@ -156,3 +172,14 @@ Create `DimDistrict` from the DAX dimension-table script. Connect it to DimFacil
 ## Resource capacity and allocation scenario facts
 
 Two additional Power Query facts are provided: `FactFacilityResourceCapacity` (baseline illustrative requirement, synthetic availability and gap) and `FactResourceAllocationScenario` (facility-level allocations and residual gaps for each of three strategies). Relate both to DimFacility on Facility_ID with single-direction one-to-many relationships. Use Scenario as a slicer for comparisons; do not relate the two facts directly. Resource units are abstract synthetic planning units, not staffing headcounts or currency. Refer to `docs/resource_planning_methodology.md` for assumptions and safeguards.
+
+## Commodity availability and replenishment facts
+
+Three Power Query templates extend the semantic model:
+- `DimCommodity` — illustrative commodity catalogue keyed by Commodity_ID.
+- `FactFacilityCommodityStock` — facility-commodity-month stock ledger with opening stock, receipts, demand, fulfilled consumption, unmet demand, closing stock and estimated stockout days.
+- `FactCommodityReplenishmentPlan` — latest-snapshot replenishment requests, budget-constrained allocations and unfunded quantities.
+
+Create single-direction one-to-many relationships from DimFacility, DimCommodity and DimDate to the applicable facts. FactFacilityCommodityStock joins all three dimensions. FactCommodityReplenishmentPlan joins DimFacility and DimCommodity; its Snapshot_Month can join DimDate if the model uses a dedicated role-playing date relationship. Do not join facts directly.
+
+All inventory records and unit costs are synthetic. Budget credits are not MWK, the commodity list is illustrative, and stockout-day estimates are monthly approximations. See `docs/supply_chain_methodology.md`.
