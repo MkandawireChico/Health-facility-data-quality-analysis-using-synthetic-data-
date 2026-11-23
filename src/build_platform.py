@@ -12,6 +12,7 @@ from quality_analytics import run_quality_analytics
 from statistical_monitoring import run_statistical_monitoring
 from target_attainment import run_target_attainment
 from resource_planning import run_resource_planning
+from supply_chain_planning import run_supply_chain_planning
 
 
 def build_platform(
@@ -48,6 +49,9 @@ def build_platform(
     statistical_report = run_statistical_monitoring(staged_path, analytics_dir)
     attainment_report = run_target_attainment(staged_path, analytics_dir)
     resource_report = run_resource_planning(facility_path, analytics_dir, seed=seed)
+    supply_report = run_supply_chain_planning(
+        facility_path, analytics_dir, periods=periods, start_month=start_month, seed=seed
+    )
 
     if manifest["actual_record_count"] != generator.expected_record_count:
         raise RuntimeError("Generated record count does not match configured fact grain")
@@ -72,6 +76,9 @@ def build_platform(
         "target_attainment_method": attainment_report["method"],
         "resource_planning_outputs": resource_report["outputs"],
         "resource_planning_assumptions": resource_report["limitations"],
+        "supply_chain_outputs": supply_report["outputs"],
+        "supply_chain_inventory_records": supply_report["inventory_records"],
+        "supply_chain_assumptions": supply_report["limitations"],
         "months_monitored": statistical_report["months_monitored"],
         "ground_truth_used_for_operational_monitoring": False,
         "outputs": {
@@ -95,6 +102,11 @@ def build_platform(
             "resource_allocation_scenarios": str(analytics_dir / "resource_allocation_scenarios.csv"),
             "resource_allocation_summary": str(analytics_dir / "resource_allocation_scenario_summary.csv"),
             "resource_planning_report": str(analytics_dir / "resource_planning_report.json"),
+            "commodity_catalog": str(analytics_dir / "commodity_catalog.csv"),
+            "commodity_stock_ledger": str(analytics_dir / "facility_commodity_stock_ledger.csv"),
+            "commodity_replenishment_plan": str(analytics_dir / "commodity_replenishment_plan.csv"),
+            "commodity_replenishment_summary": str(analytics_dir / "commodity_replenishment_summary.csv"),
+            "supply_chain_planning_report": str(analytics_dir / "supply_chain_planning_report.json"),
         },
     }
     (output_dir / "platform_build_summary.json").write_text(json.dumps(summary, indent=2))
