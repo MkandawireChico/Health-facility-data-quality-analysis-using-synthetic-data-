@@ -20,6 +20,8 @@ def test_small_end_to_end_platform_build(tmp_path):
     assert summary["generated_fact_records"] == 480
     assert summary["staged_records"] + summary["quarantined_records"] == 480
     assert summary["ground_truth_used_for_operational_monitoring"] is False
+    assert summary["artifact_count"] == len(summary["outputs"])
+    assert summary["artifact_total_bytes"] > 0
     assert summary["cold_chain_temperature_records"] == 6 * 2
     assert summary["cold_chain_batch_records"] > 0
     assert summary["cold_chain_high_risk_pairs"] >= 0
@@ -108,3 +110,35 @@ def test_small_end_to_end_platform_build(tmp_path):
 
     persisted = json.loads((tmp_path / "warehouse" / "platform_build_summary.json").read_text())
     assert persisted["generated_fact_records"] == 480
+
+
+def test_build_configuration_is_rejected_before_creating_output(tmp_path):
+    import pytest
+
+    output_dir = tmp_path / "must-not-exist"
+    invalid_options = [
+        {"facility_count": 0},
+        {"facility_count": True},
+        {"periods": 0},
+        {"periods": True},
+        {"seed": True},
+    ]
+    for options in invalid_options:
+        with pytest.raises(ValueError):
+            build_platform(output_dir=output_dir, **options)
+    assert not output_dir.exists()
+
+
+def test_build_reconciles_every_advertised_artifact(tmp_path):
+    summary = build_platform(
+        output_dir=tmp_path / "warehouse",
+        seed=8,
+        facility_count=3,
+        start_month="2024-01-01",
+        periods=1,
+    )
+    assert summary["artifact_count"] == len(summary["outputs"])
+    assert all(Path(path).is_file() for path in summary["outputs"].values())
+    assert summary["artifact_total_bytes"] == sum(
+        Path(path).stat().st_size for path in summary["outputs"].values()
+    )
