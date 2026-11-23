@@ -317,3 +317,29 @@ def test_monthly_analytics_population_rejects_duplicate_month_rows():
 
     with pytest.raises(RuntimeError, match="duplicate month rows"):
         _validate_monthly_analytics_population(quality, monitoring, attainment)
+
+def test_monthly_analytics_population_rejects_fractional_and_boolean_counts():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_monthly_analytics_population
+
+    quality = pd.DataFrame({"Month": ["2024-01-01"], "records": [12]})
+    monitoring = pd.DataFrame({"Month": ["2024-01-01"], "Records": [12]})
+    attainment = pd.DataFrame({
+        "Month": ["2024-01-01"], "reporting_records": [12],
+    })
+
+    fractional = quality.copy()
+    fractional.loc[0, "records"] = 12.5
+    with pytest.raises(RuntimeError, match="invalid record counts"):
+        _validate_monthly_analytics_population(
+            fractional, monitoring, attainment
+        )
+
+    boolean = monitoring.copy()
+    boolean["Records"] = [True]
+    with pytest.raises(RuntimeError, match="invalid record counts"):
+        _validate_monthly_analytics_population(
+            quality, boolean, attainment
+        )
+
