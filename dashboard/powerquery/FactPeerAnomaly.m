@@ -1,9 +1,14 @@
 let
     Source = Csv.Document(
         File.Contents(pWarehouseRoot & "/analytics/statistical_peer_anomalies.csv"),
-        [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]
+        [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]
     ),
-    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+    GroundTruthColumns = List.Select(
+        Table.ColumnNames(Headers),
+        each Text.StartsWith(_, "Ground_Truth_")
+    ),
+    OperationalOnly = Table.RemoveColumns(Headers, GroundTruthColumns, MissingField.Ignore),
     Types = Table.TransformColumnTypes(OperationalOnly, {
         {"Record_ID", type text}, {"Facility_ID", type text},
         {"Month", type date}, {"District", type text},
