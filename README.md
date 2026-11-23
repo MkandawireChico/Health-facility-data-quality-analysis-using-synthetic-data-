@@ -266,8 +266,8 @@ pytest -q
 
 The additional statistical monitoring layer is available in
 [`src/statistical_monitoring.py`](src/statistical_monitoring.py). It applies
-MAD robust-z and IQR fallback checks within district/programme/indicator peer
-groups, then builds retrospective monthly issue-rate control limits. Run it
+MAD robust-z and IQR fallback checks within month/district/programme/indicator
+peer groups, then builds retrospective monthly issue-rate control limits. Run it
 after staging with `python src/statistical_monitoring.py`. Statistical signals
 are verification prompts, not proof of errors; the control limits are
 retrospective descriptive limits, not a prospective alerting service. The
@@ -328,15 +328,20 @@ workflow artifact.
 
 ### Expanded Power BI semantic model pack
 
-The expanded platform includes a separate Power BI build specification and detailed report build guide: [dashboard/powerbi_report_build_guide.md](dashboard/powerbi_report_build_guide.md). The expanded platform includes a separate Power BI build specification:
+The expanded platform includes a separate Power BI implementation pack:
 [`dashboard/powerbi_expanded_model.md`](dashboard/powerbi_expanded_model.md).
-It documents the star schema, relationship design, report-page plan and
-synthetic-data governance. Reusable DAX measures are in
+It documents the star schema, relationship design, six-page report plan and
+synthetic-data governance. The accessible light theme is in
+[`dashboard/powerbi_theme.json`](dashboard/powerbi_theme.json), and the report
+build and visual QA guide is in
+[`dashboard/powerbi_report_build_guide.md`](dashboard/powerbi_report_build_guide.md).
+Reusable DAX measures are in
 [`dashboard/dax/health_data_quality_measures.dax`](dashboard/dax/health_data_quality_measures.dax)
 and calculated dimensions in
 [`dashboard/dax/dimension_tables.dax`](dashboard/dax/dimension_tables.dax).
-Power Query templates for the reporting fact, facility dimension and
-source-observation fact are in `dashboard/powerquery/`.
+Power Query M templates for the reporting fact, dimensions, source observations,
+district intelligence, monthly trends, statistical anomalies and detector
+evaluation are in `dashboard/powerquery/`.
 
 This is an implementation pack for rebuilding the expanded semantic model in
 Power BI Desktop. The existing PBIX remains the original 960-row report until
