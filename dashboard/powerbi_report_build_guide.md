@@ -259,7 +259,7 @@ Layout:
 - Domain availability trend for power, water and connectivity.
 - Latest facility resilience review list with risk band and unserved interruption hours.
 - Power interruption bands compared with equipment operational uptime (descriptive association only).
-- Facility-level upgrade scenario table showing package, abstract cost credits, illustrative avoided hours and budget selection.
+- Facility-level upgrade scenario table showing package, abstract cost credits, illustrative avoided hours and budget selection; zero-benefit packages remain unselected and do not consume the scenario budget.
 
 Interpretation:
 - Infrastructure profiles and events are synthetic, not utility-provider observations or engineering inspections.
