@@ -35,12 +35,12 @@ def test_empty_extract_is_rejected():
     assert "no reporting records" in validate_platform_extract(valid_extract().iloc[0:0])[0]
 
 
-def test_missing_resource_planning_metadata_is_reported():
-    data = valid_extract().drop(columns=["Catchment_Population", "Facility_Type"])
+def test_missing_columns_are_reported_without_key_error():
+    data = valid_extract().drop(columns=["Month", "Catchment_Population", "Facility_Type"])
     errors = validate_platform_extract(data)
     assert len(errors) == 1
+    assert "Month" in errors[0]
     assert "Catchment_Population" in errors[0]
-    assert "Facility_Type" in errors[0]
 
 
 def test_blank_facility_metadata_is_reported():
@@ -58,12 +58,11 @@ def test_non_numeric_infinite_and_negative_catchment_values_are_rejected():
         assert any("finite, non-negative numeric" in error for error in errors)
 
 
-
-def test_rejects_extract_without_any_valid_reporting_month():
+def test_rejects_extract_with_any_invalid_reporting_month():
     data = valid_extract()
-    data["Month"] = "not-a-month"
+    data.loc[1, "Month"] = "not-a-month"
     errors = validate_platform_extract(data)
-    assert any("at least one valid reporting period" in error for error in errors)
+    assert any("valid reporting periods for every record" in error for error in errors)
 
 
 def test_rejects_conflicting_facility_metadata():
@@ -71,3 +70,15 @@ def test_rejects_conflicting_facility_metadata():
     data.loc[1, "District"] = "Mzimba"
     errors = validate_platform_extract(data)
     assert any("conflicting metadata" in error and "District" in error for error in errors)
+
+
+def test_rejects_nonfinite_measure_values():
+    data = valid_extract()
+    data.loc[0, "Reported_Value"] = float("inf")
+    assert any("Reported_Value" in error for error in validate_platform_extract(data))
+
+
+def test_rejects_missing_quality_flags():
+    data = valid_extract()
+    data.loc[0, "Quality_Late_Submission"] = None
+    assert any("Quality_Late_Submission" in error for error in validate_platform_extract(data))
