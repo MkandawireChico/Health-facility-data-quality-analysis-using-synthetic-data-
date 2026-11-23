@@ -597,6 +597,8 @@ with tabs[6]:
 
         # Package the derived outputs into one portable management/review bundle.
         export_buffer = io.BytesIO()
+        facility_attainment_summary = result["attainment"]["facility_indicator"]
+        valid_attainment_summary = facility_attainment_summary.dropna(subset=["attainment_pct"])
         export_summary = {
             "synthetic_data": True,
             "staged_records": int(result["records"]),
@@ -610,6 +612,9 @@ with tabs[6]:
                 if pd.notna(result["issue_rate"]) else None
             ),
             "peer_anomaly_records": int(result["peer_anomaly_count"]),
+            "facility_indicator_combinations_with_valid_targets": int(len(valid_attainment_summary)),
+            "facility_indicator_combinations_below_80_pct": int(valid_attainment_summary["attainment_pct"].lt(80).sum()),
+            "facility_indicator_combinations_at_or_above_100_pct": int(valid_attainment_summary["attainment_pct"].ge(100).sum()),
             "synthetic_ground_truth_evaluation_available": bool(result["synthetic_truth_available"]),
             "ground_truth_scope": (
                 "Detector metrics evaluate controlled synthetic defects only."
