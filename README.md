@@ -425,3 +425,12 @@ The new `src/cold_chain_planning.py` module creates synthetic facility-month tem
 The one-command platform build exports a cold-chain catalogue, temperature monitoring fact, batch ledger, expiry-risk summary and report. Streamlit adds a cold-chain risk dashboard and downloadable batch review worklist. The notebook and Power BI model include the same analysis layer.
 
 All records, sensors, lots, temperatures, suppliers, receipts, consumption and expiry events are synthetic. The default 2–8°C band and shelf lives are illustrative assumptions, not official Malawi standards or product-specific storage instructions. The monthly temperature summary is not validated continuous logger evidence and cannot determine product disposition. See `docs/cold_chain_methodology.md`.
+
+
+### Equipment asset, maintenance and uptime intelligence
+
+The new `src/equipment_maintenance.py` module creates a synthetic equipment register and asset-month history for seven illustrative equipment types. It models preventive-maintenance schedules, corrective work orders, breakdown events, unplanned and planned downtime, service availability, operational uptime, condition scores and a transparent equipment review score. Work-order cost credits reconcile to monthly maintenance costs.
+
+The platform build exports the equipment catalogue, asset register, asset-month performance, facility-month summaries, maintenance work orders, latest asset-risk snapshot and a methodology report. Streamlit adds uptime trends, PM completion monitoring, high-risk asset review and work-order exports. The notebook and Power BI model include the same layer.
+
+All assets, failures, maintenance events, condition scores and costs are synthetic. Asset lives, failure probabilities, maintenance intervals and criticality weights are illustrative assumptions, not official standards or verified engineering guidance. Abstract credits are not MWK. This is not a verified facility inventory or clinical service-availability report. See `docs/equipment_maintenance_methodology.md`.
