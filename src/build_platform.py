@@ -475,6 +475,136 @@ def _build_supply_cold_chain_resilience_view(facilities, stock_ledger, cold_chai
     }
 
 
+
+def _build_integrated_facility_priority(
+    facilities, operational_latest, supply_latest, quality_benchmark,
+    resource_capacity, output_dir,
+):
+    """Build a transparent synthetic cross-domain facility review register."""
+    identity = ["Facility_ID", "Facility_Name", "District"]
+    expected_ids = set(facilities["Facility_ID"].astype(str).str.strip())
+    sources = [
+        (operational_latest, "operational", {
+            "Mean_Operational_Uptime_Pct", "Infrastructure_Resilience_Score",
+            "Workforce_Coverage_Pct", "Operational_Review_Flag",
+            "Operational_Review_Domains",
+        }),
+        (supply_latest, "supply", {
+            "Supply_Review_Flag", "Stockout_Commodity_Pairs",
+            "High_Cold_Chain_Risk_Pairs", "Near_Expiry_90_Day_Units",
+            "Temperature_Excursion_Days",
+        }),
+        (quality_benchmark, "quality", {
+            "records", "detected_issue_records", "detected_issue_rate_pct",
+            "missing_records", "source_discrepancy_records", "outlier_records",
+            "late_records",
+        }),
+        (resource_capacity, "resource", {
+            "Illustrative_Requirement_Units", "Synthetic_Available_Units",
+            "Baseline_Gap_Units", "Baseline_Capacity_Coverage_Pct",
+        }),
+    ]
+    normalized = []
+    for frame, label, measures in sources:
+        required = set(identity) | measures
+        if not required.issubset(frame.columns):
+            raise RuntimeError(f"{label} priority source is missing required columns")
+        data = frame[identity + sorted(measures)].copy()
+        if data[identity].isna().any().any():
+            raise RuntimeError(f"{label} priority source contains missing facility identity")
+        data["Facility_ID"] = data["Facility_ID"].astype(str).str.strip()
+        if data["Facility_ID"].eq("").any() or data["Facility_ID"].duplicated().any():
+            raise RuntimeError(f"{label} priority source has blank or duplicate facilities")
+        if set(data["Facility_ID"]) != expected_ids or len(data) != len(expected_ids):
+            raise RuntimeError(f"{label} priority facility population does not match canonical dimension")
+        if data.groupby("Facility_ID")[["Facility_Name", "District"]].nunique().gt(1).any().any():
+            raise RuntimeError(f"{label} priority source contains conflicting facility metadata")
+        for column in measures - {"Operational_Review_Flag", "Operational_Review_Domains", "Supply_Review_Flag"}:
+            values = pd.to_numeric(data[column], errors="coerce")
+            if values.isna().any() or not np.isfinite(values.to_numpy(dtype=float)).all():
+                raise RuntimeError(f"{label} priority measure {column} contains invalid values")
+            data[column] = values
+        if label in {"operational", "supply"}:
+            flag = "Operational_Review_Flag" if label == "operational" else "Supply_Review_Flag"
+            if not data[flag].isin([True, False, 0, 1]).all():
+                raise RuntimeError(f"{label} review flag must be Boolean")
+            data[flag] = data[flag].astype(bool)
+        normalized.append(data.sort_values("Facility_ID").reset_index(drop=True))
+
+    base = normalized[0]
+    for other, label in zip(normalized[1:], ["supply", "quality", "resource"]):
+        joined = base[identity].merge(
+            other[identity], on="Facility_ID", how="outer",
+            suffixes=("_base", "_other"), validate="one_to_one", indicator=True,
+        )
+        if not joined["_merge"].eq("both").all():
+            raise RuntimeError(f"{label} facility identities do not reconcile")
+        for column in ["Facility_Name", "District"]:
+            if not joined[f"{column}_base"].astype(str).equals(joined[f"{column}_other"].astype(str)):
+                raise RuntimeError(f"{label} {column} metadata does not reconcile")
+
+    combined = base
+    for other in normalized[1:]:
+        combined = combined.merge(other.drop(columns=["Facility_Name", "District"]),
+            on="Facility_ID", how="inner", validate="one_to_one")
+
+    if combined["records"].le(0).any():
+        raise RuntimeError("Quality benchmark record counts must be positive")
+    if combined["detected_issue_records"].lt(0).any() or combined["detected_issue_records"].gt(combined["records"]).any():
+        raise RuntimeError("Quality benchmark issue counts are outside valid bounds")
+    if not combined["detected_issue_rate_pct"].between(0, 100).all():
+        raise RuntimeError("Quality benchmark issue rates must be between 0 and 100")
+    if not combined["Baseline_Capacity_Coverage_Pct"].between(0, 100).all():
+        raise RuntimeError("Resource capacity coverage must be between 0 and 100")
+    if combined["Baseline_Gap_Units"].lt(0).any():
+        raise RuntimeError("Resource baseline gaps cannot be negative")
+
+    combined["Data_Quality_Priority_Score"] = combined["detected_issue_rate_pct"].clip(0, 100)
+    combined["Resource_Gap_Priority_Score"] = (100 - combined["Baseline_Capacity_Coverage_Pct"]).clip(0, 100)
+    combined["Operational_Priority_Score"] = (
+        100 * combined["Operational_Review_Flag"].astype(int)
+    )
+    combined["Supply_Cold_Chain_Priority_Score"] = (
+        100 * combined["Supply_Review_Flag"].astype(int)
+    )
+    score_columns = [
+        "Data_Quality_Priority_Score", "Resource_Gap_Priority_Score",
+        "Operational_Priority_Score", "Supply_Cold_Chain_Priority_Score",
+    ]
+    combined["Integrated_Priority_Score"] = combined[score_columns].mean(axis=1).round(2)
+    combined["Priority_Band"] = np.select(
+        [combined["Integrated_Priority_Score"].ge(50), combined["Integrated_Priority_Score"].ge(25)],
+        ["High review", "Focused review"], default="Routine review",
+    )
+    combined["Review_Domains"] = combined.apply(
+        lambda row: ";".join(domain for domain, condition in [
+            ("data_quality", row["Data_Quality_Priority_Score"] > 0),
+            ("resource_capacity", row["Baseline_Gap_Units"] > 0),
+            ("operational_resilience", bool(row["Operational_Review_Flag"])),
+            ("supply_cold_chain", bool(row["Supply_Review_Flag"])),
+        ] if condition) or "none", axis=1,
+    )
+    combined["Interpretation"] = (
+        "Illustrative synthetic cross-domain review score; equal-weighted screening, "
+        "not a validated clinical, safety, facility-performance or resource-allocation rating."
+    )
+    combined["Synthetic_Data"] = True
+    combined = combined.sort_values(
+        ["Integrated_Priority_Score", "Facility_ID"], ascending=[False, True]
+    ).reset_index(drop=True)
+    combined["Integrated_Priority_Rank"] = np.arange(1, len(combined) + 1)
+    output_dir = Path(output_dir)
+    combined.to_csv(output_dir / "integrated_facility_priority_register.csv", index=False)
+    return {
+        "facilities_prioritised": int(len(combined)),
+        "high_review_facilities": int(combined["Priority_Band"].eq("High review").sum()),
+        "focused_review_facilities": int(combined["Priority_Band"].eq("Focused review").sum()),
+        "routine_review_facilities": int(combined["Priority_Band"].eq("Routine review").sum()),
+        "mean_integrated_priority_score": round(float(combined["Integrated_Priority_Score"].mean()), 2),
+    }
+
+
+
 def _build_artifact_manifest(outputs: dict[str, str], output_dir: Path) -> dict[str, dict[str, Any]]:
     """Validate build artifacts and return stable, relative integrity metadata."""
     root = Path(output_dir).resolve()
@@ -627,6 +757,16 @@ def build_platform(
         analytics_dir,
     )
 
+
+    integrated_facility_priority = _build_integrated_facility_priority(
+        facilities,
+        pd.read_csv(analytics_dir / "facility_latest_operational_resilience.csv"),
+        pd.read_csv(analytics_dir / "facility_latest_supply_cold_chain_resilience.csv"),
+        pd.read_csv(analytics_dir / "facility_quality_benchmark.csv"),
+        pd.read_csv(analytics_dir / "facility_resource_capacity.csv"),
+        analytics_dir,
+    )
+
     summary = {
         "synthetic_data": True,
         "seed": seed,
@@ -643,6 +783,7 @@ def build_platform(
         "operational_planning_population": operational_planning_population,
         "operational_resilience": operational_resilience,
         "supply_cold_chain_resilience": supply_cold_chain_resilience,
+        "integrated_facility_priority": integrated_facility_priority,
         "quarantined_records": staging_report["quarantined_rows"],
         "staging_yield_pct": staging_report["staging_yield_pct"],
         "detector_evaluation_scope": quality_report["evaluation_scope"],
@@ -740,6 +881,7 @@ def build_platform(
             "latest_operational_resilience": str(analytics_dir / "facility_latest_operational_resilience.csv"),
             "monthly_supply_cold_chain_resilience": str(analytics_dir / "facility_monthly_supply_cold_chain_resilience.csv"),
             "latest_supply_cold_chain_resilience": str(analytics_dir / "facility_latest_supply_cold_chain_resilience.csv"),
+            "integrated_facility_priority_register": str(analytics_dir / "integrated_facility_priority_register.csv"),
             "workforce_recruitment_scenario": str(analytics_dir / "workforce_recruitment_scenario.csv"),
             "workforce_planning_report": str(analytics_dir / "workforce_planning_report.json"),
         },
