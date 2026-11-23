@@ -37,3 +37,14 @@ Saved integrated facility actions are summarised across the portfolio, by distri
 Overdue is calculated by comparing a non-empty due date with the dashboard's current date; resolved actions are excluded. A blank or invalid due date is not counted as overdue. Reporting month is the synthetic month attached to the action record, not the date the action was edited.
 
 These are workflow-process measures, not outcome verification. A record marked Resolved is counted as resolved even though the application does not independently validate that the underlying facility issue has been corrected. Historical summaries depend on the action records retained in the configured SQLite database.
+
+
+## Facility management drill-down
+
+The expanded platform includes a facility selector that joins the integrated priority register to saved corrective-action records using the canonical facility identifier embedded in each action label. The selected facility view displays its overall priority band and score, four component scores, review domains, action counts by status, resolution rate, overdue unresolved actions, and monthly action progress. It remains available when no action has yet been saved for the selected facility.
+
+Where an action record exists, the view can display its owner, root cause, corrective-action notes, due date and overdue flag. The audit selector retrieves field-level changes from the same SQLite action store used by the corrective-action workflow. No second database or parallel action register is created.
+
+The drill-down validates facility identifiers and action record identity before joining records. Facility IDs must be present and unique in the priority register; action labels must end in a bracketed canonical facility ID. Unknown selected IDs, malformed labels, duplicate action IDs and unsupported statuses are rejected rather than silently misattributed.
+
+All displayed priority and action information remains synthetic. The view is a portfolio demonstration, not a live health facility management system. Persistence and multi-user limitations described above still apply.
