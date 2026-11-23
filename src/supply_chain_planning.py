@@ -44,11 +44,11 @@ def build_supply_chain_profiles(
     if missing:
         raise ValueError(f"Facility dimension missing required columns: {sorted(missing)}")
     for name, value in (("periods", periods), ("lead_time_days", lead_time_days)):
-        if not isinstance(value, (int, np.integer)) or value < 1:
+        if isinstance(value, bool) or not isinstance(value, (int, np.integer)) or value < 1:
             raise ValueError(f"{name} must be a positive integer")
-    if not isinstance(buffer_days, (int, np.integer)) or buffer_days < 0:
+    if isinstance(buffer_days, bool) or not isinstance(buffer_days, (int, np.integer)) or buffer_days < 0:
         raise ValueError("buffer_days must be a non-negative integer")
-    if not isinstance(budget_credits, (int, np.integer)) or budget_credits < 0:
+    if isinstance(budget_credits, bool) or not isinstance(budget_credits, (int, np.integer)) or budget_credits < 0:
         raise ValueError("budget_credits must be a non-negative integer")
 
     fac = facilities[list(REQUIRED_FACILITY_COLUMNS)].copy()
