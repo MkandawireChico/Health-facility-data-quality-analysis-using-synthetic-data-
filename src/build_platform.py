@@ -15,6 +15,7 @@ from resource_planning import run_resource_planning
 from supply_chain_planning import run_supply_chain_planning
 from cold_chain_planning import run_cold_chain_planning
 from equipment_maintenance import run_equipment_maintenance
+from infrastructure_reliability import run_infrastructure_planning
 
 
 def build_platform(
@@ -59,6 +60,10 @@ def build_platform(
     )
     equipment_report = run_equipment_maintenance(
         facility_path, analytics_dir, periods=periods, start_month=start_month, seed=seed
+    )
+    infrastructure_report = run_infrastructure_planning(
+        facility_path, analytics_dir, periods=periods, start_month=start_month,
+        seed=seed, equipment_monthly_path=analytics_dir / "facility_equipment_monthly_summary.csv",
     )
 
     if manifest["actual_record_count"] != generator.expected_record_count:
@@ -105,6 +110,11 @@ def build_platform(
         "equipment_latest_high_risk_assets": equipment_report["latest_high_risk_assets"],
         "equipment_latest_mean_operational_uptime_pct": equipment_report["latest_mean_operational_uptime_pct"],
         "equipment_maintenance_assumptions": equipment_report["limitations"],
+        "infrastructure_facility_month_records": infrastructure_report["facility_month_records"],
+        "infrastructure_latest_high_risk_facilities": infrastructure_report["latest_high_risk_facilities"],
+        "infrastructure_latest_mean_resilience_score": infrastructure_report["latest_mean_resilience_score"],
+        "infrastructure_equipment_association_months": infrastructure_report["equipment_association_facility_months"],
+        "infrastructure_assumptions": infrastructure_report["limitations"],
         "months_monitored": statistical_report["months_monitored"],
         "ground_truth_used_for_operational_monitoring": False,
         "outputs": {
@@ -145,6 +155,12 @@ def build_platform(
             "equipment_maintenance_work_orders": str(analytics_dir / "equipment_maintenance_work_orders.csv"),
             "equipment_latest_asset_status": str(analytics_dir / "equipment_latest_asset_risk_status.csv"),
             "equipment_maintenance_report": str(analytics_dir / "equipment_maintenance_report.json"),
+            "facility_infrastructure_profiles": str(analytics_dir / "facility_infrastructure_profiles.csv"),
+            "monthly_infrastructure_reliability": str(analytics_dir / "facility_monthly_infrastructure_reliability.csv"),
+            "latest_infrastructure_resilience": str(analytics_dir / "facility_latest_infrastructure_resilience.csv"),
+            "equipment_infrastructure_association": str(analytics_dir / "equipment_infrastructure_association.csv"),
+            "infrastructure_upgrade_scenarios": str(analytics_dir / "infrastructure_upgrade_scenarios.csv"),
+            "infrastructure_planning_report": str(analytics_dir / "infrastructure_planning_report.json"),
         },
     }
     (output_dir / "platform_build_summary.json").write_text(json.dumps(summary, indent=2))
