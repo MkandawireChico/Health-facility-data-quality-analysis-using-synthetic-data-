@@ -61,7 +61,8 @@ def test_action_performance_empty_register_returns_zero_kpis():
 def test_action_performance_rejects_unsupported_status(status):
     data = action_frame()
     data.loc[0, "Status"] = status
-    with pytest.raises(ValueError, match="unsupported statuses"):
+    expected_message = "blank Status" if status == "" else "unsupported statuses"
+    with pytest.raises(ValueError, match=expected_message):
         build_action_performance(data, as_of="2026-10-01")
 
 
@@ -70,3 +71,16 @@ def test_action_performance_rejects_malformed_facility_identity():
     data.loc[0, "Facility"] = "Alpha Clinic"
     with pytest.raises(ValueError, match="facility labels"):
         build_action_performance(data, as_of="2026-10-01")
+
+
+
+def test_action_performance_rejects_malformed_nonempty_due_date():
+    data = action_frame()
+    data.loc[0, "Due date"] = "next Friday"
+    with pytest.raises(ValueError, match="invalid due dates"):
+        build_action_performance(data, as_of="2026-10-01")
+
+
+def test_action_performance_rejects_invalid_reference_date():
+    with pytest.raises(ValueError, match="valid timezone-naive date"):
+        build_action_performance(action_frame(), as_of="NaT")
