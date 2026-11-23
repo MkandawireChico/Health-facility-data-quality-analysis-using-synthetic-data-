@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -19,6 +20,36 @@ from cold_chain_planning import run_cold_chain_planning
 from equipment_maintenance import run_equipment_maintenance
 from infrastructure_reliability import run_infrastructure_planning
 from workforce_planning import run_workforce_planning
+
+
+
+def _build_artifact_manifest(outputs: dict[str, str], output_dir: Path) -> dict[str, dict[str, Any]]:
+    """Validate build artifacts and return stable, relative integrity metadata."""
+    root = Path(output_dir).resolve()
+    manifest: dict[str, dict[str, Any]] = {}
+    for name, raw_path in outputs.items():
+        path = Path(raw_path).resolve()
+        try:
+            relative_path = path.relative_to(root)
+        except ValueError as exc:
+            raise RuntimeError(
+                f"Platform artifact '{name}' is outside the output directory"
+            ) from exc
+        if not path.is_file():
+            raise RuntimeError(f"Platform artifact '{name}' is missing: {relative_path}")
+        size_bytes = path.stat().st_size
+        if size_bytes <= 0:
+            raise RuntimeError(f"Platform artifact '{name}' is empty: {relative_path}")
+        digest = hashlib.sha256()
+        with path.open("rb") as artifact_file:
+            for chunk in iter(lambda: artifact_file.read(1024 * 1024), b""):
+                digest.update(chunk)
+        manifest[name] = {
+            "path": relative_path.as_posix(),
+            "size_bytes": size_bytes,
+            "sha256": digest.hexdigest(),
+        }
+    return manifest
 
 
 def build_platform(
@@ -208,20 +239,14 @@ def build_platform(
             "workforce_planning_report": str(analytics_dir / "workforce_planning_report.json"),
         },
     }
-    # Treat the output map as a build contract: every advertised artifact must
-    # exist before a successful summary is published.
-    missing_artifacts = [
-        name for name, path in summary["outputs"].items()
-        if not Path(path).is_file()
-    ]
-    if missing_artifacts:
-        raise RuntimeError(
-            "Platform build is missing advertised artifacts: "
-            + ", ".join(missing_artifacts)
-        )
-    summary["artifact_count"] = len(summary["outputs"])
+    # Publish an integrity manifest only after every advertised artifact has
+    # been verified as a non-empty file inside this build's output directory.
+    summary["artifact_manifest"] = _build_artifact_manifest(
+        summary["outputs"], output_dir
+    )
+    summary["artifact_count"] = len(summary["artifact_manifest"])
     summary["artifact_total_bytes"] = sum(
-        Path(path).stat().st_size for path in summary["outputs"].values()
+        item["size_bytes"] for item in summary["artifact_manifest"].values()
     )
     (output_dir / "platform_build_summary.json").write_text(json.dumps(summary, indent=2))
     return summary
