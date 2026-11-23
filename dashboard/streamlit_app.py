@@ -556,6 +556,7 @@ with tabs[6]:
                     from cold_chain_planning import build_cold_chain_profiles
                     from equipment_maintenance import build_equipment_maintenance_profiles
                     from infrastructure_reliability import build_infrastructure_profiles
+                    from workforce_planning import build_workforce_profiles
 
                     with st.spinner("Running quality, statistical, resource and commodity supply-chain analytics..."):
                         predicted = add_operational_predictions(platform_data)
@@ -580,6 +581,10 @@ with tabs[6]:
                         infrastructure = build_infrastructure_profiles(
                             resource_facilities, periods=24, start_month="2025-01-01", seed=42,
                             equipment_monthly=equipment["facility_monthly_summary"],
+                        )
+                        workforce = build_workforce_profiles(
+                            resource_facilities, periods=24, start_month="2025-01-01", seed=42,
+                            recruitment_budget_credits=int(supply_budget_input),
                         )
                         metrics = None
                         if set(truth_required).issubset(platform_data.columns):
@@ -611,6 +616,7 @@ with tabs[6]:
                             "cold_chain": cold_chain,
                             "equipment": equipment,
                             "infrastructure": infrastructure,
+                            "workforce": workforce,
                             "metrics": metrics,
                             "synthetic_truth_available": metrics is not None,
                         }
@@ -666,6 +672,15 @@ with tabs[6]:
                 "Equipment comparisons are descriptive associations, not causal estimates.",
                 "Upgrade credits are abstract and are not MWK.",
             ],
+            "workforce_facility_month_records": int(len(result["workforce"]["monthly_workforce"])),
+            "workforce_latest_mean_coverage_pct": round(float(result["workforce"]["latest_facility_workforce"]["Workforce_Coverage_Pct"].mean()), 2),
+            "workforce_latest_high_risk_facilities": int(result["workforce"]["latest_facility_workforce"]["Workforce_Risk_Band"].eq("High").sum()),
+            "workforce_baseline_vacancies": int(result["workforce"]["establishment"]["Baseline_Vacancies"].sum()),
+            "workforce_assumptions": [
+                "All role establishments, filled positions, absences and overtime are synthetic.",
+                "Workload is a catchment-based proxy, not patient volume or service utilisation.",
+                "Role mixes are not official staffing norms; recruitment credits are not MWK.",
+            ],
             "facility_indicator_combinations_with_valid_targets": int(len(valid_attainment_summary)),
             "facility_indicator_combinations_below_80_pct": int(valid_attainment_summary["attainment_pct"].lt(80).sum()),
             "facility_indicator_combinations_at_or_above_100_pct": int(valid_attainment_summary["attainment_pct"].ge(100).sum()),
@@ -715,6 +730,10 @@ with tabs[6]:
             "facility_latest_infrastructure_resilience.csv": result["infrastructure"]["latest_resilience"],
             "equipment_infrastructure_association.csv": result["infrastructure"]["equipment_association"],
             "infrastructure_upgrade_scenarios.csv": result["infrastructure"]["upgrade_scenarios"],
+            "facility_workforce_establishment.csv": result["workforce"]["establishment"],
+            "facility_monthly_workforce_capacity.csv": result["workforce"]["monthly_workforce"],
+            "facility_latest_workforce_capacity.csv": result["workforce"]["latest_facility_workforce"],
+            "workforce_recruitment_scenario.csv": result["workforce"]["role_recruitment_scenario"],
         }
         if result["metrics"] is not None:
             export_tables["synthetic_detector_evaluation_metrics.csv"] = result["metrics"]
@@ -1228,6 +1247,48 @@ with tabs[6]:
             mime="application/zip",
             key="download_infrastructure_pack",
         )
+
+        st.markdown("## Workforce capacity and staffing intelligence")
+        st.info(
+            "Staff establishments, filled positions, absences and overtime are synthetic. "
+            "Role mixes are not official Malawi staffing norms. Workload is a catchment-based "
+            "proxy, not patient volume, and the metrics do not establish safe staffing or clinical quality."
+        )
+        workforce = result["workforce"]
+        latest_workforce = workforce["latest_facility_workforce"]
+        monthly_workforce = workforce["monthly_workforce"]
+        establishment = workforce["establishment"]
+        role_scenario = workforce["role_recruitment_scenario"]
+        w1,w2,w3,w4=st.columns(4)
+        w1.metric("Facilities monitored", f"{len(latest_workforce):,}")
+        w2.metric("Mean workforce coverage", f"{latest_workforce['Workforce_Coverage_Pct'].mean():.1f}%")
+        w3.metric("Baseline vacancies", f"{int(establishment['Baseline_Vacancies'].sum()):,}")
+        w4.metric("High review-priority facilities", f"{int(latest_workforce['Workforce_Risk_Band'].eq('High').sum()):,}")
+        wleft,wright=st.columns(2)
+        workforce_trend=monthly_workforce.groupby("Month",as_index=False).agg(
+            Workforce_Coverage_Pct=("Workforce_Coverage_Pct","mean"),
+            Absence_Rate_Pct=("Absence_Rate_Pct","mean"),
+            Estimated_Overtime_Hours=("Estimated_Overtime_Hours","mean"))
+        wleft.plotly_chart(px.line(workforce_trend,x="Month",y=["Workforce_Coverage_Pct","Absence_Rate_Pct"],
+            markers=True,title="Synthetic workforce coverage and absence trends"),use_container_width=True)
+        wright.plotly_chart(px.bar(latest_workforce.sort_values("Workforce_Coverage_Pct").head(15),
+            x="Workforce_Coverage_Pct",y="Facility_Name",color="Workforce_Risk_Band",orientation="h",
+            title="Facilities with lowest illustrative staffing coverage",
+            hover_data=["District","Vacant_Positions","Absent_Positions","Workforce_Pressure_Index"]),
+            use_container_width=True)
+        st.markdown("**Role-level establishment and vacancy profile**")
+        role_summary=establishment.groupby("Role",as_index=False).agg(
+            Establishment=("Illustrative_Establishment","sum"),
+            Baseline_Filled=("Baseline_Filled_Positions","sum"),
+            Vacancies=("Baseline_Vacancies","sum"))
+        st.plotly_chart(px.bar(role_summary,x="Role",y=["Baseline_Filled","Vacancies"],barmode="stack",
+            title="Synthetic filled positions and vacancies by role"),use_container_width=True)
+        st.markdown("**Illustrative recruitment allocation scenario**")
+        st.caption("The scenario allocates abstract recruitment credits to roles with the largest simulated vacancy totals. It is a transparent heuristic, not an HR plan, salary budget or approved establishment.")
+        st.dataframe(role_scenario,use_container_width=True,hide_index=True)
+        st.download_button("Download workforce capacity and recruitment pack",
+            data=export_buffer.getvalue(),file_name="malawi_health_facility_data_intelligence_analysis.zip",
+            mime="application/zip",key="download_workforce_pack")
 
         st.markdown("**Programme and indicator quality profile**")
         st.dataframe(result["programme"], use_container_width=True, hide_index=True)
