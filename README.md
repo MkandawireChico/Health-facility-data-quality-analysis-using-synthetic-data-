@@ -328,7 +328,7 @@ workflow artifact.
 
 ### Expanded Power BI semantic model pack
 
-The expanded platform includes a separate Power BI build specification:
+The expanded platform includes a separate Power BI build specification and detailed report build guide: [dashboard/powerbi_report_build_guide.md](dashboard/powerbi_report_build_guide.md). The expanded platform includes a separate Power BI build specification:
 [`dashboard/powerbi_expanded_model.md`](dashboard/powerbi_expanded_model.md).
 It documents the star schema, relationship design, report-page plan and
 synthetic-data governance. Reusable DAX measures are in
