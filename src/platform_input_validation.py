@@ -21,7 +21,23 @@ def validate_platform_extract(data: pd.DataFrame) -> list[str]:
     errors = []
     if missing:
         errors.append("Missing required columns: " + ", ".join(missing))
-        return errors
+        valid_months = pd.to_datetime(data["Month"], errors="coerce")
+    if valid_months.notna().sum() == 0:
+        errors.append("Month must contain at least one valid reporting period.")
+
+    metadata_columns = ["Facility", "District", "Facility_Type", "Urban_Rural"]
+    inconsistent = []
+    for column in metadata_columns:
+        counts = data.groupby("Facility_ID", dropna=False)[column].nunique(dropna=False)
+        if counts.gt(1).any():
+            inconsistent.append(column)
+    if inconsistent:
+        errors.append(
+            "Facility_ID values map to conflicting metadata in: "
+            + ", ".join(inconsistent)
+        )
+
+    return errors
 
     facility_dimensions = [
         "Facility_ID", "Facility", "District", "Facility_Type", "Urban_Rural",
