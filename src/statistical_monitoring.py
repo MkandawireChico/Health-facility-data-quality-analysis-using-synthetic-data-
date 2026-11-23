@@ -47,8 +47,11 @@ def detect_peer_anomalies(data: pd.DataFrame, min_group_size: int = 8,
     out["Statistical_Method"] = "Insufficient peer observations"
     out["Peer_Group_Size"] = 0
     values = pd.to_numeric(out["Reported_Value"], errors="coerce")
-    # Compare like-for-like reporting within district, programme and indicator.
-    keys = ["District", "Programme", "Indicator"]
+    # Compare facilities within the same reporting month and like-for-like
+    # district/programme/indicator cohort. This avoids mixing seasonal or
+    # secular changes across the full five-year reporting window.
+    out["Month"] = pd.to_datetime(out["Month"], errors="coerce").dt.to_period("M").dt.to_timestamp()
+    keys = ["Month", "District", "Programme", "Indicator"]
     for _, indexes in out.groupby(keys, dropna=False, sort=False).groups.items():
         valid_idx = [i for i in indexes if pd.notna(values.loc[i])]
         sample = values.loc[valid_idx]
