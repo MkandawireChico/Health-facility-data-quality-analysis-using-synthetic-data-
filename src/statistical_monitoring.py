@@ -107,8 +107,10 @@ def build_monthly_control_chart(data: pd.DataFrame, min_baseline_months: int = 6
     missing = required - set(data.columns)
     if missing:
         raise ValueError(f"Staged data missing control-chart inputs: {sorted(missing)}")
-    if min_baseline_months < 2:
-        raise ValueError("min_baseline_months must be at least 2")
+    if (isinstance(min_baseline_months, bool)
+            or not isinstance(min_baseline_months, (int, np.integer))
+            or min_baseline_months < 2):
+        raise ValueError("min_baseline_months must be an integer of at least 2")
     work = data.copy()
     work["Month"] = pd.to_datetime(work["Month"], errors="coerce").dt.to_period("M").dt.to_timestamp()
     flag_cols = [
