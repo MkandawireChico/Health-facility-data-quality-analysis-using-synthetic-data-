@@ -52,6 +52,12 @@ def test_invalid_facility_dimension_and_parameters_fail_clearly():
         build_resource_planning_profiles(facilities().drop(columns=["District"]))
     with pytest.raises(ValueError, match="resource_pool"):
         build_resource_planning_profiles(facilities(), resource_pool=-1)
+    with pytest.raises(ValueError, match="resource_pool"):
+        build_resource_planning_profiles(facilities(), resource_pool=True)
+    with pytest.raises(ValueError, match="units_per_10000_population"):
+        build_resource_planning_profiles(facilities(), units_per_10000_population=True)
+    with pytest.raises(ValueError, match="units_per_10000_population"):
+        build_resource_planning_profiles(facilities(), units_per_10000_population=float("inf"))
     with pytest.raises(ValueError, match="unique"):
         build_resource_planning_profiles(pd.concat([facilities(), facilities().iloc[[0]]]))
     with pytest.raises(ValueError, match="positive"):
