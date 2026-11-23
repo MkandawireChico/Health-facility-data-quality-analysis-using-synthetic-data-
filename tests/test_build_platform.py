@@ -28,6 +28,10 @@ def test_small_end_to_end_platform_build(tmp_path):
     assert summary["equipment_asset_month_records"] == summary["equipment_asset_count"] * 2
     assert summary["equipment_maintenance_work_orders"] >= 0
     assert 0 <= summary["equipment_latest_mean_operational_uptime_pct"] <= 100
+    assert summary["infrastructure_facility_month_records"] == 6 * 2
+    assert summary["infrastructure_latest_high_risk_facilities"] >= 0
+    assert 0 <= summary["infrastructure_latest_mean_resilience_score"] <= 100
+    assert summary["infrastructure_equipment_association_months"] == 6 * 2
 
     expected_files = [
         "raw/facility_reporting_fact.csv",
@@ -69,6 +73,12 @@ def test_small_end_to_end_platform_build(tmp_path):
         "analytics/equipment_maintenance_work_orders.csv",
         "analytics/equipment_latest_asset_risk_status.csv",
         "analytics/equipment_maintenance_report.json",
+        "analytics/facility_infrastructure_profiles.csv",
+        "analytics/facility_monthly_infrastructure_reliability.csv",
+        "analytics/facility_latest_infrastructure_resilience.csv",
+        "analytics/equipment_infrastructure_association.csv",
+        "analytics/infrastructure_upgrade_scenarios.csv",
+        "analytics/infrastructure_planning_report.json",
         "platform_build_summary.json",
     ]
     for relative in expected_files:
