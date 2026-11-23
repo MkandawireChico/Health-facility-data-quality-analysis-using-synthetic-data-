@@ -86,3 +86,18 @@ def test_duplicate_priority_facility_ids_are_rejected():
     bad = pd.concat([priorities(), priorities().iloc[[0]]], ignore_index=True)
     with pytest.raises(ValueError, match="duplicate facility"):
         build_facility_management_view(bad, actions(), "F-001")
+
+
+
+def test_action_referencing_unknown_facility_is_rejected():
+    bad = actions()
+    bad.loc[0, "Facility"] = "Unknown (West) [F-999]"
+    with pytest.raises(ValueError, match="absent from the priority register"):
+        build_facility_management_view(priorities(), bad, "F-001")
+
+
+def test_invalid_priority_component_score_is_rejected():
+    bad = priorities()
+    bad.loc[0, "Operational_Priority_Score"] = 101
+    with pytest.raises(ValueError, match="invalid Operational_Priority_Score"):
+        build_facility_management_view(bad, actions(), "F-001")
