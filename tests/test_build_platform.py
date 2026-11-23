@@ -571,3 +571,83 @@ def test_supply_cold_chain_resilience_view_rejects_monthly_population_drift(tmp_
 
     with pytest.raises(RuntimeError, match="reporting months do not match"):
         _build_supply_cold_chain_resilience_view(facilities, stock, cold, tmp_path)
+
+
+def test_integrated_facility_priority_register_ranks_cross_domain_pressures(tmp_path):
+    import pandas as pd
+    from build_platform import _build_integrated_facility_priority
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1", "F2"]})
+    operational = pd.DataFrame([
+        {"Facility_ID": "F1", "Facility_Name": "Alpha", "District": "North",
+         "Mean_Operational_Uptime_Pct": 98, "Infrastructure_Resilience_Score": 90,
+         "Workforce_Coverage_Pct": 90, "Operational_Review_Flag": False,
+         "Operational_Review_Domains": "none"},
+        {"Facility_ID": "F2", "Facility_Name": "Beta", "District": "South",
+         "Mean_Operational_Uptime_Pct": 80, "Infrastructure_Resilience_Score": 50,
+         "Workforce_Coverage_Pct": 55, "Operational_Review_Flag": True,
+         "Operational_Review_Domains": "equipment;infrastructure;workforce"},
+    ])
+    supply = pd.DataFrame([
+        {"Facility_ID": "F1", "Facility_Name": "Alpha", "District": "North",
+         "Supply_Review_Flag": False, "Stockout_Commodity_Pairs": 0,
+         "High_Cold_Chain_Risk_Pairs": 0, "Near_Expiry_90_Day_Units": 0,
+         "Temperature_Excursion_Days": 0},
+        {"Facility_ID": "F2", "Facility_Name": "Beta", "District": "South",
+         "Supply_Review_Flag": True, "Stockout_Commodity_Pairs": 2,
+         "High_Cold_Chain_Risk_Pairs": 1, "Near_Expiry_90_Day_Units": 5,
+         "Temperature_Excursion_Days": 2},
+    ])
+    quality = pd.DataFrame([
+        {"Facility_ID": "F1", "Facility_Name": "Alpha", "District": "North",
+         "records": 100, "detected_issue_records": 5, "detected_issue_rate_pct": 5,
+         "missing_records": 1, "source_discrepancy_records": 2,
+         "outlier_records": 1, "late_records": 1},
+        {"Facility_ID": "F2", "Facility_Name": "Beta", "District": "South",
+         "records": 100, "detected_issue_records": 35, "detected_issue_rate_pct": 35,
+         "missing_records": 10, "source_discrepancy_records": 10,
+         "outlier_records": 10, "late_records": 5},
+    ])
+    resource = pd.DataFrame([
+        {"Facility_ID": "F1", "Facility_Name": "Alpha", "District": "North",
+         "Illustrative_Requirement_Units": 10, "Synthetic_Available_Units": 9,
+         "Baseline_Gap_Units": 1, "Baseline_Capacity_Coverage_Pct": 90},
+        {"Facility_ID": "F2", "Facility_Name": "Beta", "District": "South",
+         "Illustrative_Requirement_Units": 10, "Synthetic_Available_Units": 5,
+         "Baseline_Gap_Units": 5, "Baseline_Capacity_Coverage_Pct": 50},
+    ])
+
+    result = _build_integrated_facility_priority(
+        facilities, operational, supply, quality, resource, tmp_path
+    )
+    register = pd.read_csv(tmp_path / "integrated_facility_priority_register.csv")
+    assert result["facilities_prioritised"] == 2
+    assert register.iloc[0]["Facility_ID"] == "F2"
+    assert register.iloc[0]["Priority_Band"] == "High review"
+    assert register.iloc[0]["Review_Domains"] == "data_quality;resource_capacity;operational_resilience;supply_cold_chain"
+
+
+def test_integrated_facility_priority_register_rejects_domain_population_drift(tmp_path):
+    import pandas as pd
+    import pytest
+    from build_platform import _build_integrated_facility_priority
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1"]})
+    base = {"Facility_ID": "F1", "Facility_Name": "Alpha", "District": "North"}
+    operational = pd.DataFrame([{**base, "Mean_Operational_Uptime_Pct": 98,
+        "Infrastructure_Resilience_Score": 90, "Workforce_Coverage_Pct": 90,
+        "Operational_Review_Flag": False, "Operational_Review_Domains": "none"}])
+    supply = pd.DataFrame([{**base, "Supply_Review_Flag": False,
+        "Stockout_Commodity_Pairs": 0, "High_Cold_Chain_Risk_Pairs": 0,
+        "Near_Expiry_90_Day_Units": 0, "Temperature_Excursion_Days": 0}])
+    quality = pd.DataFrame([{**base, "records": 10, "detected_issue_records": 0,
+        "detected_issue_rate_pct": 0, "missing_records": 0,
+        "source_discrepancy_records": 0, "outlier_records": 0, "late_records": 0}])
+    resource = pd.DataFrame([{**base, "Illustrative_Requirement_Units": 10,
+        "Synthetic_Available_Units": 10, "Baseline_Gap_Units": 0,
+        "Baseline_Capacity_Coverage_Pct": 100}])
+    supply.loc[0, "Facility_ID"] = "F2"
+    with pytest.raises(RuntimeError, match="facility population"):
+        _build_integrated_facility_priority(
+            facilities, operational, supply, quality, resource, tmp_path
+        )
