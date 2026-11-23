@@ -37,12 +37,19 @@ def build_priority_action_rows(
             raise ValueError(f"Priority register contains blank {column}")
     if data["Facility_ID"].duplicated().any():
         raise ValueError("Priority register contains duplicate facility identifiers")
+    if data["Review_Domains"].isna().any():
+        raise ValueError("Priority register contains missing review domains")
+    if not data["Priority_Band"].isin(
+        ["High review", "Focused review", "Routine review"]
+    ).all():
+        raise ValueError("Priority register contains an unsupported priority band")
     scores = pd.to_numeric(data["Integrated_Priority_Score"], errors="coerce")
     if scores.isna().any() or not scores.between(0, 100).all():
         raise ValueError("Integrated priority scores must be finite values between 0 and 100")
     ranks = pd.to_numeric(data["Integrated_Priority_Rank"], errors="coerce")
-    if ranks.isna().any() or ranks.lt(1).any() or ranks.mod(1).ne(0).any():
-        raise ValueError("Integrated priority ranks must be positive integers")
+    if (ranks.isna().any() or ranks.lt(1).any() or ranks.mod(1).ne(0).any()
+            or ranks.duplicated().any()):
+        raise ValueError("Integrated priority ranks must be unique positive integers")
     month = pd.to_datetime(latest_month, errors="coerce")
     if pd.isna(month) or month.tzinfo is not None:
         raise ValueError("Latest simulated month must be a valid timezone-naive date")
