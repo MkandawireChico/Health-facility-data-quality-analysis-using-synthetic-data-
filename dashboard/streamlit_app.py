@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-import hashlib
 import os
 import sys
 
@@ -312,7 +311,6 @@ with tabs[4]:
 
     flagged_rows = filtered[filtered["Requires_Follow_Up"]].copy()
     if not flagged_rows.empty:
-        key_cols = ["Facility", "Month", "Programme", "Indicator"]
         record_ids = [
             build_action_record_id(
                 source_name, row["Facility"], row["Month"],
