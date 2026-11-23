@@ -17,6 +17,7 @@ The expanded default cohort models **120 synthetic facilities, six Malawi distri
 - **Operational planning:** constrained resource allocation, commodity stockout and replenishment scenarios, cold-chain and batch-expiry review, equipment maintenance and uptime, infrastructure resilience, and workforce capacity scenarios.
 - **Decision support:** interactive Streamlit workspace with an integrated facility priority register combining data quality, resource gaps, operational resilience and supply/cold-chain review; persistent local corrective-action register with audit history; downloadable analytical outputs; notebook analysis; and a Power BI semantic-model implementation pack.
 - **Integrated prioritisation methodology:** transparent equal-weighted synthetic screening, explicit time-scope labels, facility-population reconciliation and review-domain explanations. See [the methodology](docs/integrated_facility_priority_methodology.md).
+- **Corrective-action management:** facility-level owner assignment, root-cause documentation, due dates, status tracking, overdue monitoring, CSV export and SQLite field-level audit history. See [the workflow documentation](docs/integrated_facility_corrective_action_workflow.md).
 
 ## Baseline demonstration
 
