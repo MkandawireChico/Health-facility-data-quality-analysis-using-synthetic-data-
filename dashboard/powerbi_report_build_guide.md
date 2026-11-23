@@ -249,3 +249,20 @@ Interpretation:
 - Expected asset lives, failure probabilities, PM intervals, criticality and risk weights are modelling assumptions, not engineering standards or manufacturer recommendations.
 - Service availability excludes planned maintenance downtime; operational uptime includes it.
 - Abstract maintenance credits are not MWK. The metrics are not verified clinical service availability or a maintenance instruction.
+
+
+## Page 12 — Facility infrastructure and utilities reliability
+
+**Decision question:** Which synthetic facilities show lower simulated power, water or connectivity availability, and how might illustrative resilience packages compare?
+
+Layout:
+- Domain availability trend for power, water and connectivity.
+- Latest facility resilience review list with risk band and unserved interruption hours.
+- Power interruption bands compared with equipment operational uptime (descriptive association only).
+- Facility-level upgrade scenario table showing package, abstract cost credits, illustrative avoided hours and budget selection.
+
+Interpretation:
+- Infrastructure profiles and events are synthetic, not utility-provider observations or engineering inspections.
+- Availability is not verified clinical service availability and does not establish patient impact.
+- Infrastructure/equipment association is not causal.
+- Upgrade packages, avoided-hour assumptions and abstract credits are not quotations, MWK, procurement specifications or operational recommendations.

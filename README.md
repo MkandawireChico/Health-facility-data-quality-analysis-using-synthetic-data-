@@ -434,3 +434,10 @@ The new `src/equipment_maintenance.py` module creates a synthetic equipment regi
 The platform build exports the equipment catalogue, asset register, asset-month performance, facility-month summaries, maintenance work orders, latest asset-risk snapshot and a methodology report. Streamlit adds uptime trends, PM completion monitoring, high-risk asset review and work-order exports. The notebook and Power BI model include the same layer.
 
 All assets, failures, maintenance events, condition scores and costs are synthetic. Asset lives, failure probabilities, maintenance intervals and criticality weights are illustrative assumptions, not official standards or verified engineering guidance. Abstract credits are not MWK. This is not a verified facility inventory or clinical service-availability report. See `docs/equipment_maintenance_methodology.md`.
+
+
+## Facility infrastructure and utilities intelligence
+
+The expanded platform now includes a synthetic infrastructure reliability layer covering power interruptions and backup response, water shortages and storage buffering, connectivity downtime, monthly domain availability, a composite resilience review score, descriptive comparisons with simulated equipment uptime, and illustrative facility upgrade scenarios under an abstract credit ceiling.
+
+See [infrastructure reliability methodology](docs/infrastructure_reliability_methodology.md). All infrastructure configurations, interruptions, scores, and upgrade assumptions are synthetic. They are not utility-provider observations, engineering assessments, verified clinical service availability, or procurement advice. Abstract credits are not MWK.

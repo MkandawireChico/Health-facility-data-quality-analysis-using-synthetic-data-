@@ -229,3 +229,25 @@ Six Power Query templates extend the semantic model:
 Connect DimEquipmentType and DimFacility to the relevant facts. Connect DimDate to all month-grain facts. Keep the asset register, asset-month performance, facility-month summary and work-order events at their respective grains; do not relate facts directly or aggregate the same downtime/cost measures from multiple fact tables at once. If a dedicated DimAsset is added, it can filter asset-month and work-order facts by Asset_ID.
 
 Service availability excludes unplanned breakdown downtime. Operational uptime also subtracts planned maintenance downtime. The asset mix, expected lives, maintenance intervals, failure probabilities, condition scores and cost credits are synthetic assumptions, not official engineering standards or verified clinical service availability. See `docs/equipment_maintenance_methodology.md`.
+
+
+## Facility infrastructure and utilities reliability
+
+| Fact | Grain | Purpose |
+|---|---|---|
+| FactFacilityInfrastructureProfiles | Facility | Synthetic power, water and connectivity configuration attributes |
+| FactMonthlyInfrastructureReliability | Facility × month | Interruption counts/hours, unserved hours, domain availability and resilience score |
+| FactLatestInfrastructureResilience | Facility × latest month | Latest review snapshot and risk band |
+| FactEquipmentInfrastructureAssociation | Power interruption band | Aggregate descriptive comparison with equipment uptime |
+| FactInfrastructureUpgradeScenarios | Facility × upgrade package | Illustrative avoided-hour scenarios and abstract budget selection |
+
+Relationships:
+- DimFacility[Facility_ID] 1 → * FactFacilityInfrastructureProfiles[Facility_ID]
+- DimFacility[Facility_ID] 1 → * FactMonthlyInfrastructureReliability[Facility_ID]
+- DimDate[MonthStart] 1 → * FactMonthlyInfrastructureReliability[Month]
+- DimFacility[Facility_ID] 1 → * FactLatestInfrastructureResilience[Facility_ID]
+- DimDate[MonthStart] 1 → * FactLatestInfrastructureResilience[Month]
+- DimFacility[Facility_ID] 1 → * FactInfrastructureUpgradeScenarios[Facility_ID]
+- FactEquipmentInfrastructureAssociation is an aggregate band table; it has no facility or date key and should not be joined to facility-level facts.
+
+Do not create fact-to-fact relationships. The infrastructure/equipment comparison is descriptive and not causal. All configurations, interruptions, resilience scores and upgrade costs are synthetic. Abstract credits are not MWK; see `docs/infrastructure_reliability_methodology.md`.

@@ -555,6 +555,7 @@ with tabs[6]:
                     from supply_chain_planning import build_supply_chain_profiles
                     from cold_chain_planning import build_cold_chain_profiles
                     from equipment_maintenance import build_equipment_maintenance_profiles
+                    from infrastructure_reliability import build_infrastructure_profiles
 
                     with st.spinner("Running quality, statistical, resource and commodity supply-chain analytics..."):
                         predicted = add_operational_predictions(platform_data)
@@ -575,6 +576,10 @@ with tabs[6]:
                         )
                         equipment = build_equipment_maintenance_profiles(
                             resource_facilities, periods=24, start_month="2025-01-01", seed=42,
+                        )
+                        infrastructure = build_infrastructure_profiles(
+                            resource_facilities, periods=24, start_month="2025-01-01", seed=42,
+                            equipment_monthly=equipment["facility_monthly_summary"],
                         )
                         metrics = None
                         if set(truth_required).issubset(platform_data.columns):
@@ -605,6 +610,7 @@ with tabs[6]:
                             "supply": supply,
                             "cold_chain": cold_chain,
                             "equipment": equipment,
+                            "infrastructure": infrastructure,
                             "metrics": metrics,
                             "synthetic_truth_available": metrics is not None,
                         }
@@ -651,6 +657,15 @@ with tabs[6]:
             "equipment_mean_operational_uptime_pct_latest": round(float(result["equipment"]["latest_asset_status"]["Operational_Uptime_Pct"].mean()), 2),
             "equipment_open_work_orders_latest": int(result["equipment"]["maintenance_work_orders"].loc[result["equipment"]["maintenance_work_orders"]["Month"].eq(result["equipment"]["maintenance_work_orders"]["Month"].max()), "Status"].ne("Closed").sum()) if not result["equipment"]["maintenance_work_orders"].empty else 0,
             "equipment_assumptions": result["equipment"]["assumptions"]["limitations"],
+            "infrastructure_facility_month_records": int(len(result["infrastructure"]["monthly_reliability"])),
+            "infrastructure_high_risk_facilities_latest": int(result["infrastructure"]["latest_resilience"]["Infrastructure_Risk_Band"].eq("High").sum()),
+            "infrastructure_mean_resilience_score_latest": round(float(result["infrastructure"]["latest_resilience"]["Infrastructure_Resilience_Score"].mean()), 2),
+            "infrastructure_equipment_association_facility_months": int(result["infrastructure"]["equipment_association"].attrs.get("paired_facility_months", 0)),
+            "infrastructure_assumptions": [
+                "All infrastructure configurations, utility interruptions and resilience metrics are synthetic.",
+                "Equipment comparisons are descriptive associations, not causal estimates.",
+                "Upgrade credits are abstract and are not MWK.",
+            ],
             "facility_indicator_combinations_with_valid_targets": int(len(valid_attainment_summary)),
             "facility_indicator_combinations_below_80_pct": int(valid_attainment_summary["attainment_pct"].lt(80).sum()),
             "facility_indicator_combinations_at_or_above_100_pct": int(valid_attainment_summary["attainment_pct"].ge(100).sum()),
@@ -695,6 +710,11 @@ with tabs[6]:
             "facility_equipment_monthly_summary.csv": result["equipment"]["facility_monthly_summary"],
             "equipment_maintenance_work_orders.csv": result["equipment"]["maintenance_work_orders"],
             "equipment_latest_asset_risk_status.csv": result["equipment"]["latest_asset_status"],
+            "facility_infrastructure_profiles.csv": result["infrastructure"]["facility_profiles"],
+            "facility_monthly_infrastructure_reliability.csv": result["infrastructure"]["monthly_reliability"],
+            "facility_latest_infrastructure_resilience.csv": result["infrastructure"]["latest_resilience"],
+            "equipment_infrastructure_association.csv": result["infrastructure"]["equipment_association"],
+            "infrastructure_upgrade_scenarios.csv": result["infrastructure"]["upgrade_scenarios"],
         }
         if result["metrics"] is not None:
             export_tables["synthetic_detector_evaluation_metrics.csv"] = result["metrics"]
@@ -1151,6 +1171,63 @@ with tabs[6]:
                 mime="text/csv",
                 key="download_equipment_monthly_performance",
             )
+
+        st.markdown("## Facility infrastructure and utilities intelligence")
+        st.info(
+            "All power, water and connectivity configurations and interruption events are synthetic. "
+            "Availability is not verified clinical service availability. Infrastructure-to-equipment "
+            "comparisons are descriptive associations, not evidence of causation."
+        )
+        infrastructure = result["infrastructure"]
+        latest_infrastructure = infrastructure["latest_resilience"]
+        infra_monthly = infrastructure["monthly_reliability"]
+        i1, i2, i3, i4 = st.columns(4)
+        i1.metric("Facilities monitored", f"{len(latest_infrastructure):,}")
+        i2.metric("Mean resilience score", f"{latest_infrastructure['Infrastructure_Resilience_Score'].mean():.1f}/100")
+        i3.metric("High review-priority facilities", f"{int(latest_infrastructure['Infrastructure_Risk_Band'].eq('High').sum()):,}")
+        i4.metric("Facility-month observations", f"{len(infra_monthly):,}")
+        infra_left, infra_right = st.columns(2)
+        infra_trend = infra_monthly.groupby("Month", as_index=False).agg(
+            Power_Availability_Pct=("Power_Availability_Pct", "mean"),
+            Water_Availability_Pct=("Water_Availability_Pct", "mean"),
+            Connectivity_Availability_Pct=("Connectivity_Availability_Pct", "mean"),
+        )
+        infra_left.plotly_chart(
+            px.line(infra_trend, x="Month", y=["Power_Availability_Pct", "Water_Availability_Pct", "Connectivity_Availability_Pct"],
+                    markers=True, title="Simulated utility availability by month"),
+            use_container_width=True,
+        )
+        infra_right.plotly_chart(
+            px.bar(latest_infrastructure.sort_values("Infrastructure_Resilience_Score").head(15),
+                   x="Infrastructure_Resilience_Score", y="Facility_Name", color="Infrastructure_Risk_Band",
+                   orientation="h", title="Lowest resilience facility profiles",
+                   hover_data=["District", "Unserved_Power_Interruption_Hours", "Unserved_Water_Shortage_Hours", "Connectivity_Downtime_Hours"]),
+            use_container_width=True,
+        )
+        st.markdown("**Infrastructure-to-equipment descriptive comparison**")
+        association = infrastructure["equipment_association"]
+        if association.empty:
+            st.caption("No matching facility-month equipment summary was available for comparison.")
+        else:
+            st.dataframe(association, use_container_width=True, hide_index=True)
+            corr = association.attrs.get("correlation_power_hours_uptime")
+            st.caption(
+                f"Paired facility-month observations: {association.attrs.get('paired_facility_months', 0):,}. "
+                + (f"Descriptive correlation between unserved power hours and equipment uptime: {corr:.3f}. " if corr is not None else "")
+                + "This is an observational synthetic association, not a causal estimate."
+            )
+        st.markdown("**Illustrative infrastructure upgrade scenarios**")
+        scenarios = infrastructure["upgrade_scenarios"]
+        st.caption("One best-value package is selected per facility, then ranked against an abstract credit ceiling. Costs and avoided-hour factors are assumptions, not quotations or engineering estimates.")
+        st.dataframe(scenarios.loc[scenarios["Selected_Package_For_Facility"]].sort_values("Avoided_Hours_Per_100_Credits", ascending=False),
+                     use_container_width=True, hide_index=True)
+        st.download_button(
+            "Download infrastructure resilience and scenario pack",
+            data=export_buffer.getvalue(),
+            file_name="malawi_health_facility_data_intelligence_analysis.zip",
+            mime="application/zip",
+            key="download_infrastructure_pack",
+        )
 
         st.markdown("**Programme and indicator quality profile**")
         st.dataframe(result["programme"], use_container_width=True, hide_index=True)
