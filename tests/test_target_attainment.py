@@ -40,7 +40,8 @@ def test_profiles_do_not_expose_ground_truth_and_keep_indicator_grain():
     result = build_target_attainment_profiles(fixture())
     for frame in result.values():
         assert not any(column.startswith("Ground_Truth_") for column in frame.columns)
-    assert {"Programme", "Indicator"}.issubset(result["district_indicator"].columns)
+    assert {"Programme", "Indicator", "Indicator_Key"}.issubset(result["district_indicator"].columns)
+    assert result["district_indicator"]["Indicator_Key"].str.contains(r"\\|").all()
     assert "Month" in result["monthly_indicator"].columns
 
 def test_required_columns_are_validated():
