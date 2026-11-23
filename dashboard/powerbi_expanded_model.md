@@ -118,16 +118,18 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 9. **Commodity availability and replenishment** — monitor synthetic stockouts, unmet demand, days of cover and budget-constrained replenishment. 
 10. **Cold-chain and expiry intelligence** — review synthetic temperature excursions, monitoring coverage, FEFO batch balances, near-expiry stock, expired quantities and facility-commodity risk bands. 
 11. **Equipment maintenance and uptime** — monitor synthetic asset registers, preventive maintenance compliance, breakdowns, downtime, service availability, operational uptime and open work orders.
+12. **Facility infrastructure and utilities reliability** — review synthetic power, water and connectivity interruptions, resilience scores and illustrative upgrade scenarios.
+13. **Workforce capacity and staffing intelligence** — review synthetic establishment, vacancies, monthly attendance proxies, workload pressure and recruitment scenarios.
 
 ## Build instructions
 
 1. Run `python src/build_platform.py` from the repository root.
 2. In Power BI Desktop, create a text parameter named `pWarehouseRoot` pointing to the generated `data/warehouse` folder (no trailing slash).
-3. Create/load the queries in `dashboard/powerquery/`: `FactReporting`, `DimFacility`, `DimIndicator`, `DimDate`, `DimSource`, `FactSourceObservation`, `FactMonthlyQualityTrend`, `FactMonthlyIssueControlChart`, `FactDistrictProfile`, `FactDistrictMonthlyTrend`, `FactPeerAnomaly`, `FactDetectorEvaluation`, `FactFacilityIndicatorAttainment`, `FactDistrictIndicatorAttainment`, `FactMonthlyIndicatorAttainment`, `FactProgrammeIndicatorAttainment`, `FactFacilityResourceCapacity`, `FactResourceAllocationScenario`, `DimCommodity`, `FactFacilityCommodityStock`, `FactCommodityReplenishmentPlan`, `DimColdChainCommodity`, `FactColdChainTemperature`, `FactCommodityBatchLedger`, `FactColdChainExpiryRisk`, `DimEquipmentType`, `FactEquipmentAssetRegister`, `FactEquipmentAssetMonthly`, `FactFacilityEquipmentMonthly`, `FactEquipmentMaintenanceWorkOrders` and `FactEquipmentLatestAssetRisk`.
+3. Create/load the queries in `dashboard/powerquery/`: `FactReporting`, `DimFacility`, `DimIndicator`, `DimDate`, `DimSource`, `FactSourceObservation`, `FactMonthlyQualityTrend`, `FactMonthlyIssueControlChart`, `FactDistrictProfile`, `FactDistrictMonthlyTrend`, `FactPeerAnomaly`, `FactDetectorEvaluation`, `FactFacilityIndicatorAttainment`, `FactDistrictIndicatorAttainment`, `FactMonthlyIndicatorAttainment`, `FactProgrammeIndicatorAttainment`, `FactFacilityResourceCapacity`, `FactResourceAllocationScenario`, `DimCommodity`, `FactFacilityCommodityStock`, `FactCommodityReplenishmentPlan`, `DimColdChainCommodity`, `FactColdChainTemperature`, `FactCommodityBatchLedger`, `FactColdChainExpiryRisk`, `DimEquipmentType`, `FactEquipmentAssetRegister`, `FactEquipmentAssetMonthly`, `FactFacilityEquipmentMonthly`, `FactEquipmentMaintenanceWorkOrders`, `FactEquipmentLatestAssetRisk`, `FactFacilityInfrastructureProfiles`, `FactMonthlyInfrastructureReliability`, `FactLatestInfrastructureResilience`, `FactEquipmentInfrastructureAssociation`, `FactInfrastructureUpgradeScenarios`, `FactFacilityWorkforceEstablishment`, `FactMonthlyWorkforceCapacity`, `FactLatestWorkforceCapacity` and `FactWorkforceRecruitmentScenario`.
 4. The FactReporting query removes all `Ground_Truth_*` fields before loading; keep detector evaluation as a separate synthetic-only governance table.
 5. Create `DimDistrict` using `dashboard/dax/dimension_tables.dax`, then create the relationships listed above. Mark DimDate as the date table and sort MonthName by MonthNumber.
 6. Add measures from `dashboard/dax/health_data_quality_measures.dax`.
-7. Add the DAX resource, commodity, cold-chain and equipment measures and build the eleven report pages using the layout plan.
+7. Add the DAX resource, commodity, cold-chain and equipment measures and build the thirteen report pages using the layout plan.
 8. Validate filter behaviour at facility, district, month, programme and indicator levels.
 9. Keep the synthetic-data disclaimer visible on every report page and in exported PDFs.
 
