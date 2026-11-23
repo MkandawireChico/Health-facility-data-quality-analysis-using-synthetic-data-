@@ -27,12 +27,19 @@ def build_platform(
     periods: int = 60,
 ) -> dict[str, Any]:
     """Generate, stage, evaluate and statistically monitor a synthetic cohort."""
-    if isinstance(seed, bool) or not isinstance(seed, int):
-        raise ValueError("seed must be an integer")
+    if isinstance(seed, bool) or not isinstance(seed, int) or seed < 0:
+        raise ValueError("seed must be a non-negative integer")
     if isinstance(facility_count, bool) or not isinstance(facility_count, int) or facility_count < 1:
         raise ValueError("facility_count must be a positive integer")
     if isinstance(periods, bool) or not isinstance(periods, int) or periods < 1:
         raise ValueError("periods must be a positive integer")
+    try:
+        parsed_start_month = pd.Timestamp(start_month)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError("start_month must be a valid timezone-naive date") from exc
+    if pd.isna(parsed_start_month) or parsed_start_month.tz is not None:
+        raise ValueError("start_month must be a valid timezone-naive date")
+    start_month = parsed_start_month.to_period("M").to_timestamp().strftime("%Y-%m-%d")
 
     output_dir = Path(output_dir)
     raw_dir = output_dir / "raw"
