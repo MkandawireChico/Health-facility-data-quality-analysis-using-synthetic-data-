@@ -87,7 +87,7 @@ def build_resource_planning_profiles(
             if not eligible.any():
                 break
             if strategy == "equal":
-                score = pd.Series(1.0, index=result.index)
+                score = -result["Allocated_Units"].astype(float)
             elif strategy == "equity":
                 score = pd.Series(np.where(rural, 1.25, 1.0), index=result.index)
             else:
