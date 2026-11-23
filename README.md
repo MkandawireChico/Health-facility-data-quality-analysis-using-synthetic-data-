@@ -357,3 +357,24 @@ machine. Streamlit Community Cloud's local filesystem is ephemeral and does
 not provide shared multi-user storage, so download backups regularly. A
 production deployment should use a managed database, authentication,
 role-based permissions and retention controls.
+
+
+### District-level quality intelligence
+
+The expanded operational analytics now include district and district-month
+profiles: volume, distinct facilities, detected issue counts and rates by
+district. These are generated from operational quality flags only; synthetic
+ground-truth labels are not used in district rankings or trend profiles.
+The Streamlit Expanded Platform page displays district issue-rate comparisons,
+reporting volume and monthly trends, with CSV exports. District names are
+geographic labels for a synthetic scenario and do not represent actual
+district or Ministry of Health performance.
+
+### Corrective action workflow improvements
+
+Corrective action IDs are now stable across dataframe sorting and filter
+changes, and namespaced by source file. The register displays all saved
+actions—not only currently visible flagged rows—with status totals, overdue
+counts, full-register export and field-level audit history. Local SQLite
+persistence remains single-instance/local; Streamlit Community Cloud storage
+is ephemeral and is not a managed multi-user database.
