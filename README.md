@@ -324,8 +324,8 @@ By default it builds the full 288,000-record cohort and writes reproducible
 outputs under the Git-ignored `data/warehouse/` directory. Use
 `--facilities`, `--periods`, `--seed` and `--output-dir` to configure a
 smaller or alternate run. The end-to-end unit test uses a small cohort; the
-separate GitHub Actions **Expanded platform build** workflow runs the full
-default cohort and publishes generated validation artefacts as a short-lived
+separate GitHub Actions **Platform build** workflow (`platform-build.yml`)
+runs the full default cohort and publishes generated validation artefacts as a short-lived
 workflow artifact.
 
 
