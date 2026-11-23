@@ -599,11 +599,11 @@ def test_integrated_facility_priority_register_ranks_cross_domain_pressures(tmp_
          "Temperature_Excursion_Days": 2},
     ])
     quality = pd.DataFrame([
-        {"Facility_ID": "F1", "Facility_Name": "Alpha", "District": "North",
+        {"Facility_ID": "F1", "Facility": "Alpha", "District": "North",
          "records": 100, "detected_issue_records": 5, "detected_issue_rate_pct": 5,
          "missing_records": 1, "source_discrepancy_records": 2,
          "outlier_records": 1, "late_records": 1},
-        {"Facility_ID": "F2", "Facility_Name": "Beta", "District": "South",
+        {"Facility_ID": "F2", "Facility": "Beta", "District": "South",
          "records": 100, "detected_issue_records": 35, "detected_issue_rate_pct": 35,
          "missing_records": 10, "source_discrepancy_records": 10,
          "outlier_records": 10, "late_records": 5},
