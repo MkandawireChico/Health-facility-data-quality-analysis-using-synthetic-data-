@@ -52,8 +52,11 @@ def build_supply_chain_profiles(
         raise ValueError("budget_credits must be a non-negative integer")
 
     fac = facilities[list(REQUIRED_FACILITY_COLUMNS)].copy()
+    if fac.empty:
+        raise ValueError("Facility dimension must contain at least one facility")
+    fac["Facility_ID"] = fac["Facility_ID"].astype("string").str.strip()
     fac["Catchment_Population"] = pd.to_numeric(fac["Catchment_Population"], errors="coerce")
-    if fac["Facility_ID"].isna().any() or fac["Facility_ID"].duplicated().any():
+    if fac["Facility_ID"].isna().any() or fac["Facility_ID"].eq("").any() or fac["Facility_ID"].duplicated().any():
         raise ValueError("Facility_ID must be populated and unique")
     if fac["Catchment_Population"].isna().any() or not np.isfinite(fac["Catchment_Population"].to_numpy(dtype=float)).all() or fac["Catchment_Population"].lt(0).any():
         raise ValueError("Catchment_Population must contain finite non-negative numeric values")
