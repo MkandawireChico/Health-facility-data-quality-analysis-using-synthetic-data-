@@ -151,5 +151,6 @@ The query files are executable Power Query M templates, not screenshots or mocku
 | FactFacilityIndicatorAttainment | Facility-level attainment by programme-indicator pair |
 | FactDistrictIndicatorAttainment | District-level attainment by programme-indicator pair |
 | FactMonthlyIndicatorAttainment | Monthly attainment by programme-indicator pair |
+| FactProgrammeIndicatorAttainment | Overall programme-indicator attainment |
 
 Create `DimDistrict` from the DAX dimension-table script. Connect it to DimFacility, FactDistrictProfile and FactDistrictMonthlyTrend using single-direction one-to-many relationships. The district aggregate facts are separate from the facility reporting fact; do not create fact-to-fact joins.
