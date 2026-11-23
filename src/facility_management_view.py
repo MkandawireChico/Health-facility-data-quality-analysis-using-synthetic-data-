@@ -83,17 +83,31 @@ def build_facility_management_view(
         allowed = {"Open", "In progress", "Resolved", "Escalated"}
         if not actions["Status"].isin(allowed).all():
             raise ValueError("Action register contains unsupported statuses")
-        actions["Month"] = pd.to_datetime(actions["Month"], errors="coerce")
+        actions["Month"] = pd.to_datetime(
+            actions["Month"], format="%Y-%m-%d", errors="coerce"
+        )
         if actions["Month"].isna().any():
             raise ValueError("Action register contains invalid reporting months")
+        due_text = actions["Due date"].fillna("").astype(str).str.strip()
+        due = pd.to_datetime(
+            due_text.where(due_text.ne(""), pd.NA),
+            format="%Y-%m-%d",
+            errors="coerce",
+        )
+        if (due_text.ne("") & due.isna()).any():
+            raise ValueError("Action register contains invalid due dates")
     selected_actions = actions.loc[actions["Facility_ID"].eq(selected_id)].copy()
     selected_actions = selected_actions.sort_values(
         ["Month", "Due date", "Record_ID"], na_position="last"
     ).reset_index(drop=True)
-    due = pd.to_datetime(selected_actions["Due date"], errors="coerce")
+    due = pd.to_datetime(
+        selected_actions["Due date"].fillna("").astype(str).str.strip().replace("", pd.NA),
+        format="%Y-%m-%d",
+        errors="coerce",
+    )
     reference = pd.Timestamp(as_of if as_of is not None else pd.Timestamp.now().date())
-    if reference.tzinfo is not None:
-        raise ValueError("Management reference date must be timezone-naive")
+    if pd.isna(reference) or reference.tzinfo is not None:
+        raise ValueError("Management reference date must be a valid timezone-naive date")
     selected_actions["Overdue"] = (
         selected_actions["Status"].ne("Resolved")
         & due.notna()
