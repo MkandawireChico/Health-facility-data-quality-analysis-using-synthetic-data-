@@ -83,12 +83,15 @@ def test_temperature_thresholds_and_reproducibility():
     )
     assert custom["assumptions"]["temperature_min_c_assumption"] == 3.0
     assert custom["assumptions"]["temperature_max_c_assumption"] == 7.0
+    assert custom["temperature_monitoring"]["Excursion_Days"].sum() >= a["temperature_monitoring"]["Excursion_Days"].sum()
     assert a["expiry_risk_summary"]["Risk_Band"].isin(["Low", "Medium", "High", "Data Gap"]).all()
 
 
 def test_invalid_inputs_fail_clearly():
     with pytest.raises(ValueError, match="Facility dimension missing"):
         build_cold_chain_profiles(facility_dimension().drop(columns=["District"]))
+    with pytest.raises(ValueError, match="at least one facility"):
+        build_cold_chain_profiles(facility_dimension().iloc[0:0])
     with pytest.raises(ValueError, match="periods"):
         build_cold_chain_profiles(facility_dimension(), periods=0)
     with pytest.raises(ValueError, match="Temperature bounds"):
