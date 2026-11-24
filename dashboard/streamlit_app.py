@@ -800,9 +800,9 @@ with tabs[6]:
             for filename, frame in export_tables.items():
                 archive.writestr(filename, frame.to_csv(index=False))
         st.download_button(
-            "Download complete expanded analysis pack (ZIP)",
+            "Download analytical outputs pack (ZIP)",
             data=export_buffer.getvalue(),
-            file_name="malawi_health_facility_data_intelligence_analysis.zip",
+            file_name="malawi_health_facility_analytical_outputs.zip",
             mime="application/zip",
             key="download_expanded_analysis_pack",
         )
@@ -938,6 +938,10 @@ with tabs[6]:
             if fields.get("Programme") == "Integrated facility review"
         ]
         management_as_of = pd.Timestamp.now().normalize()
+        action_performance = None
+        executive_briefing = None
+        release_report = None
+        facility_view = None
         if current_priority_actions:
             priority_action_portfolio = pd.DataFrame(current_priority_actions)
             today = management_as_of
@@ -1298,6 +1302,88 @@ with tabs[6]:
             )
         except ValueError as exc:
             st.warning(f"Facility management view could not be prepared: {exc}")
+
+        # A separate management bundle is built after the saved action and
+        # executive views have been calculated, unlike the analytical-only ZIP above.
+        management_export_tables = {
+            "integrated_facility_priority_register.csv": result["integrated_priority_register"],
+            "integrated_facility_corrective_action_register.csv": pd.DataFrame(
+                current_priority_actions
+            ),
+        }
+        if action_performance is not None:
+            management_export_tables["district_action_performance.csv"] = action_performance["district"]
+            management_export_tables["monthly_action_performance.csv"] = action_performance["monthly"]
+            management_export_tables["validated_action_performance_register.csv"] = action_performance["actions"]
+        if executive_briefing is not None:
+            management_export_tables["executive_facility_management_briefing.csv"] = executive_briefing["all_facilities"]
+            management_export_tables["executive_district_briefing.csv"] = executive_briefing["district"]
+            management_export_tables["executive_domain_briefing.csv"] = executive_briefing["domains"]
+            management_export_tables["executive_management_queue_top_n.csv"] = executive_briefing["management_queue"]
+        if release_report is not None:
+            management_export_tables["platform_release_readiness_checks.csv"] = release_report["checks"]
+        if facility_view is not None:
+            management_export_tables["selected_facility_actions.csv"] = facility_view["actions"]
+            management_export_tables["selected_facility_monthly_action_progress.csv"] = facility_view["monthly"]
+            management_export_tables["selected_facility_priority_components.csv"] = pd.DataFrame([
+                {"Domain": "Data quality", "Score": facility_view["facility"]["Data_Quality_Priority_Score"]},
+                {"Domain": "Resource gap", "Score": facility_view["facility"]["Resource_Gap_Priority_Score"]},
+                {"Domain": "Operational resilience", "Score": facility_view["facility"]["Operational_Priority_Score"]},
+                {"Domain": "Supply and cold chain", "Score": facility_view["facility"]["Supply_Cold_Chain_Priority_Score"]},
+            ])
+        audit_rows = []
+        if priority_action_store is not None:
+            try:
+                for record_id in sorted(persisted_priority_actions):
+                    history_frame = priority_action_store.history(record_id)
+                    if not history_frame.empty:
+                        history_frame = history_frame.copy()
+                        history_frame.insert(0, "Record_ID", record_id)
+                        audit_rows.append(history_frame)
+            except Exception as exc:
+                st.warning(f"Full action audit history could not be added to the management export: {exc}")
+        if audit_rows:
+            management_export_tables["corrective_action_field_audit_history.csv"] = pd.concat(
+                audit_rows, ignore_index=True
+            )
+        management_export_summary = {
+            "synthetic_data": True,
+            "generated_at_local_date": management_as_of.strftime("%Y-%m-%d"),
+            "facility_count": int(len(result["integrated_priority_register"])),
+            "saved_integrated_actions": int(len(current_priority_actions)),
+            "selected_facility_id": str(selected_facility_id) if "selected_facility_id" in locals() else None,
+            "included_tables": sorted(management_export_tables),
+            "executive_briefing_included": executive_briefing is not None,
+            "action_performance_included": action_performance is not None,
+            "release_readiness_included": release_report is not None,
+            "field_audit_history_included": bool(audit_rows),
+            "interpretation": (
+                "All facility and action data are synthetic. This management bundle is a "
+                "session snapshot, not a live database backup or official Malawi health-system report."
+            ),
+        }
+        management_export_buffer = io.BytesIO()
+        with zipfile.ZipFile(
+            management_export_buffer, mode="w", compression=zipfile.ZIP_DEFLATED
+        ) as archive:
+            archive.writestr(
+                "management_summary.json",
+                json.dumps(management_export_summary, indent=2),
+            )
+            for filename, frame in management_export_tables.items():
+                archive.writestr(filename, frame.to_csv(index=False))
+        st.download_button(
+            "Download complete management review pack (ZIP)",
+            data=management_export_buffer.getvalue(),
+            file_name="malawi_health_facility_management_review_pack.zip",
+            mime="application/zip",
+            key="download_complete_management_review_pack",
+        )
+        st.caption(
+            "The management review pack includes the saved integrated action register and "
+            "available executive, district, monthly, facility and audit-history outputs. "
+            "It is a point-in-time export; it does not replace a database backup."
+        )
 
         p1, p2, p3, p4, p5 = st.columns(5)
         p1.metric("Staged records", f"{result['records']:,}")
