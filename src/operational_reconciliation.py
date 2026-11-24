@@ -130,10 +130,18 @@ def validate_cold_chain_ledger(batch: pd.DataFrame, risk: pd.DataFrame) -> dict[
     risk_data["Month"] = pd.to_datetime(risk_data["Month"], errors="coerce").dt.to_period("M")
     if risk_data["Month"].isna().any():
         raise RuntimeError("Cold-chain risk summary contains invalid months")
+    if "Near_Expiry_90_Days" not in data.columns:
+        raise RuntimeError("Cold-chain batch ledger is missing near-expiry status")
+    if not data["Near_Expiry_90_Days"].isin([True, False, 0, 1]).all():
+        raise RuntimeError("Cold-chain batch near-expiry status must be Boolean")
+    data["_Near_Expiry_90_Day_Units"] = np.where(
+        data["Near_Expiry_90_Days"].astype(bool),
+        data["Closing_Stock_Units"], 0,
+    )
     grouped = data.groupby(["Facility_ID", "Commodity_ID", "Month"], as_index=False).agg(
         Expired_Units=("Expired_Units", "sum"),
         Closing_Stock_Units=("Closing_Stock_Units", "sum"),
-        Near_Expiry_90_Day_Units=("Near_Expiry_90_Days", "sum"),
+        Near_Expiry_90_Day_Units=("_Near_Expiry_90_Day_Units", "sum"),
         Fulfilled_Consumption_Units=("Fulfilled_Consumption_Units", "sum"),
     )
     joined = risk_data.merge(grouped, on=risk_keys, how="outer", suffixes=("_summary", "_batch"),
