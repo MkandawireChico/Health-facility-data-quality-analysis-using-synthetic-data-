@@ -256,7 +256,11 @@ def _validate_quality_profile_population(
             raise RuntimeError(f"{label} quality profile contains duplicate groups")
 
         expected_group_counts = (
-            normalized_expected.value_counts(sort=False).sort_index()
+            normalized_expected.groupby(
+                group_columns[0] if len(group_columns) == 1 else group_columns,
+                sort=True,
+                dropna=False,
+            ).size().sort_index()
         )
         observed_group_counts = (
             normalized_profile.assign(_records=counts.to_numpy())
