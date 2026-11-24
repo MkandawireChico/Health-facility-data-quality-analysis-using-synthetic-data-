@@ -1357,6 +1357,25 @@ with tabs[6]:
             management_export_tables["corrective_action_field_audit_history.csv"] = pd.concat(
                 audit_rows, ignore_index=True
             )
+        lineage_report = None
+        try:
+            if action_performance is None or executive_briefing is None:
+                raise ValueError(
+                    "The action-performance and executive views must both be available "
+                    "before a complete management export can be issued"
+                )
+            from lineage_audit import build_lineage_reconciliation_report
+            lineage_report = build_lineage_reconciliation_report(
+                result["integrated_priority_register"],
+                pd.DataFrame(current_priority_actions),
+                action_performance,
+                executive_briefing,
+                management_export_tables,
+            )
+            management_export_tables["lineage_reconciliation_checks.csv"] = lineage_report
+        except ValueError as exc:
+            st.error(f"Management export lineage reconciliation failed: {exc}")
+
         management_export_summary = {
             "synthetic_data": True,
             "generated_at_local_date": management_as_of.strftime("%Y-%m-%d"),
@@ -1368,27 +1387,36 @@ with tabs[6]:
             "action_performance_included": action_performance is not None,
             "release_readiness_included": release_report is not None,
             "field_audit_history_included": bool(audit_rows),
+            "lineage_reconciliation_passed": lineage_report is not None,
+            "lineage_reconciliation_checks": int(len(lineage_report)) if lineage_report is not None else 0,
             "interpretation": (
                 "All facility and action data are synthetic. This management bundle is a "
                 "session snapshot, not a live database backup or official Malawi health-system report."
             ),
         }
-        from management_export import build_management_review_archive
-        management_export_payload = build_management_review_archive(
-            management_export_tables, management_export_summary
-        )
-        st.download_button(
-            "Download complete management review pack (ZIP)",
-            data=management_export_payload,
-            file_name="malawi_health_facility_management_review_pack.zip",
-            mime="application/zip",
-            key="download_complete_management_review_pack",
-        )
-        st.caption(
-            "The management review pack includes the saved integrated action register and "
-            "available executive, district, monthly, facility and audit-history outputs. "
-            "It is a point-in-time export; it does not replace a database backup."
-        )
+        if lineage_report is not None:
+            from management_export import build_management_review_archive
+            management_export_payload = build_management_review_archive(
+                management_export_tables, management_export_summary
+            )
+            st.download_button(
+                "Download complete management review pack (ZIP)",
+                data=management_export_payload,
+                file_name="malawi_health_facility_management_review_pack.zip",
+                mime="application/zip",
+                key="download_complete_management_review_pack",
+            )
+            st.caption(
+                "The management review pack includes the saved integrated action register and "
+                "available executive, district, monthly, facility and audit-history outputs. "
+                "Cross-artifact lineage checks passed for the canonical facility and action "
+                "populations. It is a point-in-time export, not a database backup."
+            )
+        else:
+            st.warning(
+                "The complete management review ZIP is withheld because its dashboard-to-export "
+                "lineage checks did not pass."
+            )
 
         p1, p2, p3, p4, p5 = st.columns(5)
         p1.metric("Staged records", f"{result['records']:,}")
