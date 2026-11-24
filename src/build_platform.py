@@ -242,10 +242,37 @@ def _validate_quality_profile_population(
             raise RuntimeError(
                 f"{label} quality profile group count does not reconcile with staged facts"
             )
-        if dimension and frame[dimension].duplicated().any():
+        group_columns = [dimension] if dimension else ["Programme", "Indicator"]
+        if frame[group_columns].isna().any().any():
+            raise RuntimeError(f"{label} quality profile contains missing group labels")
+        normalized_profile = frame[group_columns].copy()
+        normalized_expected = staged[group_columns].copy()
+        for column in group_columns:
+            normalized_profile[column] = normalized_profile[column].astype("string").str.strip()
+            normalized_expected[column] = normalized_expected[column].astype("string").str.strip()
+            if normalized_profile[column].eq("").any() or normalized_expected[column].eq("").any():
+                raise RuntimeError(f"{label} quality profile contains blank group labels")
+        if normalized_profile.duplicated(group_columns).any():
             raise RuntimeError(f"{label} quality profile contains duplicate groups")
-        if not dimension and frame[["Programme", "Indicator"]].duplicated().any():
-            raise RuntimeError("programme-indicator quality profile contains duplicate groups")
+
+        expected_group_counts = (
+            normalized_expected.value_counts(sort=False).sort_index()
+        )
+        observed_group_counts = (
+            normalized_profile.assign(_records=counts.to_numpy())
+            .set_index(group_columns)["_records"]
+            .sort_index()
+        )
+        if not expected_group_counts.index.equals(observed_group_counts.index):
+            raise RuntimeError(
+                f"{label} quality profile group labels do not match staged records"
+            )
+        if not expected_group_counts.astype("int64").equals(
+            observed_group_counts.astype("int64")
+        ):
+            raise RuntimeError(
+                f"{label} quality profile per-group record counts do not reconcile"
+            )
 
     return {
         "staged_records": expected_records,
