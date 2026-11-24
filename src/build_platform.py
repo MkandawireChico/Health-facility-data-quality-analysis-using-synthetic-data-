@@ -87,20 +87,30 @@ def _validate_generated_fact_grain(
     indicator_pairs = expected_indicator_pairs or actual_pairs
     expected_per_facility_month = len(indicator_pairs)
     expected_groups = len(expected_facilities) * expected_periods
-    expected_grid = {
-        (facility_id, month, programme, indicator)
-        for facility_id in expected_facilities
-        for month in actual_months
-        for programme, indicator in indicator_pairs
-    }
-    actual_grid = set(zip(
-        fact["Facility_ID"].astype(str),
-        month_periods.astype(str),
-        fact["Programme"].astype(str),
-        fact["Indicator"].astype(str),
-    ))
-    if len(actual_grid) != expected_records or actual_grid != expected_grid:
-        raise RuntimeError("Generated fact has incomplete or inconsistent indicator coverage by facility-month")
+    # Validate the rectangular grain with compact grouped counts instead of
+    # materialising two Python tuple sets containing every fact key. The
+    # natural-key duplicate check above plus the global indicator catalogue,
+    # complete facility/month populations and per-group row counts prove the
+    # same Cartesian coverage with substantially lower peak Python memory.
+    fact_months = fact.assign(_month_period=month_periods.astype(str))
+    facility_month_counts = fact_months.groupby(
+        "Facility_ID", sort=False, observed=True
+    )["_month_period"].nunique()
+    if not facility_month_counts.eq(expected_periods).all():
+        raise RuntimeError(
+            "Generated fact has incomplete or inconsistent indicator coverage by facility-month"
+        )
+
+    facility_month_group_sizes = fact_months.groupby(
+        ["Facility_ID", "_month_period"], sort=False, observed=True
+    ).size()
+    if (
+        len(facility_month_group_sizes) != expected_groups
+        or not facility_month_group_sizes.eq(expected_per_facility_month).all()
+    ):
+        raise RuntimeError(
+            "Generated fact has incomplete or inconsistent indicator coverage by facility-month"
+        )
 
     metadata_columns = ["Facility_Name", "District"]
     if set(metadata_columns).issubset(facilities.columns):
@@ -122,7 +132,7 @@ def _validate_generated_fact_grain(
     return {
         "unique_facility_month_groups": expected_groups,
         "indicators_per_facility_month": expected_per_facility_month,
-        "unique_natural_keys": int(len(actual_grid)),
+        "unique_natural_keys": int(len(fact)),
         "unique_programme_indicator_pairs": len(indicator_pairs),
         "configured_months": len(actual_months),
     }
