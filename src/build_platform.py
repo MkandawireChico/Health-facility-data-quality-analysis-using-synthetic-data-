@@ -26,10 +26,14 @@ from workforce_planning import run_workforce_planning
 
 
 def _validate_generated_fact_grain(
-    fact: pd.DataFrame, facilities: pd.DataFrame, expected_records: int,
+    fact: pd.DataFrame,
+    facilities: pd.DataFrame,
+    expected_records: int,
     expected_periods: int,
+    expected_indicator_pairs: set[tuple[str, str]] | None = None,
+    expected_months: pd.DatetimeIndex | None = None,
 ) -> dict[str, int]:
-    """Fail fast when generated facts violate the facility-month-indicator grain."""
+    """Validate the complete facility × month × programme-indicator grid."""
     key = ["Facility_ID", "Month", "Programme", "Indicator"]
     missing = sorted(set(key) - set(fact.columns))
     if missing:
@@ -38,8 +42,13 @@ def _validate_generated_fact_grain(
         raise RuntimeError(
             f"Generated fact row count mismatch: expected {expected_records}, got {len(fact)}"
         )
+    dimension_required = {"Facility_ID"}
+    if not dimension_required.issubset(facilities.columns):
+        raise RuntimeError("Generated facility dimension is missing Facility_ID")
     if facilities.empty or facilities["Facility_ID"].isna().any():
         raise RuntimeError("Generated facility dimension contains missing facility identifiers")
+    if facilities["Facility_ID"].astype("string").str.strip().eq("").any():
+        raise RuntimeError("Generated facility dimension contains blank facility identifiers")
     if facilities["Facility_ID"].duplicated().any():
         raise RuntimeError("Generated facility dimension contains duplicate facility identifiers")
     if fact[key].isna().any().any():
@@ -49,27 +58,61 @@ def _validate_generated_fact_grain(
             raise RuntimeError(f"Generated fact contains blank {column} values")
     if fact.duplicated(key).any():
         raise RuntimeError("Generated fact contains duplicate facility-month-indicator keys")
-    if not fact["Facility_ID"].isin(facilities["Facility_ID"]).all():
-        raise RuntimeError("Generated fact references facilities absent from the dimension")
+
+    expected_facilities = set(facilities["Facility_ID"].astype(str))
+    actual_facilities = set(fact["Facility_ID"].astype(str))
+    if actual_facilities != expected_facilities:
+        raise RuntimeError("Generated fact facility population does not match the dimension")
 
     months = pd.to_datetime(fact["Month"], errors="coerce")
     if months.isna().any():
         raise RuntimeError("Generated fact contains invalid reporting months")
     month_periods = months.dt.to_period("M")
-    if month_periods.nunique() != expected_periods:
+    actual_months = set(month_periods.astype(str))
+    if len(actual_months) != expected_periods:
         raise RuntimeError("Generated fact reporting-period count does not match configuration")
-    indicators = fact[["Programme", "Indicator"]].drop_duplicates()
-    expected_per_facility_month = len(indicators)
-    counts = fact.assign(_month=month_periods).groupby(
-        ["Facility_ID", "_month"], observed=True
-    ).size()
-    expected_groups = len(facilities) * expected_periods
-    if len(counts) != expected_groups or not counts.eq(expected_per_facility_month).all():
-        raise RuntimeError("Generated fact has incomplete facility-month indicator coverage")
+    if expected_months is not None:
+        configured_months = set(pd.DatetimeIndex(expected_months).to_period("M").astype(str))
+        if actual_months != configured_months:
+            raise RuntimeError("Generated fact reporting months do not match configured periods")
+
+    actual_pairs = set(zip(fact["Programme"].astype(str), fact["Indicator"].astype(str)))
+    if expected_indicator_pairs is not None and actual_pairs != expected_indicator_pairs:
+        raise RuntimeError("Generated fact programme-indicator catalogue does not match configuration")
+    indicator_pairs = expected_indicator_pairs or actual_pairs
+    expected_per_facility_month = len(indicator_pairs)
+    expected_groups = len(expected_facilities) * expected_periods
+    expected_grid = {
+        (facility_id, month, programme, indicator)
+        for facility_id in expected_facilities
+        for month in actual_months
+        for programme, indicator in indicator_pairs
+    }
+    actual_grid = set(zip(
+        fact["Facility_ID"].astype(str),
+        month_periods.astype(str),
+        fact["Programme"].astype(str),
+        fact["Indicator"].astype(str),
+    ))
+    if len(actual_grid) != expected_records or actual_grid != expected_grid:
+        raise RuntimeError("Generated fact has incomplete or inconsistent indicator coverage by facility-month")
+
+    metadata_columns = ["Facility_Name", "District"]
+    if set(metadata_columns).issubset(facilities.columns):
+        if not set(metadata_columns).issubset(fact.columns):
+            raise RuntimeError("Generated fact is missing canonical facility metadata")
+        canonical = facilities.set_index("Facility_ID")[metadata_columns]
+        for column in metadata_columns:
+            expected_values = fact["Facility_ID"].map(canonical[column])
+            if not fact[column].astype(str).equals(expected_values.astype(str)):
+                raise RuntimeError(f"Generated fact {column} values do not match the facility dimension")
+
     return {
-        "unique_facility_month_groups": int(len(counts)),
-        "indicators_per_facility_month": int(expected_per_facility_month),
-        "unique_natural_keys": int(len(fact)),
+        "unique_facility_month_groups": expected_groups,
+        "indicators_per_facility_month": expected_per_facility_month,
+        "unique_natural_keys": int(len(actual_grid)),
+        "unique_programme_indicator_pairs": len(indicator_pairs),
+        "configured_months": len(actual_months),
     }
 
 
@@ -716,8 +759,18 @@ def build_platform(
         periods=periods,
     )
     fact, facilities, manifest = generator.generate()
+    expected_indicator_pairs = {
+        (str(programme), str(indicator))
+        for programme, indicators in generator.programmes.items()
+        for indicator in indicators
+    }
     grain_validation = _validate_generated_fact_grain(
-        fact, facilities, generator.expected_record_count, periods
+        fact,
+        facilities,
+        generator.expected_record_count,
+        periods,
+        expected_indicator_pairs=expected_indicator_pairs,
+        expected_months=generator.months,
     )
     fact_path = raw_dir / "facility_reporting_fact.csv"
     facility_path = raw_dir / "facility_dimension.csv"
