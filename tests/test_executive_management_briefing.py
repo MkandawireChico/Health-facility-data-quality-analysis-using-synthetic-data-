@@ -154,3 +154,37 @@ def test_duplicate_priority_ranks_are_rejected():
 def test_invalid_management_reference_date_is_rejected():
     with pytest.raises(ValueError, match="valid timezone-naive date"):
         build_executive_management_briefing(priority_rows(), action_rows(), as_of="NaT")
+
+
+def test_priority_band_must_match_documented_score_thresholds():
+    bad = priority_rows()
+    bad.loc[1, "Priority_Band"] = "Focused review"
+    with pytest.raises(ValueError, match="bands do not reconcile"):
+        build_executive_management_briefing(bad, action_rows())
+
+
+def test_priority_ranks_must_be_contiguous_integers():
+    bad = priority_rows()
+    bad.loc[2, "Integrated_Priority_Rank"] = 2.5
+    with pytest.raises(ValueError, match="contiguous positive integers"):
+        build_executive_management_briefing(bad, action_rows())
+
+
+def test_priority_rank_order_must_reconcile_to_score_and_tie_break():
+    bad = priority_rows()
+    bad.loc[0, "Integrated_Priority_Rank"] = 2
+    bad.loc[1, "Integrated_Priority_Rank"] = 1
+    with pytest.raises(ValueError, match="tie-break order"):
+        build_executive_management_briefing(bad, action_rows())
+
+
+def test_priority_ties_use_facility_id_as_deterministic_order():
+    tied = priority_rows()
+    tied.loc[1, "Integrated_Priority_Score"] = 30.0
+    tied.loc[1, ["Data_Quality_Priority_Score", "Resource_Gap_Priority_Score",
+                 "Operational_Priority_Score", "Supply_Cold_Chain_Priority_Score"]] = [20, 20, 40, 40]
+    tied.loc[1, "Priority_Band"] = "Focused review"
+    tied.loc[1, "Integrated_Priority_Rank"] = 3
+    tied.loc[2, "Integrated_Priority_Rank"] = 2
+    result = build_executive_management_briefing(tied, action_rows())
+    assert result["all_facilities"]["Facility_ID"].tolist() == ["F-001", "F-002", "F-003"]
