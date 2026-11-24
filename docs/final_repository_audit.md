@@ -304,3 +304,28 @@ The source, dashboard and test changes are committed to the existing workforce
 capacity feature branch and PR #26. No successful automated run has been
 verified for these latest commits. The Streamlit app, notebook and Power BI
 expanded model still require separate execution/browser/Desktop validation.
+
+
+## Management export completeness audit — Prompt 31, 24 November 2026
+
+The original expanded-analysis ZIP is generated before the saved corrective-action
+portfolio, executive briefing, release-readiness checks and facility drill-down
+are calculated. It therefore represents analytical outputs, not a complete
+management review. Its dashboard label and filename now explicitly identify it
+as the analytical outputs pack.
+
+A separate management review ZIP is now assembled after those sections run.
+It includes the integrated facility priority register and saved integrated
+action register, plus district/monthly action performance, full executive
+facility briefing, executive district and domain summaries, the top-N management
+queue, release-readiness checks, selected-facility action history and priority
+components when available, and all available field-level action audit history.
+Its JSON summary records the snapshot date, selected facility, action count,
+included tables and which optional management sections were successfully
+prepared. The export is a point-in-time review bundle, not a database backup.
+
+ZIP creation is factored into `src/management_export.py`, which validates
+table types and archive filenames, and has dedicated tests for archive contents,
+summary integrity, and invalid/path-traversal inputs. These tests have been
+committed but have not yet been confirmed by a successful CI run. No merge or
+deployment has been performed.
