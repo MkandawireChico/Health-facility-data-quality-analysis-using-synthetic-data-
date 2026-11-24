@@ -761,3 +761,34 @@ def test_generated_fact_grain_rejects_facility_metadata_drift():
             expected_indicator_pairs={("HIV", "A")},
             expected_months=pd.date_range("2024-01-01", periods=1, freq="MS"),
         )
+
+
+def test_default_platform_scale_contract_is_288000_records():
+    from scale_data_generator import ScaledHealthDataGenerator
+
+    generator = ScaledHealthDataGenerator()
+    assert generator.facility_count == 120
+    assert len(generator.months) == 60
+    assert generator.indicator_count == 40
+    assert generator.expected_record_count == 288_000
+
+
+def test_generated_fact_grain_rejects_missing_indicator_coverage_with_correct_row_count():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_generated_fact_grain
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1", "F2"]})
+    fact = pd.DataFrame([
+        {"Facility_ID": facility, "Month": month, "Programme": "HIV", "Indicator": indicator}
+        for facility in ["F1", "F2"]
+        for month in ["2024-01-01", "2024-02-01"]
+        for indicator in ["A", "B"]
+    ])
+    # Keep the row count unchanged while making one facility-month incomplete.
+    fact.loc[0, "Indicator"] = "C"
+    with pytest.raises(RuntimeError, match="catalogue does not match"):
+        _validate_generated_fact_grain(
+            fact, facilities, 8, 2,
+            expected_indicator_pairs={("HIV", "A"), ("HIV", "B")},
+        )
