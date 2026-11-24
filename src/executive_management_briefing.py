@@ -111,6 +111,18 @@ def build_executive_management_briefing(
         actions["Facility_ID"] = actions["Facility"].map(extract_facility_id)
         if not actions["Facility_ID"].isin(priority["Facility_ID"]).all():
             raise ValueError("Action register references facility identifiers absent from the priority register")
+        action_district = actions["Facility"].astype(str).str.extract(
+            r"\\(([^()]*)\\)\\s*\\[[^]]+\\]\\s*$", expand=False
+        ).str.strip()
+        canonical_district = actions["Facility_ID"].map(
+            priority.set_index("Facility_ID")["District"]
+        ).astype(str).str.strip()
+        if action_district.isna().any() or action_district.eq("").any():
+            raise ValueError("Action facility labels must include a district before [Facility_ID]")
+        if not action_district.reset_index(drop=True).equals(
+            canonical_district.reset_index(drop=True)
+        ):
+            raise ValueError("Action facility district does not match the canonical priority register")
         if actions["Record_ID"].isna().any() or actions["Record_ID"].astype(str).str.strip().eq("").any():
             raise ValueError("Action register contains missing record identifiers")
         if actions["Record_ID"].duplicated().any():
