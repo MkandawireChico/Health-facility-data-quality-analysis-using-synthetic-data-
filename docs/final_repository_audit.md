@@ -356,11 +356,13 @@ The Streamlit management ZIP is now withheld unless the following checks pass:
 A passing `lineage_reconciliation_checks.csv` is included in the ZIP summary
 and tables. If a required view is unavailable or any comparison fails, the
 complete management ZIP is withheld rather than presented as reconciled.
-Regression tests were added in `tests/test_lineage_audit.py` for the valid
-cross-artifact path, missing saved actions, executive facility population
-drift, KPI drift, district export drift, invalid queue facilities and an empty
-action portfolio. The existing executive-versus-action-performance district
-test was adjusted to align zero-action districts explicitly.
+Nine regression tests were added in `tests/test_lineage_audit.py` for the
+valid cross-artifact path, missing saved actions, executive facility
+population drift, action KPI drift, district export drift, invalid queue
+facilities, an empty action portfolio, monthly status-total drift and
+executive facility status-total drift. The existing
+executive-versus-action-performance district test was adjusted to align
+zero-action districts explicitly.
 
 These changes are committed to the existing
 `feat/facility-workforce-capacity-intelligence` branch and PR #26. The tests
@@ -369,3 +371,14 @@ The latest previously observed Actions failures had no step summaries or
 downloadable logs; this audit does not claim a passing test suite, a successful
 288,000-row build, browser QA, Power BI refresh or deployment. PR #26 remains
 open and unmerged.
+
+
+### Prompt 32 CI observation — 24 November 2026
+
+The latest Prompt 32 head `993a9c2804bddfbca94b28f60d559c6bf9652ed8`
+triggered Expanded platform build run #293 (`45349421992`) and Project
+quality checks run #319 (`45349422082`). Both report job-level failure.
+The job-step endpoint returned an empty list for each job, and the log
+download was unavailable. It is unknown whether any Python test or build
+command executed; this is neither a passing result nor evidence of a
+code-level test failure. The nine new lineage tests remain unverified.
