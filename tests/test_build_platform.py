@@ -31,8 +31,15 @@ def test_small_end_to_end_platform_build(tmp_path):
         "analytics/monthly_quality_trends.csv",
         "analytics/facility_quality_benchmark.csv",
         "analytics/programme_indicator_quality_profile.csv",
+        "analytics/district_quality_profile.csv",
+        "analytics/district_monthly_quality_trends.csv",
         "analytics/statistical_peer_anomalies.csv",
         "analytics/monthly_issue_control_chart.csv",
+        "analytics/facility_indicator_target_attainment.csv",
+        "analytics/district_indicator_target_attainment.csv",
+        "analytics/programme_indicator_target_attainment.csv",
+        "analytics/monthly_indicator_target_attainment.csv",
+        "analytics/target_attainment_report.json",
         "platform_build_summary.json",
     ]
     for relative in expected_files:

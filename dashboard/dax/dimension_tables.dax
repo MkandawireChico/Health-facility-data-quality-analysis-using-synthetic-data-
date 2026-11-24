@@ -39,3 +39,15 @@ RETURN
             "YearMonth", FORMAT ( [Date], "YYYY-MM" )
         )
     )
+
+
+// DAX calculated table — DimDistrict
+// Use this conformed dimension to filter both the facility dimension and
+// district aggregate facts without creating many-to-many relationships.
+DimDistrict =
+DISTINCT (
+    SELECTCOLUMNS (
+        DimFacility,
+        "District", DimFacility[District]
+    )
+)

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+import io
+import json
 import os
 import sys
+import zipfile
 
 import pandas as pd
 import plotly.express as px
@@ -10,7 +13,8 @@ import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from action_store import ActionRegisterStore
+from action_store import ActionRegisterStore, build_action_record_id
+from target_attainment import build_target_attainment_profiles
 from reporting import (
     REQUIRED_COLUMNS, assess_dataset, build_issue_register, facility_summary,
     validate_dataset,
@@ -293,28 +297,37 @@ with tabs[3]:
 
 with tabs[4]:
     st.subheader("Corrective action register")
-    st.write("Assign an owner, record the next action, and track the status of each flagged record.")
+    st.write("Assign accountability, document root causes, track due dates and retain a field-level change history.")
+
+    database_path = os.getenv(
+        "HEALTH_DATA_ACTION_DB",
+        str(ROOT / "data" / "warehouse" / "corrective_actions.sqlite"),
+    )
+    try:
+        action_store = ActionRegisterStore(database_path)
+        persisted_actions = action_store.get_actions()
+    except Exception as exc:
+        action_store = None
+        persisted_actions = st.session_state.get("action_register", {})
+        st.warning(
+            f"SQLite persistence is unavailable: {exc}. Changes will remain in this browser session only."
+        )
+
     flagged_rows = filtered[filtered["Requires_Follow_Up"]].copy()
-    if flagged_rows.empty:
-        st.success("No flagged records in the current selection.")
-    else:
-        database_path = os.getenv("HEALTH_DATA_ACTION_DB", str(ROOT / "data" / "warehouse" / "corrective_actions.sqlite"))
-        try:
-            action_store = ActionRegisterStore(database_path)
-            persisted_actions = action_store.get_actions()
-        except Exception as exc:
-            action_store = None
-            persisted_actions = {}
-            st.warning(f"SQLite action persistence is unavailable in this environment: {exc}. Session-only editing remains available.")
-        key_cols = ["Facility", "Month", "Programme", "Indicator"]
-        flagged_rows["Record_ID"] = flagged_rows[key_cols].astype(str).agg("|".join, axis=1)
-        flagged_rows["Record_ID"] += "|" + flagged_rows.index.astype(str)
-        if "action_register" not in st.session_state:
-            st.session_state.action_register = {}
+    if not flagged_rows.empty:
+        record_ids = [
+            build_action_record_id(
+                source_name, row["Facility"], row["Month"],
+                row["Programme"], row["Indicator"],
+            )
+            for _, row in flagged_rows.iterrows()
+        ]
+        flagged_rows["Record_ID"] = record_ids
+
         action_rows = []
         for _, row in flagged_rows.iterrows():
             rid = row["Record_ID"]
-            saved = st.session_state.action_register.get(rid, persisted_actions.get(rid, {}))
+            saved = persisted_actions.get(rid, {})
             action_rows.append({
                 "Record_ID": rid,
                 "Facility": row["Facility"],
@@ -334,55 +347,103 @@ with tabs[4]:
             action_df,
             use_container_width=True,
             hide_index=True,
-            disabled=["Record_ID", "Facility", "Month", "Programme", "Indicator", "Primary issue", "Issue count"],
+            disabled=[
+                "Record_ID", "Facility", "Month", "Programme", "Indicator",
+                "Primary issue", "Issue count",
+            ],
             column_config={
-                "Status": st.column_config.SelectboxColumn("Status", options=["Open", "In progress", "Resolved", "Escalated"], required=True),
+                "Status": st.column_config.SelectboxColumn(
+                    "Status",
+                    options=["Open", "In progress", "Resolved", "Escalated"],
+                    required=True,
+                ),
                 "Assigned owner": st.column_config.TextColumn("Assigned owner"),
                 "Root cause": st.column_config.TextColumn("Root cause", width="medium"),
-                "Corrective action / notes": st.column_config.TextColumn("Corrective action / notes", width="large"),
+                "Corrective action / notes": st.column_config.TextColumn(
+                    "Corrective action / notes", width="large"
+                ),
                 "Due date": st.column_config.TextColumn("Due date (YYYY-MM-DD)"),
             },
             key="action_editor",
         )
-        if action_store is not None:
+        due_text = edited["Due date"].fillna("").astype(str).str.strip()
+        parsed_due = pd.to_datetime(due_text.where(due_text.ne(""), pd.NA), format="%Y-%m-%d", errors="coerce")
+        invalid_due = due_text.ne("") & parsed_due.isna()
+        if invalid_due.any():
+            st.error(
+                "Corrective action due dates must use YYYY-MM-DD. "
+                f"Invalid entries: {int(invalid_due.sum())}. No changes were saved."
+            )
+        elif action_store is not None:
             try:
                 save_result = action_store.upsert_actions(edited.to_dict(orient="records"))
                 st.caption(
                     f"SQLite save: {save_result['inserted']:,} new · "
                     f"{save_result['updated']:,} updated · {save_result['unchanged']:,} unchanged"
                 )
+                persisted_actions = action_store.get_actions()
             except Exception as exc:
-                st.warning(f"Could not save the action register to SQLite: {exc}")
-        st.session_state.action_register = {
-            row["Record_ID"]: {
-                "Status": row["Status"],
-                "Assigned owner": row["Assigned owner"],
-                "Root cause": row["Root cause"],
-                "Corrective action / notes": row["Corrective action / notes"],
-                "Due date": row["Due date"],
+                st.warning(f"Could not save action changes: {exc}")
+        else:
+            st.session_state["action_register"] = {
+                row["Record_ID"]: {
+                    "Status": row["Status"],
+                    "Assigned owner": row["Assigned owner"],
+                    "Root cause": row["Root cause"],
+                    "Corrective action / notes": row["Corrective action / notes"],
+                    "Due date": row["Due date"],
+                }
+                for _, row in edited.iterrows()
             }
-            for _, row in edited.iterrows()
-        }
-        a, b, c = st.columns(3)
-        a.metric("Open", int((edited["Status"] == "Open").sum()))
-        b.metric("In progress", int((edited["Status"] == "In progress").sum()))
-        c.metric("Resolved", int((edited["Status"] == "Resolved").sum()))
+            persisted_actions = st.session_state["action_register"]
+    else:
+        st.info("There are no new follow-up records in the current filter selection. Previously saved actions remain available below.")
+
+    if persisted_actions:
+        all_action_rows = [
+            {"Record_ID": record_id, **fields}
+            for record_id, fields in persisted_actions.items()
+        ]
+        all_actions_df = pd.DataFrame(all_action_rows)
+        today = pd.Timestamp.now().normalize()
+        due_dates = pd.to_datetime(all_actions_df["Due date"], errors="coerce")
+        unresolved = ~all_actions_df["Status"].eq("Resolved")
+        overdue = unresolved & due_dates.notna() & due_dates.lt(today)
+
+        st.markdown("**Action portfolio**")
+        k1, k2, k3, k4, k5 = st.columns(5)
+        k1.metric("Total actions", f"{len(all_actions_df):,}")
+        k2.metric("Open", int(all_actions_df["Status"].eq("Open").sum()))
+        k3.metric("In progress", int(all_actions_df["Status"].eq("In progress").sum()))
+        k4.metric("Resolved", int(all_actions_df["Status"].eq("Resolved").sum()))
+        k5.metric("Overdue", int(overdue.sum()))
+
+        st.dataframe(
+            all_actions_df.sort_values(
+                ["Status", "Due date"], na_position="last"
+            ),
+            use_container_width=True,
+            hide_index=True,
+        )
         st.download_button(
-            "Download corrective action register",
-            data=edited.to_csv(index=False).encode("utf-8"),
+            "Download complete corrective action register",
+            data=all_actions_df.to_csv(index=False).encode("utf-8"),
             file_name="health_facility_corrective_action_register.csv",
             mime="text/csv",
+            key="download_complete_action_register",
         )
+
         if action_store is not None:
             st.caption(
-                f"Actions are persisted locally in SQLite at {database_path}. "
-                "Set HEALTH_DATA_ACTION_DB to change the path. Streamlit Community Cloud "
-                "storage is ephemeral and is not a shared multi-user database; download regular backups."
+                f"Local SQLite database: {database_path}. Actions and field-level history persist "
+                "on a persistent local filesystem. Streamlit Community Cloud storage is ephemeral "
+                "and is not a shared multi-user database; export regular backups."
             )
             with st.expander("Action audit history"):
-                history_options = edited["Record_ID"].head(500).tolist()
                 selected_history_id = st.selectbox(
-                    "Record to inspect", history_options, key="action_history_record"
+                    "Record to inspect",
+                    list(persisted_actions.keys()),
+                    key="action_history_record",
                 )
                 history = action_store.history(selected_history_id)
                 if history.empty:
@@ -390,10 +451,9 @@ with tabs[4]:
                 else:
                     st.dataframe(history, use_container_width=True, hide_index=True)
         else:
-            st.caption(
-                "Action assignments are session-scoped because local SQLite persistence is unavailable. "
-                "Download the register to preserve the work."
-            )
+            st.caption("Action assignments are session-scoped because SQLite is unavailable.")
+    else:
+        st.info("The action register is currently empty. Flagged records will appear here when they require follow-up.")
 
 with tabs[5]:
     st.subheader("Data intake and quality assurance")
@@ -487,12 +547,14 @@ with tabs[6]:
                 if missing_platform:
                     st.error("This is not a staged platform extract. Missing columns: " + ", ".join(missing_platform))
                 else:
-                    from quality_analytics import add_operational_predictions, build_operational_profiles, evaluate_detectors
+                    from quality_analytics import add_operational_predictions, build_operational_profiles, build_district_profiles, evaluate_detectors
                     from statistical_monitoring import detect_peer_anomalies, build_monthly_control_chart
 
                     with st.spinner("Running peer anomaly detection and longitudinal monitoring..."):
                         predicted = add_operational_predictions(platform_data)
                         monthly, facility_profile, programme_profile = build_operational_profiles(platform_data)
+                        district_profile, district_monthly = build_district_profiles(platform_data)
+                        attainment = build_target_attainment_profiles(platform_data)
                         peer = detect_peer_anomalies(platform_data)
                         control = build_monthly_control_chart(platform_data)
                         metrics = None
@@ -516,6 +578,9 @@ with tabs[6]:
                             "monthly": monthly,
                             "facility": facility_profile,
                             "programme": programme_profile,
+                            "district": district_profile,
+                            "district_monthly": district_monthly,
+                            "attainment": attainment,
                             "control": control,
                             "metrics": metrics,
                             "synthetic_truth_available": metrics is not None,
@@ -529,6 +594,65 @@ with tabs[6]:
     if result:
         st.divider()
         st.caption("Analysis result is held in this browser session. Upload and rerun to analyse a different extract.")
+
+        # Package the derived outputs into one portable management/review bundle.
+        export_buffer = io.BytesIO()
+        facility_attainment_summary = result["attainment"]["facility_indicator"]
+        valid_attainment_summary = facility_attainment_summary.dropna(subset=["attainment_pct"])
+        export_summary = {
+            "synthetic_data": True,
+            "staged_records": int(result["records"]),
+            "facilities": int(result["facilities"]),
+            "districts": int(result["districts"]),
+            "reporting_months": int(result["months"]),
+            "programme_areas": int(result["programmes"]),
+            "indicators": int(result["indicators"]),
+            "detected_issue_rate_pct": (
+                round(float(result["issue_rate"]) * 100, 2)
+                if pd.notna(result["issue_rate"]) else None
+            ),
+            "peer_anomaly_records": int(result["peer_anomaly_count"]),
+            "facility_indicator_combinations_with_valid_targets": int(len(valid_attainment_summary)),
+            "facility_indicator_combinations_below_80_pct": int(valid_attainment_summary["attainment_pct"].lt(80).sum()),
+            "facility_indicator_combinations_at_or_above_100_pct": int(valid_attainment_summary["attainment_pct"].ge(100).sum()),
+            "synthetic_ground_truth_evaluation_available": bool(result["synthetic_truth_available"]),
+            "ground_truth_scope": (
+                "Detector metrics evaluate controlled synthetic defects only."
+                if result["synthetic_truth_available"] else
+                "No ground-truth evaluation was performed."
+            ),
+            "interpretation": (
+                "District and facility metrics are synthetic portfolio demonstrations, "
+                "not actual Malawi Ministry of Health performance. Statistical signals "
+                "are review prompts, not proof of reporting error or clinical risk."
+            ),
+        }
+        export_tables = {
+            "monthly_quality_trends.csv": result["monthly"],
+            "facility_quality_benchmark.csv": result["facility"],
+            "programme_indicator_quality_profile.csv": result["programme"],
+            "district_quality_profile.csv": result["district"],
+            "district_monthly_quality_trends.csv": result["district_monthly"],
+            "statistical_peer_anomalies.csv": result["peer_anomalies"],
+            "monthly_issue_control_chart.csv": result["control"],
+            "facility_indicator_target_attainment.csv": result["attainment"]["facility_indicator"],
+            "district_indicator_target_attainment.csv": result["attainment"]["district_indicator"],
+            "programme_indicator_target_attainment.csv": result["attainment"]["programme_indicator"],
+            "monthly_indicator_target_attainment.csv": result["attainment"]["monthly_indicator"],
+        }
+        if result["metrics"] is not None:
+            export_tables["synthetic_detector_evaluation_metrics.csv"] = result["metrics"]
+        with zipfile.ZipFile(export_buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("management_summary.json", json.dumps(export_summary, indent=2))
+            for filename, frame in export_tables.items():
+                archive.writestr(filename, frame.to_csv(index=False))
+        st.download_button(
+            "Download complete expanded analysis pack (ZIP)",
+            data=export_buffer.getvalue(),
+            file_name="malawi_health_facility_data_intelligence_analysis.zip",
+            mime="application/zip",
+            key="download_expanded_analysis_pack",
+        )
         p1, p2, p3, p4, p5 = st.columns(5)
         p1.metric("Staged records", f"{result['records']:,}")
         p2.metric("Facilities", f"{result['facilities']:,}")
@@ -552,6 +676,123 @@ with tabs[6]:
                    labels={"detected_issue_rate_pct": "Detected issue rate (%)"}),
             use_container_width=True,
         )
+        st.markdown("**District performance and data-quality intelligence**")
+        st.caption(
+            "District labels are geographic context for this synthetic portfolio. "
+            "These generated metrics do not represent actual district or Ministry of Health performance."
+        )
+        district_profile = result["district"].copy()
+        district_monthly = result["district_monthly"].copy()
+        if not district_profile.empty:
+            district_left, district_right = st.columns(2)
+            district_left.plotly_chart(
+                px.bar(
+                    district_profile.sort_values("detected_issue_rate_pct"),
+                    x="detected_issue_rate_pct",
+                    y="District",
+                    orientation="h",
+                    title="Detected issue rate by district",
+                    labels={"detected_issue_rate_pct": "Detected issue rate (%)"},
+                ),
+                use_container_width=True,
+            )
+            district_right.plotly_chart(
+                px.bar(
+                    district_profile.sort_values("records"),
+                    x="records",
+                    y="District",
+                    orientation="h",
+                    title="Reporting volume by district",
+                    labels={"records": "Facility-month-indicator records"},
+                ),
+                use_container_width=True,
+            )
+            st.dataframe(district_profile, use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download district quality benchmark",
+                data=district_profile.to_csv(index=False).encode("utf-8"),
+                file_name="district_quality_benchmark.csv",
+                mime="text/csv",
+                key="download_district_quality_benchmark",
+            )
+        if not district_monthly.empty:
+            st.plotly_chart(
+                px.line(
+                    district_monthly,
+                    x="Month",
+                    y="detected_issue_rate_pct",
+                    color="District",
+                    markers=True,
+                    title="Monthly quality issue trends by district",
+                    labels={"detected_issue_rate_pct": "Detected issue rate (%)"},
+                ),
+                use_container_width=True,
+            )
+            st.download_button(
+                "Download district monthly trends",
+                data=district_monthly.to_csv(index=False).encode("utf-8"),
+                file_name="district_monthly_quality_trends.csv",
+                mime="text/csv",
+                key="download_district_monthly_trends",
+            )
+
+        st.markdown("**Target attainment and service-performance intelligence**")
+        st.caption(
+            "Attainment compares pooled reported values with pooled targets for the same programme and indicator. "
+            "It is not population coverage, unique people served, or an official performance measure. "
+            "The 80% review band is an illustrative portfolio threshold."
+        )
+        attainment = result["attainment"]
+        facility_attainment = attainment["facility_indicator"]
+        district_attainment = attainment["district_indicator"]
+        monthly_attainment = attainment["monthly_indicator"]
+        valid_facility_attainment = facility_attainment.dropna(subset=["attainment_pct"])
+        if not valid_facility_attainment.empty:
+            a1, a2, a3 = st.columns(3)
+            a1.metric("Facility-indicator combinations", f"{len(valid_facility_attainment):,}")
+            a2.metric("Below 80% of target", int(valid_facility_attainment["attainment_pct"].lt(80).sum()))
+            a3.metric("At or above target", int(valid_facility_attainment["attainment_pct"].ge(100).sum()))
+            under_target = valid_facility_attainment.sort_values("attainment_pct").head(20)
+            st.plotly_chart(
+                px.bar(
+                    under_target.sort_values("attainment_pct"),
+                    x="attainment_pct", y="Facility", color="Indicator", orientation="h",
+                    title="Lowest facility-level indicator attainment",
+                    labels={"attainment_pct": "Reported-to-target attainment (%)"},
+                    hover_data=["District", "Programme", "Indicator", "valid_attainment_records"],
+                ),
+                use_container_width=True,
+            )
+            st.dataframe(under_target, use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download facility-indicator target attainment",
+                data=facility_attainment.to_csv(index=False).encode("utf-8"),
+                file_name="facility_indicator_target_attainment.csv", mime="text/csv",
+            )
+        if not district_attainment.empty:
+            st.markdown("**District attainment by comparable indicator**")
+            st.dataframe(district_attainment, use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download district-indicator attainment",
+                data=district_attainment.to_csv(index=False).encode("utf-8"),
+                file_name="district_indicator_target_attainment.csv", mime="text/csv",
+            )
+        if not monthly_attainment.empty:
+            st.plotly_chart(
+                px.line(
+                    monthly_attainment, x="Month", y="attainment_pct", color="Indicator",
+                    facet_col="Programme", facet_col_wrap=2, markers=True,
+                    title="Monthly target attainment by programme and indicator",
+                    labels={"attainment_pct": "Reported-to-target attainment (%)"},
+                ),
+                use_container_width=True,
+            )
+            st.download_button(
+                "Download monthly indicator attainment",
+                data=monthly_attainment.to_csv(index=False).encode("utf-8"),
+                file_name="monthly_indicator_target_attainment.csv", mime="text/csv",
+            )
+
         st.markdown("**Programme and indicator quality profile**")
         st.dataframe(result["programme"], use_container_width=True, hide_index=True)
         st.markdown("**Statistical peer anomalies**")
@@ -565,10 +806,29 @@ with tabs[6]:
                 file_name="statistical_peer_anomalies.csv", mime="text/csv",
             )
         st.markdown("**Monthly issue-rate monitoring**")
-        st.dataframe(result["control"], use_container_width=True, hide_index=True)
+        control_chart = result["control"].copy()
+        if not control_chart.empty:
+            control_chart["Month"] = pd.to_datetime(control_chart["Month"], errors="coerce")
+            st.plotly_chart(
+                px.line(
+                    control_chart,
+                    x="Month",
+                    y=["Issue_Rate", "Centre_Line", "Lower_Control_Limit", "Upper_Control_Limit"],
+                    markers=True,
+                    title="Monthly issue rate with retrospective p-chart limits",
+                    labels={"value": "Proportion of records", "variable": "Series"},
+                ),
+                use_container_width=True,
+            )
+        st.caption(
+            "The centre line is the pooled issue proportion. Limits use month-specific "
+            "denominators, so lower-volume months have wider bands. These are retrospective "
+            "descriptive limits, not prospective alert thresholds."
+        )
+        st.dataframe(control_chart, use_container_width=True, hide_index=True)
         st.download_button(
             "Download monthly monitoring output",
-            data=result["control"].to_csv(index=False).encode("utf-8"),
+            data=control_chart.to_csv(index=False).encode("utf-8"),
             file_name="monthly_issue_control_chart.csv", mime="text/csv",
         )
         if result["synthetic_truth_available"]:

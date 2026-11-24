@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from quality_analytics import (
     add_operational_predictions,
     build_operational_profiles,
+    build_district_profiles,
     evaluate_detectors,
     run_quality_analytics,
 )
@@ -86,3 +87,19 @@ def test_pipeline_writes_metrics_and_profiles(tmp_path):
     assert report["input_records"] == 6
     for name in report["outputs"]:
         assert (tmp_path / "analytics" / name).exists()
+
+
+def test_district_profiles_are_volume_normalised_and_ground_truth_free():
+    district, district_monthly = build_district_profiles(analytics_fixture())
+    assert set(district["District"]) == {"North", "Central", "South"}
+    assert district["records"].sum() == 6
+    assert district["facilities"].sum() == 3
+    assert district_monthly["records"].sum() == 6
+    assert district_monthly["detected_issue_rate_pct"].between(0, 100).all()
+    for frame in (district, district_monthly):
+        assert not any(column.startswith("Ground_Truth_") for column in frame.columns)
+
+
+def test_district_profile_rejects_missing_dimensions():
+    with pytest.raises(ValueError, match="district dimensions"):
+        build_district_profiles(analytics_fixture().drop(columns=["District"]))

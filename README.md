@@ -266,11 +266,11 @@ pytest -q
 
 The additional statistical monitoring layer is available in
 [`src/statistical_monitoring.py`](src/statistical_monitoring.py). It applies
-MAD robust-z and IQR fallback checks within district/programme/indicator peer
-groups, then builds retrospective monthly issue-rate control limits. Run it
-after staging with `python src/statistical_monitoring.py`. Statistical signals
-are verification prompts, not proof of errors; the control limits are
-retrospective descriptive limits, not a prospective alerting service. The
+MAD robust-z and IQR fallback checks within month/district/programme/indicator
+peer groups, then builds retrospective monthly issue-rate monitoring with pooled-rate, denominator-aware retrospective p-chart
+limits. Run it after staging with `python src/statistical_monitoring.py`.
+Statistical signals are verification prompts, not proof of errors; the control
+limits are retrospective descriptive limits, not a prospective alerting service. The
 monitoring code does not use synthetic ground-truth labels.
 
 
@@ -279,7 +279,7 @@ monitoring code does not use synthetic ground-truth labels.
 The Streamlit app now includes an **Expanded platform** tab. Upload a staged
 multi-year reporting CSV to view monthly issue trends, facility follow-up rates,
 programme/indicator profiles, MAD/IQR peer anomalies and retrospective monthly
-issue-rate monitoring. If synthetic ground-truth labels are present, the page
+issue-rate monitoring with a denominator-aware retrospective p-chart visual. If synthetic ground-truth labels are present, the page
 also reports detector evaluation metrics; without those labels it deliberately
 does not invent precision or recall values.
 
@@ -292,8 +292,11 @@ python src/etl_pipeline.py
 
 Then upload `data/warehouse/staged/facility_reporting_staged.csv` in the app.
 The upload and resulting analysis remain session-scoped; shared database
-persistence is not configured. The expanded generated data is not committed
-to the repository.
+persistence is not configured. The Expanded Platform page also provides a
+one-click ZIP export containing the management summary, monthly/facility/
+programme/district profiles, peer anomalies, monthly control-chart output and
+synthetic-only detector evaluation metrics when labels are available. The
+expanded generated data is not committed to the repository.
 
 
 ### Expanded analytical notebook
@@ -328,15 +331,23 @@ workflow artifact.
 
 ### Expanded Power BI semantic model pack
 
-The expanded platform includes a separate Power BI build specification:
+The expanded platform includes a separate Power BI implementation pack:
 [`dashboard/powerbi_expanded_model.md`](dashboard/powerbi_expanded_model.md).
-It documents the star schema, relationship design, report-page plan and
-synthetic-data governance. Reusable DAX measures are in
+It documents the star schema, relationship design, seven-page report plan and
+synthetic-data governance. The accessible light theme is in
+[`dashboard/powerbi_theme.json`](dashboard/powerbi_theme.json), and the report
+build and visual QA guide is in
+[`dashboard/powerbi_report_build_guide.md`](dashboard/powerbi_report_build_guide.md).
+Reusable DAX measures are in
 [`dashboard/dax/health_data_quality_measures.dax`](dashboard/dax/health_data_quality_measures.dax)
 and calculated dimensions in
 [`dashboard/dax/dimension_tables.dax`](dashboard/dax/dimension_tables.dax).
-Power Query templates for the reporting fact, facility dimension and
-source-observation fact are in `dashboard/powerquery/`.
+Power Query M templates for the reporting fact, dimensions, source observations,
+district intelligence, monthly trends, statistical anomalies, detector
+evaluation and facility/district/programme/monthly target attainment are in
+`dashboard/powerquery/`. Target-attainment calculations and interpretation
+safeguards are documented in
+[`docs/target_attainment_methodology.md`](docs/target_attainment_methodology.md).
 
 This is an implementation pack for rebuilding the expanded semantic model in
 Power BI Desktop. The existing PBIX remains the original 960-row report until
@@ -357,3 +368,40 @@ machine. Streamlit Community Cloud's local filesystem is ephemeral and does
 not provide shared multi-user storage, so download backups regularly. A
 production deployment should use a managed database, authentication,
 role-based permissions and retention controls.
+
+
+### District-level quality intelligence
+
+The expanded operational analytics now include district and district-month
+profiles: volume, distinct facilities, detected issue counts and rates by
+district. These are generated from operational quality flags only; synthetic
+ground-truth labels are not used in district rankings or trend profiles.
+The Streamlit Expanded Platform page displays district issue-rate comparisons,
+reporting volume and monthly trends, with CSV exports. District names are
+geographic labels for a synthetic scenario and do not represent actual
+district or Ministry of Health performance.
+
+### Target attainment and programme performance
+
+The new `src/target_attainment.py` layer calculates pooled reported-to-target
+attainment at facility-indicator, district-indicator, programme-indicator and
+month-indicator grain. Values are compared only within the same programme and
+indicator; the platform does not aggregate unlike service indicators into a
+single facility score. Missing/invalid months, missing or negative reported
+values, and missing/non-positive targets are excluded from both numerator and
+denominator, with valid-data percentages retained. Illustrative review bands
+are below 80%, 80–99.9%, and at/above 100%; they are not official Malawi service
+standards. These outputs are not population coverage or unique people served.
+The Streamlit Expanded Platform now includes under-target facility-indicator
+review, district comparisons, monthly indicator trends and CSV/ZIP exports.
+Power BI query templates are provided for facility, district and monthly
+attainment facts. All underlying records and targets remain synthetic.
+
+### Corrective action workflow improvements
+
+Corrective action IDs are now stable across dataframe sorting and filter
+changes, and namespaced by source file. The register displays all saved
+actions—not only currently visible flagged rows—with status totals, overdue
+counts, full-register export and field-level audit history. Local SQLite
+persistence remains single-instance/local; Streamlit Community Cloud storage
+is ephemeral and is not a managed multi-user database.

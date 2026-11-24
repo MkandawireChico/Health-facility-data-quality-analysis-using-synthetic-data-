@@ -167,16 +167,83 @@ def build_operational_profiles(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.Dat
     return monthly, facility, programme
 
 
+
+def build_district_profiles(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Build district and district-month profiles from operational flags only."""
+    predicted = add_operational_predictions(data)
+    required = {"Month", "Facility_ID", "District"}
+    missing = sorted(required - set(predicted.columns))
+    if missing:
+        raise ValueError(f"Staged data missing district dimensions: {missing}")
+
+    issue_cols = [
+        "Quality_Missing_Reported_Value", "Quality_Source_Discrepancy",
+        "Operational_Detected_Outlier", "Quality_Late_Submission",
+    ]
+    for column in issue_cols:
+        predicted[column] = _as_bool(predicted[column])
+    predicted["Operational_Any_Detected_Issue"] = predicted[issue_cols].any(axis=1)
+    predicted["Month"] = (
+        pd.to_datetime(predicted["Month"], errors="coerce")
+        .dt.to_period("M").dt.to_timestamp()
+    )
+
+    aggregations = {
+        "records": ("Facility_ID", "size"),
+        "facilities": ("Facility_ID", "nunique"),
+        "detected_issue_records": ("Operational_Any_Detected_Issue", "sum"),
+        "missing_records": ("Quality_Missing_Reported_Value", "sum"),
+        "source_discrepancy_records": ("Quality_Source_Discrepancy", "sum"),
+        "outlier_records": ("Operational_Detected_Outlier", "sum"),
+        "late_records": ("Quality_Late_Submission", "sum"),
+    }
+    district = predicted.groupby("District", dropna=False).agg(**aggregations).reset_index()
+    district["detected_issue_rate_pct"] = (
+        100 * district["detected_issue_records"] / district["records"].replace(0, np.nan)
+    ).round(2)
+    district = district.sort_values(
+        ["detected_issue_rate_pct", "records", "District"],
+        ascending=[False, False, True],
+    ).reset_index(drop=True)
+    district["follow_up_rank"] = np.arange(1, len(district) + 1)
+
+    district_monthly = (
+        predicted.dropna(subset=["Month"])
+        .groupby(["District", "Month"], dropna=False)
+        .agg(
+            records=("Facility_ID", "size"),
+            facilities=("Facility_ID", "nunique"),
+            detected_issue_records=("Operational_Any_Detected_Issue", "sum"),
+            missing_records=("Quality_Missing_Reported_Value", "sum"),
+            source_discrepancy_records=("Quality_Source_Discrepancy", "sum"),
+            outlier_records=("Operational_Detected_Outlier", "sum"),
+            late_records=("Quality_Late_Submission", "sum"),
+        )
+        .reset_index()
+    )
+    district_monthly["detected_issue_rate_pct"] = (
+        100 * district_monthly["detected_issue_records"]
+        / district_monthly["records"].replace(0, np.nan)
+    ).round(2)
+
+    for frame in (district, district_monthly):
+        assert not any(column.startswith("Ground_Truth_") for column in frame.columns)
+    return district, district_monthly
+
+
 def run_quality_analytics(staged_path: Path, output_dir: Path) -> dict[str, Any]:
     """Evaluate synthetic detector performance and write operational profiles."""
     data = pd.read_csv(staged_path)
     metrics = evaluate_detectors(data)
     monthly, facility, programme = build_operational_profiles(data)
+    district, district_monthly = build_district_profiles(data)
     output_dir.mkdir(parents=True, exist_ok=True)
     metrics.to_csv(output_dir / "detector_evaluation_metrics.csv", index=False)
     monthly.to_csv(output_dir / "monthly_quality_trends.csv", index=False)
     facility.to_csv(output_dir / "facility_quality_benchmark.csv", index=False)
     programme.to_csv(output_dir / "programme_indicator_quality_profile.csv", index=False)
+    district.to_csv(output_dir / "district_quality_profile.csv", index=False)
+    district_monthly.to_csv(output_dir / "district_monthly_quality_trends.csv", index=False)
     report = {
         "input_records": int(len(data)),
         "evaluation_scope": "Synthetic ground-truth labels; not real-world detector validation",
@@ -186,6 +253,7 @@ def run_quality_analytics(staged_path: Path, output_dir: Path) -> dict[str, Any]
         "outputs": [
             "detector_evaluation_metrics.csv", "monthly_quality_trends.csv",
             "facility_quality_benchmark.csv", "programme_indicator_quality_profile.csv",
+            "district_quality_profile.csv", "district_monthly_quality_trends.csv",
         ],
     }
     (output_dir / "quality_analytics_report.json").write_text(json.dumps(report, indent=2))

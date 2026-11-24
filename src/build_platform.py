@@ -10,6 +10,7 @@ from scale_data_generator import ScaledHealthDataGenerator
 from etl_pipeline import run_pipeline
 from quality_analytics import run_quality_analytics
 from statistical_monitoring import run_statistical_monitoring
+from target_attainment import run_target_attainment
 
 
 def build_platform(
@@ -44,6 +45,7 @@ def build_platform(
     staged_path = staged_dir / "facility_reporting_staged.csv"
     quality_report = run_quality_analytics(staged_path, analytics_dir)
     statistical_report = run_statistical_monitoring(staged_path, analytics_dir)
+    attainment_report = run_target_attainment(staged_path, analytics_dir)
 
     if manifest["actual_record_count"] != generator.expected_record_count:
         raise RuntimeError("Generated record count does not match configured fact grain")
@@ -64,6 +66,8 @@ def build_platform(
         "staging_yield_pct": staging_report["staging_yield_pct"],
         "detector_evaluation_scope": quality_report["evaluation_scope"],
         "peer_anomaly_records": statistical_report["peer_anomaly_records"],
+        "target_attainment_outputs": attainment_report["outputs"],
+        "target_attainment_method": attainment_report["method"],
         "months_monitored": statistical_report["months_monitored"],
         "ground_truth_used_for_operational_monitoring": False,
         "outputs": {
@@ -75,8 +79,14 @@ def build_platform(
             "monthly_trends": str(analytics_dir / "monthly_quality_trends.csv"),
             "facility_benchmark": str(analytics_dir / "facility_quality_benchmark.csv"),
             "programme_profile": str(analytics_dir / "programme_indicator_quality_profile.csv"),
+            "district_profile": str(analytics_dir / "district_quality_profile.csv"),
+            "district_monthly_trends": str(analytics_dir / "district_monthly_quality_trends.csv"),
             "peer_anomalies": str(analytics_dir / "statistical_peer_anomalies.csv"),
             "monthly_control_chart": str(analytics_dir / "monthly_issue_control_chart.csv"),
+            "facility_indicator_attainment": str(analytics_dir / "facility_indicator_target_attainment.csv"),
+            "district_indicator_attainment": str(analytics_dir / "district_indicator_target_attainment.csv"),
+            "programme_indicator_attainment": str(analytics_dir / "programme_indicator_target_attainment.csv"),
+            "monthly_indicator_attainment": str(analytics_dir / "monthly_indicator_target_attainment.csv"),
         },
     }
     (output_dir / "platform_build_summary.json").write_text(json.dumps(summary, indent=2))
