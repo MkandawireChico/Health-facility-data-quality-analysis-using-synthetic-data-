@@ -939,7 +939,8 @@ with tabs[6]:
         ]
         if current_priority_actions:
             priority_action_portfolio = pd.DataFrame(current_priority_actions)
-            today = pd.Timestamp.now().normalize()
+            management_as_of = pd.Timestamp.now().normalize()
+            today = management_as_of
             priority_due = pd.to_datetime(
                 priority_action_portfolio["Due date"], errors="coerce"
             )
@@ -964,7 +965,10 @@ with tabs[6]:
             st.markdown("#### Corrective-action performance")
             try:
                 from action_performance import build_action_performance
-                action_performance = build_action_performance(priority_action_portfolio)
+                action_performance = build_action_performance(
+                    priority_action_portfolio, as_of=management_as_of,
+                    priority_register=result["integrated_priority_register"],
+                )
                 action_kpis = action_performance["kpis"]
                 k1, k2, k3, k4 = st.columns(4)
                 k1.metric("Resolution rate", pct(action_kpis["resolution_rate_pct"] / 100))
@@ -1069,6 +1073,7 @@ with tabs[6]:
             executive_briefing = build_executive_management_briefing(
                 result["integrated_priority_register"],
                 briefing_actions,
+                as_of=management_as_of,
             )
             briefing_kpis = executive_briefing["kpis"]
             b1, b2, b3, b4, b5 = st.columns(5)
@@ -1228,6 +1233,7 @@ with tabs[6]:
                 ]),
                 selected_facility_id,
                 audit_history=selected_audit,
+                as_of=management_as_of,
             )
             facility_priority = facility_view["facility"]
             facility_progress = facility_view["progress"]
