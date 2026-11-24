@@ -146,3 +146,24 @@ def test_cold_chain_zero_stock_month_can_have_no_batch_rows():
         "Fulfilled_Consumption_Units": 0, "Unmet_Demand_Units": 4,
     }])
     assert validate_cold_chain_ledger(batch, risk)["batch_month_rows"] == 0
+
+
+
+def test_cold_chain_near_expiry_reconciles_units_not_batch_flag_count():
+    batch = pd.DataFrame([
+        {"Batch_ID": "B1", "Facility_ID": "F1", "Commodity_ID": "C1",
+         "Month": "2024-01-01", "Opening_Stock_Units": 0, "Receipts_Units": 5,
+         "Fulfilled_Consumption_Units": 0, "Expired_Units": 0,
+         "Closing_Stock_Units": 5, "Near_Expiry_90_Days": True},
+        {"Batch_ID": "B2", "Facility_ID": "F1", "Commodity_ID": "C1",
+         "Month": "2024-01-01", "Opening_Stock_Units": 0, "Receipts_Units": 4,
+         "Fulfilled_Consumption_Units": 0, "Expired_Units": 0,
+         "Closing_Stock_Units": 4, "Near_Expiry_90_Days": False},
+    ])
+    risk = pd.DataFrame([{
+        "Facility_ID": "F1", "Commodity_ID": "C1", "Month": "2024-01-01",
+        "Expired_Units": 0, "Closing_Stock_Units": 9,
+        "Near_Expiry_90_Day_Units": 5, "Demand_Units": 0,
+        "Fulfilled_Consumption_Units": 0, "Unmet_Demand_Units": 0,
+    }])
+    assert validate_cold_chain_ledger(batch, risk)["batch_month_rows"] == 2
