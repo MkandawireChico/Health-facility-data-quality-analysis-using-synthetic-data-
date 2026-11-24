@@ -14,7 +14,7 @@ import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from action_store import ActionRegisterStore, build_action_record_id
+from action_store import ActionRegisterStore, build_action_record_id, merge_session_actions
 from target_attainment import build_target_attainment_profiles
 from platform_input_validation import validate_platform_extract
 from reporting import (
@@ -391,16 +391,10 @@ with tabs[4]:
             except Exception as exc:
                 st.warning(f"Could not save action changes: {exc}")
         else:
-            st.session_state["action_register"] = {
-                row["Record_ID"]: {
-                    "Status": row["Status"],
-                    "Assigned owner": row["Assigned owner"],
-                    "Root cause": row["Root cause"],
-                    "Corrective action / notes": row["Corrective action / notes"],
-                    "Due date": row["Due date"],
-                }
-                for _, row in edited.iterrows()
-            }
+            st.session_state["action_register"] = merge_session_actions(
+                st.session_state.get("action_register", {}),
+                edited.to_dict(orient="records"),
+            )
             persisted_actions = st.session_state["action_register"]
     else:
         st.info("There are no new follow-up records in the current filter selection. Previously saved actions remain available below.")
