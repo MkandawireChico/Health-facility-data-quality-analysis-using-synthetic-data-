@@ -48,16 +48,17 @@ def build_action_record_id(
     month: Any,
     programme: Any,
     indicator: Any,
+    source_fingerprint: str | None = None,
 ) -> str:
-    """Return a stable key independent of dataframe row order and active filters."""
+    """Return a stable row key, optionally scoped to an exact uploaded source version."""
     month_value = (
         pd.Timestamp(month).strftime("%Y-%m-%d")
         if month is not None and not pd.isna(month) else ""
     )
-    identity = "||".join(
-        str(value).strip()
-        for value in (source_name, facility, month_value, programme, indicator)
-    )
+    identity_parts = [source_name, facility, month_value, programme, indicator]
+    if source_fingerprint:
+        identity_parts.append(str(source_fingerprint).strip())
+    identity = "||".join(str(value).strip() for value in identity_parts)
     return "ACT-" + hashlib.sha256(identity.encode("utf-8")).hexdigest()[:20]
 
 
