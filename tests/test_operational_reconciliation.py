@@ -125,3 +125,19 @@ def test_workforce_counts_and_rates_reconcile():
     monthly.loc[0, "Vacant_Positions"] = 1
     with pytest.raises(RuntimeError, match="vacancy count"):
         validate_workforce_ledger(monthly)
+
+
+
+def test_cold_chain_zero_stock_month_can_have_no_batch_rows():
+    batch = pd.DataFrame(columns=[
+        "Batch_ID", "Facility_ID", "Commodity_ID", "Month",
+        "Opening_Stock_Units", "Receipts_Units", "Fulfilled_Consumption_Units",
+        "Expired_Units", "Closing_Stock_Units", "Near_Expiry_90_Days",
+    ])
+    risk = pd.DataFrame([{
+        "Facility_ID": "F1", "Commodity_ID": "C1", "Month": "2024-01-01",
+        "Expired_Units": 0, "Closing_Stock_Units": 0,
+        "Near_Expiry_90_Day_Units": 0, "Demand_Units": 4,
+        "Fulfilled_Consumption_Units": 0, "Unmet_Demand_Units": 4,
+    }])
+    assert validate_cold_chain_ledger(batch, risk)["batch_month_rows"] == 0
