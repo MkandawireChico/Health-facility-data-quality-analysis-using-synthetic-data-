@@ -120,11 +120,12 @@ facility_metrics = facility_summary(assessed)
 source_action_rows = assessed[assessed["Requires_Follow_Up"]]
 current_source_action_ids = [
     build_action_record_id(
-        source_name, row["Facility"], row["Month"],
-        row["Programme"], row["Indicator"],
+        source_name, facility, month, programme, indicator,
         source_fingerprint=source_fingerprint,
     )
-    for _, row in source_action_rows.iterrows()
+    for facility, month, programme, indicator in source_action_rows[
+        ["Facility", "Month", "Programme", "Indicator"]
+    ].itertuples(index=False, name=None)
 ]
 current_source_action_id_set = set(current_source_action_ids)
 
