@@ -39,3 +39,13 @@ RETURN
             "YearMonth", FORMAT ( [Date], "YYYY-MM" )
         )
     )
+
+
+// DAX calculated table — DimDistrict
+DimDistrict =
+DISTINCT (
+    SELECTCOLUMNS (
+        DimFacility,
+        "District", DimFacility[District]
+    )
+)

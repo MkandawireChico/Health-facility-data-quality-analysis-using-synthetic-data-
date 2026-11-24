@@ -63,7 +63,7 @@ st.caption(
 
 with st.sidebar:
     st.title("Workspace controls")
-    st.caption("Rumphi District • Synthetic demonstration")
+    st.caption("Malawi-oriented synthetic demonstration")
     uploaded = st.file_uploader("Assess a reporting CSV", type=["csv"], help="Your file is processed for this app session. It is not saved to the repository.")
     use_upload = uploaded is not None
     st.divider()
@@ -468,15 +468,12 @@ with tabs[6]:
     if platform_file is None:
         st.markdown("**Generate and stage the expanded cohort locally**")
         st.code(
-            "python src/scale_data_generator.py\n"
-            "python src/etl_pipeline.py\n"
-            "python src/quality_analytics.py\n"
-            "python src/statistical_monitoring.py",
+            "python src/build_platform.py",
             language="bash",
         )
         st.caption(
             "The 288,000-row generated CSV is intentionally not committed to GitHub. "
-            "Generate it locally, then upload data/warehouse/staged/facility_reporting_staged.csv here."
+            "Run the one-command build locally, then upload data/warehouse/staged/facility_reporting_staged.csv here."
         )
     else:
         st.caption(f"Selected file: {platform_file.name} · {platform_file.size / (1024 * 1024):.1f} MB")
@@ -487,12 +484,13 @@ with tabs[6]:
                 if missing_platform:
                     st.error("This is not a staged platform extract. Missing columns: " + ", ".join(missing_platform))
                 else:
-                    from quality_analytics import add_operational_predictions, build_operational_profiles, evaluate_detectors
+                    from quality_analytics import add_operational_predictions, build_operational_profiles, build_district_profile, evaluate_detectors
                     from statistical_monitoring import detect_peer_anomalies, build_monthly_control_chart
 
                     with st.spinner("Running peer anomaly detection and longitudinal monitoring..."):
                         predicted = add_operational_predictions(platform_data)
                         monthly, facility_profile, programme_profile = build_operational_profiles(platform_data)
+                        district_profile = build_district_profile(platform_data)
                         peer = detect_peer_anomalies(platform_data)
                         control = build_monthly_control_chart(platform_data)
                         metrics = None
@@ -515,6 +513,7 @@ with tabs[6]:
                             ]].copy(),
                             "monthly": monthly,
                             "facility": facility_profile,
+                            "district": district_profile,
                             "programme": programme_profile,
                             "control": control,
                             "metrics": metrics,
@@ -551,6 +550,42 @@ with tabs[6]:
                    orientation="h", title="Highest facility follow-up rates",
                    labels={"detected_issue_rate_pct": "Detected issue rate (%)"}),
             use_container_width=True,
+        )
+        st.markdown("**District-level quality benchmark**")
+        district_profile = result["district"].copy()
+        district_left, district_right = st.columns([1.15, 1])
+        district_left.plotly_chart(
+            px.bar(
+                district_profile.sort_values("detected_issue_rate_pct"),
+                x="detected_issue_rate_pct", y="District", orientation="h",
+                title="Detected issue rate by synthetic district",
+                labels={"detected_issue_rate_pct": "Detected issue rate (%)"},
+            ),
+            use_container_width=True,
+        )
+        district_right.dataframe(
+            district_profile[[
+                "District", "facilities", "records", "detected_issue_records",
+                "detected_issue_rate_pct", "issue_events_per_100_records",
+                "follow_up_rank",
+            ]].rename(columns={
+                "facilities": "Facilities", "records": "Records",
+                "detected_issue_records": "Records with issues",
+                "detected_issue_rate_pct": "Issue rate (%)",
+                "issue_events_per_100_records": "Issue events / 100",
+                "follow_up_rank": "Follow-up rank",
+            }),
+            use_container_width=True, hide_index=True,
+        )
+        st.download_button(
+            "Download district benchmark",
+            data=district_profile.to_csv(index=False).encode("utf-8"),
+            file_name="district_quality_benchmark.csv",
+            mime="text/csv",
+        )
+        st.caption(
+            "District labels identify synthetic grouping only. These rates and rankings "
+            "are not actual Malawi district or health-facility performance."
         )
         st.markdown("**Programme and indicator quality profile**")
         st.dataframe(result["programme"], use_container_width=True, hide_index=True)

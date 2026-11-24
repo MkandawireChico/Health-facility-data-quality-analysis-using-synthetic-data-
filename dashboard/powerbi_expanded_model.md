@@ -20,6 +20,7 @@ Use these outputs from `data/warehouse/`:
 - `analytics/detector_evaluation_metrics.csv`
 - `analytics/monthly_quality_trends.csv`
 - `analytics/facility_quality_benchmark.csv`
+- `analytics/district_quality_benchmark.csv`
 - `analytics/programme_indicator_quality_profile.csv`
 - `analytics/statistical_peer_anomalies.csv`
 - `analytics/monthly_issue_control_chart.csv`
@@ -46,9 +47,12 @@ Generated files are Git-ignored. Set Power Query parameters to the local paths o
 | FactDetectorEvaluation | Defect × evaluation run | Synthetic-only precision, recall, F1 and confusion counts |
 | FactMonthlyQualityTrend | Month | Operational issue volumes and rates |
 | FactPeerAnomaly | Anomalous reporting record | Statistical review queue and peer score |
+| FactDistrictQualityBenchmark | One row per synthetic district | Volume-normalised detected issue rate and follow-up rank |
 
 ### Relationships
 
+- DimDistrict[District] 1 → * DimFacility[District]
+- DimDistrict[District] 1 → * FactDistrictQualityBenchmark[District]
 - DimFacility[Facility_ID] 1 → * FactReporting[Facility_ID]
 - DimDate[MonthStart] 1 → * FactReporting[Month]
 - DimIndicator[Indicator_Key] 1 → * FactReporting[Indicator_Key]
@@ -69,9 +73,10 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 1. **Executive quality overview** — record volume, reporting-value availability, on-time rate, source review rate, distinct records requiring follow-up, monthly trend.
 2. **District and facility intelligence** — facility rates, volume context, follow-up ranking and district comparisons. Avoid presenting synthetic rankings as actual district performance.
 3. **Programme and indicator monitoring** — programme/indicator volume, reporting completeness and issue rates.
-4. **Source reconciliation** — source value distributions, absolute spread and source review queue.
-5. **Statistical monitoring** — MAD/IQR peer anomalies and retrospective monthly issue-rate limits. Signals are review prompts, not proof of error.
-6. **Detector governance** — precision, recall, F1 and confusion counts on synthetic injected defects; display a persistent synthetic-evaluation disclaimer.
+4. **District quality benchmarking** — volume-normalised issue rates and facility counts across the synthetic district groups.
+5. **Source reconciliation** — source value distributions, absolute spread and source review queue.
+6. **Statistical monitoring** — MAD/IQR peer anomalies and retrospective monthly issue-rate limits. Signals are review prompts, not proof of error.
+7. **Detector governance** — precision, recall, F1 and confusion counts on synthetic injected defects; display a persistent synthetic-evaluation disclaimer.
 
 ## Build instructions
 
@@ -80,7 +85,7 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 3. Use the Power Query templates in `dashboard/powerquery/`.
 4. Create the relationships listed above and mark DimDate as the date table.
 5. Add the measures in `dashboard/dax/health_data_quality_measures.dax`.
-6. Build the six report pages using the layout plan.
+6. Build the seven report pages using the layout plan.
 7. Validate filter behaviour at facility, district, month, programme and indicator levels.
 8. Keep the synthetic-data disclaimer visible on every report page and in exported PDFs.
 

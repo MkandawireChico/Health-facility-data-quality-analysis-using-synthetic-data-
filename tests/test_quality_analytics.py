@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from quality_analytics import (
     add_operational_predictions,
     build_operational_profiles,
+    build_district_profile,
     evaluate_detectors,
     run_quality_analytics,
 )
@@ -86,3 +87,24 @@ def test_pipeline_writes_metrics_and_profiles(tmp_path):
     assert report["input_records"] == 6
     for name in report["outputs"]:
         assert (tmp_path / "analytics" / name).exists()
+
+
+
+def test_district_profile_is_volume_normalised_and_ground_truth_free():
+    data = analytics_fixture()
+    profile = build_district_profile(data)
+    assert profile["records"].sum() == len(data)
+    assert profile["facilities"].sum() == data["Facility_ID"].nunique()
+    assert set(profile["District"]) == {"North", "Central", "South"}
+    assert profile["detected_issue_rate_pct"].between(0, 100).all()
+    assert profile["follow_up_rank"].tolist() == list(range(1, len(profile) + 1))
+    assert not any(column.startswith("Ground_Truth_") for column in profile.columns)
+
+
+def test_quality_pipeline_exports_district_benchmark(tmp_path):
+    staged = tmp_path / "staged.csv"
+    analytics_fixture().to_csv(staged, index=False)
+    report = run_quality_analytics(staged, tmp_path / "analytics")
+    assert "district_quality_benchmark.csv" in report["outputs"]
+    district = pd.read_csv(tmp_path / "analytics" / "district_quality_benchmark.csv")
+    assert district["records"].sum() == 6
