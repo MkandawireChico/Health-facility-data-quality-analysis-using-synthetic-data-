@@ -868,3 +868,15 @@ The handover audit commit `6fb1b9a8929f1096c4e2f2767d79d96b5d0527bc` became the 
 - Expanded platform build run `45354915089`, job `138310223334`: failure, no step records.
 
 This repeats the pre-step evidence gap. It does not establish that tests or the full build ran. The release decision remains unchanged.
+
+### Corrected live handover status — 24 November 2026
+
+A final verification after the prior handover addendum confirms that PR #26 remains open and unmerged. Its current head is `41c41d4dab152776826b573a9a698c13967474df`, based on `feat/facility-infrastructure-utilities-intelligence`; GitHub currently reports the PR as mergeable, which is not a passing-check result.
+
+For that exact head, the latest associated workflow runs are:
+- Project quality checks: run `45354984378`, job `138310456688` — completed with failure.
+- Expanded platform build: run `45354984099`, job `138310456089` — completed with failure.
+
+Both jobs return empty step lists. Attempting to retrieve their logs returned GitHub's `BlobNotFound` response. Therefore the available evidence still does not establish that dependency installation, tests, or the full build actually started. No successful CI, build, notebook, Power BI, browser, or deployment verification is claimed.
+
+The PR inventory remains nine open PRs (#18–#26), with the dependency and overlap decisions above still outstanding. No PR was merged or closed. Given the unresolved external CI evidence and remaining manual release gates, the recommended time-bounded action is to preserve this repository as development-complete but release-unverified, and move portfolio effort to the next approved project rather than adding features or spending more time retrying unavailable Actions.
