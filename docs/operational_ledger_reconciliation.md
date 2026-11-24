@@ -10,7 +10,7 @@ final successful build summary and artifact manifest.
 |---|---|
 | Resource allocation | Requirement minus available units equals the baseline gap; each strategy covers the same facility set; allocations stay within facility gaps and the scenario pool; residual gaps and post-allocation coverage recalculate correctly |
 | Commodity stock | Opening stock plus receipts equals fulfilled consumption plus closing stock; demand equals fulfilled plus unmet; stockout flags agree with stockout days; opening balances carry forward from prior closing balances |
-| Cold-chain batches | Batch opening plus receipts equals consumption plus expiry plus closing stock; lot opening balances carry forward; facility–commodity–month expiry, near-expiry, closing-stock and consumption totals reconcile to the risk summary |
+| Cold-chain batches | Batch opening plus receipts equals consumption plus expiry plus closing stock; lot opening balances carry forward; facility–commodity–month expiry, near-expiry unit quantities, closing-stock and consumption totals reconcile to the risk summary (batch flags are never compared to unit counts) |
 | Equipment maintenance | Total downtime reconciles to planned plus unplanned downtime; service availability and operational uptime recalculate from hours; maintenance cost and downtime reconcile to work orders |
 | Infrastructure | Power and water interruption hours reconcile to backup/buffered and unserved hours; availability percentages recalculate from unserved hours; resilience score recalculates from availability and the facility backup-power assumption |
 | Workforce | Filled, vacant, absent and on-duty positions reconcile; coverage, absence and workload-pressure measures recalculate from their source counts/proxies |
