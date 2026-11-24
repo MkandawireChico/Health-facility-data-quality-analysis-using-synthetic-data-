@@ -113,6 +113,15 @@ def build_lineage_reconciliation_report(
         raise ValueError("Executive tracked-action KPI differs from saved action register")
     if int(executive_briefing["kpis"]["overdue_actions"]) != int(performance_kpis["overdue"]):
         raise ValueError("Executive overdue-action KPI differs from action-performance KPI")
+    executive_status_columns = {
+        "Open": "open_actions", "In progress": "in_progress_actions",
+        "Resolved": "resolved_actions", "Escalated": "escalated_actions",
+    }
+    for status, column in executive_status_columns.items():
+        if column not in executive_all or int(executive_all[column].sum()) != source_status.get(status, 0):
+            raise ValueError(f"Executive facility status total differs from saved actions: {status}")
+    if int(executive_all["overdue_actions"].sum()) != int(performance_kpis["overdue"]):
+        raise ValueError("Executive facility overdue totals differ from action-performance KPI")
 
     executive_district = executive_briefing["district"]
     performance_district_frame = action_performance["district"]
@@ -130,8 +139,17 @@ def build_lineage_reconciliation_report(
         raise ValueError("District summaries are missing while saved actions exist")
 
     monthly = action_performance["monthly"]
-    if not monthly.empty and int(monthly["tracked_actions"].sum()) != len(source_action_ids):
-        raise ValueError("Monthly action totals do not reconcile to saved action count")
+    if source_action_ids and monthly.empty:
+        raise ValueError("Monthly action summary is missing while saved actions exist")
+    if not monthly.empty:
+        monthly_totals = {
+            "tracked_actions": len(source_action_ids),
+            "resolved_actions": source_status.get("Resolved", 0),
+            "overdue_actions": int(performance_kpis["overdue"]),
+        }
+        for column, expected in monthly_totals.items():
+            if column not in monthly or int(monthly[column].sum()) != expected:
+                raise ValueError(f"Monthly action total does not reconcile to saved actions: {column}")
 
     expected_exports = {
         "integrated_facility_priority_register.csv": priority_register,
