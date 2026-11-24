@@ -696,3 +696,32 @@ billing/usage and runner availability in repository/account settings.
 No rerun was triggered during this investigation because repeating identical
 jobs before the reported billing reset is unlikely to provide useful evidence.
 No code tests, full build, merge or deployment are claimed as successful.
+
+
+## Dashboard and reporting performance review — Prompt 40, 24 November 2026
+
+Source review identified three avoidable costs in common dashboard execution:
+
+1. Building source-scoped corrective-action IDs used `DataFrame.iterrows()`,
+   constructing a pandas Series for each follow-up record. It now uses
+   `itertuples(index=False, name=None)`, retaining the existing stable ID
+   function and output while reducing per-row Python object overhead.
+2. Dashboard filters created intermediate DataFrame copies after facility/
+   programme filtering and again after date and issue filtering. The helper
+   now builds one boolean mask and performs one final slice, preserving the
+   same filter semantics and empty-result columns.
+3. Facility consistency-rate calculation used two Python-level
+   `groupby.apply(lambda ...)` passes. It now creates two compact integer
+   flags and uses one grouped sum, then computes the same known-consistency
+   denominator and consistent numerator.
+
+Added a deterministic 288,000-row dashboard filter regression test that
+compares the helper result to an independently expressed pandas mask. The
+test checks correctness at the platform's configured row scale; it does not
+assert a fragile wall-clock threshold.
+
+These are source-level performance improvements. No runtime or peak-memory
+benchmark has been executed in this environment, and the Actions runner
+failures documented in Prompt 39 still prevent CI verification. The full
+build, browser rerun behavior and Streamlit hosted deployment remain
+unverified.
