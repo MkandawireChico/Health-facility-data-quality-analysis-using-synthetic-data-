@@ -24,7 +24,7 @@ def _spreadsheet_safe_frame(frame: pd.DataFrame) -> pd.DataFrame:
             def escape_text(value: Any) -> Any:
                 if not isinstance(value, str):
                     return value
-                probe = value.lstrip(" \\t\\r\\n\\v\\f\\x00")
+                probe = value.lstrip(" \t\r\n\v\f\x00")
                 if probe.startswith(_FORMULA_PREFIXES):
                     return "'" + value
                 return value
@@ -52,7 +52,7 @@ def build_management_review_archive(
     for filename, frame in sorted(tables.items()):
         if (
             not isinstance(filename, str)
-            or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*\\.csv", filename)
+            or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*\.csv", filename)
             or filename.casefold() in _RESERVED_ARCHIVE_NAMES
         ):
             raise ValueError(f"Invalid management export filename: {filename!r}")
