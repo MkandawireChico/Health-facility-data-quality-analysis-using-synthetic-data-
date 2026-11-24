@@ -227,6 +227,8 @@ def test_generated_fact_grain_accepts_complete_unique_facility_month_indicator_g
         "unique_facility_month_groups": 4,
         "indicators_per_facility_month": 2,
         "unique_natural_keys": 8,
+        "unique_programme_indicator_pairs": 2,
+        "configured_months": 2,
     }
 
 
