@@ -30,6 +30,31 @@ def test_mad_detector_flags_extreme_peer_value():
     assert result["Statistical_Method"].eq("MAD robust z-score").all()
 
 
+def test_non_finite_peer_values_are_excluded_from_peer_statistics():
+    data = peer_data([100, 101, 99, 102, 98, 100, 101, 99, float("inf")], monthly=False)
+    result = detect_peer_anomalies(data)
+    assert result["Peer_Group_Size"].eq(8).all()
+    assert not result.loc[8, "Statistical_Anomaly"]
+    assert pd.isna(result.loc[8, "Statistical_Anomaly_Score"])
+
+
+def test_non_finite_reported_value_is_not_counted_as_operational_outlier():
+    data = peer_data([100] * 12)
+    data.loc[0, "Reported_Value"] = float("inf")
+    result = build_monthly_control_chart(data)
+    assert result.loc[0, "Outlier_Records"] == 0
+    assert result.loc[0, "Issue_Records"] == 0
+
+
+def test_monitoring_parameters_reject_non_finite_or_boolean_values():
+    with pytest.raises(ValueError, match="threshold must be finite"):
+        detect_peer_anomalies(peer_data([10] * 8, monthly=False), robust_z_threshold=float("inf"))
+    with pytest.raises(ValueError, match="min_group_size"):
+        detect_peer_anomalies(peer_data([10] * 8, monthly=False), min_group_size=True)
+    with pytest.raises(ValueError, match="min_baseline_months"):
+        build_monthly_control_chart(peer_data([10] * 12), min_baseline_months=True)
+
+
 def test_insufficient_peer_group_is_not_flagged():
     result = detect_peer_anomalies(peer_data([10, 11, 12, 100], monthly=False), min_group_size=8)
     assert not result["Statistical_Anomaly"].any()
@@ -119,3 +144,17 @@ def test_control_limits_use_pooled_rate_and_month_specific_denominators():
 def test_control_chart_rejects_invalid_baseline_length():
     with pytest.raises(ValueError, match="at least 2"):
         build_monthly_control_chart(peer_data([10] * 12), min_baseline_months=1)
+
+
+
+def test_control_chart_ignores_non_finite_and_overflowed_outlier_ratios():
+    data = peer_data([100] * 12)
+    data.loc[0, "Reported_Value"] = float("inf")
+    data.loc[1, "Target_Value"] = float("inf")
+    data.loc[2, "Reported_Value"] = float("1e308")
+    data.loc[2, "Target_Value"] = float("1e-308")
+
+    result = build_monthly_control_chart(data)
+
+    assert result["Outlier_Records"].sum() == 0
+    assert result["Issue_Records"].sum() == 0

@@ -39,8 +39,14 @@ def detect_peer_anomalies(data: pd.DataFrame, min_group_size: int = 8,
     missing = REQUIRED - set(data.columns)
     if missing:
         raise ValueError(f"Staged data missing columns: {sorted(missing)}")
-    if min_group_size < 4 or robust_z_threshold <= 0:
-        raise ValueError("min_group_size must be >= 4 and threshold must be positive")
+    if (isinstance(min_group_size, bool)
+            or not isinstance(min_group_size, (int, np.integer))
+            or min_group_size < 4
+            or isinstance(robust_z_threshold, bool)
+            or not isinstance(robust_z_threshold, (int, float, np.integer, np.floating))
+            or not np.isfinite(robust_z_threshold)
+            or robust_z_threshold <= 0):
+        raise ValueError("min_group_size must be an integer >= 4 and threshold must be finite and positive")
     out = data.copy()
     out["Statistical_Anomaly"] = False
     out["Statistical_Anomaly_Score"] = np.nan
@@ -53,7 +59,7 @@ def detect_peer_anomalies(data: pd.DataFrame, min_group_size: int = 8,
     out["Month"] = pd.to_datetime(out["Month"], errors="coerce").dt.to_period("M").dt.to_timestamp()
     keys = ["Month", "District", "Programme", "Indicator"]
     for _, indexes in out.groupby(keys, dropna=False, sort=False).groups.items():
-        valid_idx = [i for i in indexes if pd.notna(values.loc[i])]
+        valid_idx = [i for i in indexes if pd.notna(values.loc[i]) and np.isfinite(values.loc[i])]
         sample = values.loc[valid_idx]
         n = len(sample)
         out.loc[indexes, "Peer_Group_Size"] = n
@@ -101,8 +107,10 @@ def build_monthly_control_chart(data: pd.DataFrame, min_baseline_months: int = 6
     missing = required - set(data.columns)
     if missing:
         raise ValueError(f"Staged data missing control-chart inputs: {sorted(missing)}")
-    if min_baseline_months < 2:
-        raise ValueError("min_baseline_months must be at least 2")
+    if (isinstance(min_baseline_months, bool)
+            or not isinstance(min_baseline_months, (int, np.integer))
+            or min_baseline_months < 2):
+        raise ValueError("min_baseline_months must be an integer of at least 2")
     work = data.copy()
     work["Month"] = pd.to_datetime(work["Month"], errors="coerce").dt.to_period("M").dt.to_timestamp()
     flag_cols = [
@@ -114,9 +122,15 @@ def build_monthly_control_chart(data: pd.DataFrame, min_baseline_months: int = 6
         work[col] = _as_bool(work[col])
     reported = pd.to_numeric(work["Reported_Value"], errors="coerce")
     target = pd.to_numeric(work["Target_Value"], errors="coerce")
-    work["Operational_Detected_Outlier"] = (
-        (reported / target.where(target.gt(0))).gt(1.5).fillna(False)
+    finite_reported = pd.Series(np.isfinite(reported.to_numpy(dtype=float)), index=work.index)
+    finite_target = pd.Series(np.isfinite(target.to_numpy(dtype=float)), index=work.index)
+    valid_comparison = finite_reported & finite_target & target.gt(0)
+    ratio = reported.where(valid_comparison) / target.where(valid_comparison)
+    finite_ratio = pd.Series(
+        np.isfinite(ratio.to_numpy(dtype=float)), index=work.index
     )
+    ratio = ratio.where(finite_ratio)
+    work["Operational_Detected_Outlier"] = ratio.gt(1.5).fillna(False)
     issue_cols = flag_cols + ["Operational_Detected_Outlier"]
     work["Any_Detected_Issue"] = work[issue_cols].any(axis=1)
     monthly = (

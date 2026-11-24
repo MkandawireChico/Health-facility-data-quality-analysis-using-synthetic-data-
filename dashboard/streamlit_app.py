@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import hashlib
 import io
 import json
 import os
@@ -13,12 +14,15 @@ import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from action_store import ActionRegisterStore, build_action_record_id
+from action_store import ActionRegisterStore, build_action_record_id, merge_session_actions
 from target_attainment import build_target_attainment_profiles
+from platform_input_validation import validate_platform_extract
 from reporting import (
     REQUIRED_COLUMNS, assess_dataset, build_issue_register, facility_summary,
     validate_dataset,
 )
+from dashboard_filters import apply_dashboard_filters
+from management_export import spreadsheet_safe_csv_bytes
 
 DATA_PATHS = [
     ROOT / "data" / "raw" / "synthetic_health_facility_data.csv",
@@ -75,11 +79,14 @@ with st.sidebar:
 
 try:
     if use_upload:
-        source_df = pd.read_csv(uploaded)
+        uploaded_bytes = uploaded.getvalue()
+        source_df = pd.read_csv(io.BytesIO(uploaded_bytes))
         source_name = uploaded.name
+        source_fingerprint = hashlib.sha256(uploaded_bytes).hexdigest()
     else:
         source_df = load_demo_data()
         source_name = "Bundled synthetic dataset"
+        source_fingerprint = None
 except Exception as exc:
     st.error(f"Could not read the selected CSV: {exc}")
     st.stop()
@@ -109,16 +116,46 @@ assessed = assess_dataset(source_df)
 register = build_issue_register(assessed)
 facility_metrics = facility_summary(assessed)
 
+# Keep the corrective-action portfolio scoped to this exact source version,
+# independently of the interactive facility/programme/date filters.
+source_action_rows = assessed[assessed["Requires_Follow_Up"]]
+current_source_action_ids = [
+    build_action_record_id(
+        source_name, facility, month, programme, indicator,
+        source_fingerprint=source_fingerprint,
+    )
+    for facility, month, programme, indicator in source_action_rows[
+        ["Facility", "Month", "Programme", "Indicator"]
+    ].itertuples(index=False, name=None)
+]
+current_source_action_id_set = set(current_source_action_ids)
+
 with st.sidebar:
     facilities = sorted(assessed["Facility"].dropna().astype(str).unique())
     programmes = sorted(assessed["Programme"].dropna().astype(str).unique())
-    selected_facilities = st.multiselect("Facilities", facilities, default=facilities)
-    selected_programmes = st.multiselect("Programme areas", programmes, default=programmes)
+    filter_state_keys = (
+        "dashboard_facilities",
+        "dashboard_programmes",
+        "dashboard_reporting_period",
+        "dashboard_issue_filter",
+    )
+    if st.button("Reset all filters", key="reset_dashboard_filters", use_container_width=True):
+        for state_key in filter_state_keys:
+            st.session_state.pop(state_key, None)
+        st.rerun()
+
+    selected_facilities = st.multiselect(
+        "Facilities", facilities, default=facilities, key="dashboard_facilities"
+    )
+    selected_programmes = st.multiselect(
+        "Programme areas", programmes, default=programmes, key="dashboard_programmes"
+    )
     valid_months = assessed["Month"].dropna()
     if not valid_months.empty:
         date_range = st.date_input(
             "Reporting period",
             value=(valid_months.min().date(), valid_months.max().date()),
+            key="dashboard_reporting_period",
         )
     else:
         date_range = ()
@@ -126,32 +163,24 @@ with st.sidebar:
         "All records", "Requires follow-up", "Missing values", "Late reports", "Insufficient source data",
         "Source discrepancies", "Potential outliers", "Low completeness",
     ]
-    issue_filter = st.selectbox("Record status", issue_types)
+    issue_filter = st.selectbox(
+        "Record status", issue_types, key="dashboard_issue_filter"
+    )
 
-filtered = register[
-    register["Facility"].astype(str).isin(selected_facilities)
-    & register["Programme"].astype(str).isin(selected_programmes)
-].copy()
-if isinstance(date_range, (tuple, list)) and len(date_range) == 2:
-    filtered = filtered[filtered["Month"].between(pd.Timestamp(date_range[0]), pd.Timestamp(date_range[1]))]
-elif isinstance(date_range, (tuple, list)) and len(date_range) == 1:
-    filtered = filtered[filtered["Month"].dt.date == date_range[0]]
-
-issue_map = {
-    "Requires follow-up": "Requires_Follow_Up",
-    "Missing values": "Issue_Missing_Value",
-    "Late reports": "Issue_Late_Report",
-    "Insufficient source data": "Issue_Insufficient_Sources",
-    "Source discrepancies": "Issue_Source_Discrepancy",
-    "Potential outliers": "Issue_Potential_Outlier",
-    "Low completeness": "Issue_Low_Completeness",
-}
-if issue_filter in issue_map:
-    filtered = filtered[filtered[issue_map[issue_filter]]]
+filtered = apply_dashboard_filters(
+    register,
+    selected_facilities=selected_facilities,
+    selected_programmes=selected_programmes,
+    date_range=date_range,
+    issue_filter=issue_filter,
+)
 
 if filtered.empty:
-    st.warning("No records match the current filters. Adjust the selections in the sidebar.")
-    st.stop()
+    st.warning(
+        "No records match the current filters. Adjust the selections in the sidebar. "
+        "The remaining dashboard sections stay available so you can inspect the saved "
+        "action portfolio and expanded platform outputs."
+    )
 
 n = len(filtered)
 completeness = filtered["Calculated_Completeness"].mean()
@@ -299,18 +328,39 @@ with tabs[4]:
     st.subheader("Corrective action register")
     st.write("Assign accountability, document root causes, track due dates and retain a field-level change history.")
 
-    database_path = os.getenv(
-        "HEALTH_DATA_ACTION_DB",
-        str(ROOT / "data" / "warehouse" / "corrective_actions.sqlite"),
-    )
-    try:
-        action_store = ActionRegisterStore(database_path)
-        persisted_actions = action_store.get_actions()
-    except Exception as exc:
+    # Persistence is opt-in. A public multi-user Streamlit process must not
+    # silently write uploaded users' action notes into one shared local database.
+    database_path = os.getenv("HEALTH_DATA_ACTION_DB", "").strip()
+    if database_path:
+        try:
+            action_store = ActionRegisterStore(database_path)
+            persisted_actions = action_store.get_actions(current_source_action_ids)
+            st.warning(
+                "Operator-configured shared action database is enabled. The deployment "
+                "operator must restrict access, provide durable backups and ensure users "
+                "are authorised to view this shared action register."
+            )
+        except Exception as exc:
+            action_store = None
+            persisted_actions = {
+                record_id: values
+                for record_id, values in st.session_state.get("action_register", {}).items()
+                if record_id in current_source_action_id_set
+            }
+            st.warning(
+                f"Configured SQLite persistence is unavailable: {exc}. "
+                "Changes will remain in this browser session only."
+            )
+    else:
         action_store = None
-        persisted_actions = st.session_state.get("action_register", {})
-        st.warning(
-            f"SQLite persistence is unavailable: {exc}. Changes will remain in this browser session only."
+        persisted_actions = {
+            record_id: values
+            for record_id, values in st.session_state.get("action_register", {}).items()
+            if record_id in current_source_action_id_set
+        }
+        st.info(
+            "Session-only action storage is active. Persistent shared storage is disabled "
+            "unless the deployment operator explicitly configures HEALTH_DATA_ACTION_DB."
         )
 
     flagged_rows = filtered[filtered["Requires_Follow_Up"]].copy()
@@ -319,6 +369,7 @@ with tabs[4]:
             build_action_record_id(
                 source_name, row["Facility"], row["Month"],
                 row["Programme"], row["Indicator"],
+                source_fingerprint=source_fingerprint,
             )
             for _, row in flagged_rows.iterrows()
         ]
@@ -381,21 +432,19 @@ with tabs[4]:
                     f"SQLite save: {save_result['inserted']:,} new · "
                     f"{save_result['updated']:,} updated · {save_result['unchanged']:,} unchanged"
                 )
-                persisted_actions = action_store.get_actions()
+                persisted_actions = action_store.get_actions(current_source_action_ids)
             except Exception as exc:
                 st.warning(f"Could not save action changes: {exc}")
         else:
-            st.session_state["action_register"] = {
-                row["Record_ID"]: {
-                    "Status": row["Status"],
-                    "Assigned owner": row["Assigned owner"],
-                    "Root cause": row["Root cause"],
-                    "Corrective action / notes": row["Corrective action / notes"],
-                    "Due date": row["Due date"],
-                }
-                for _, row in edited.iterrows()
+            st.session_state["action_register"] = merge_session_actions(
+                st.session_state.get("action_register", {}),
+                edited.to_dict(orient="records"),
+            )
+            persisted_actions = {
+                record_id: values
+                for record_id, values in st.session_state["action_register"].items()
+                if record_id in current_source_action_id_set
             }
-            persisted_actions = st.session_state["action_register"]
     else:
         st.info("There are no new follow-up records in the current filter selection. Previously saved actions remain available below.")
 
@@ -427,7 +476,7 @@ with tabs[4]:
         )
         st.download_button(
             "Download complete corrective action register",
-            data=all_actions_df.to_csv(index=False).encode("utf-8"),
+            data=spreadsheet_safe_csv_bytes(all_actions_df),
             file_name="health_facility_corrective_action_register.csv",
             mime="text/csv",
             key="download_complete_action_register",
@@ -516,11 +565,16 @@ with tabs[6]:
         "Staged facility reporting data", type=["csv"], key="platform_staged_upload",
         help="Expected to contain Facility_ID, Facility, District, Month, Programme, Indicator, Reported_Value, Target_Value and ETL Quality_* flags."
     )
-    platform_required = [
-        "Facility_ID", "Facility", "District", "Month", "Programme", "Indicator",
-        "Reported_Value", "Target_Value", "Quality_Missing_Reported_Value",
-        "Quality_Source_Discrepancy", "Quality_Late_Submission",
-    ]
+
+    # Do not leave results from a previous upload visible after the input changes.
+    if platform_file is not None:
+        upload_signature = hashlib.sha256(platform_file.getvalue()).hexdigest()
+        if st.session_state.get("expanded_platform_upload_signature") != upload_signature:
+            st.session_state.pop("expanded_platform_result", None)
+            st.session_state["expanded_platform_upload_signature"] = upload_signature
+    else:
+        st.session_state.pop("expanded_platform_result", None)
+        st.session_state.pop("expanded_platform_upload_signature", None)
     truth_required = [
         "Ground_Truth_Missing", "Ground_Truth_Source_Discrepancy",
         "Ground_Truth_Outlier", "Ground_Truth_Late",
@@ -542,12 +596,15 @@ with tabs[6]:
         st.caption(f"Selected file: {platform_file.name} · {platform_file.size / (1024 * 1024):.1f} MB")
         resource_pool_input = st.number_input("Illustrative resource pool (abstract units)", min_value=0, max_value=10000, value=120, step=10, help="Scenario input only; units are not staff headcounts or a monetary budget.")
         supply_budget_input = st.number_input("Commodity replenishment budget (abstract credits)", min_value=0, max_value=10000000, value=50000, step=1000, help="Synthetic budget credits only; not MWK or an approved procurement allocation.")
+        workforce_budget_input = st.number_input("Workforce recruitment scenario budget (abstract credits)", min_value=0, max_value=10000000, value=50000, step=1000, help="Separate synthetic recruitment scenario budget; credits are not MWK, salaries or an approved HR allocation.")
         if st.button("Analyse expanded reporting platform", type="primary", key="run_platform_analysis"):
             try:
                 platform_data = pd.read_csv(platform_file)
-                missing_platform = sorted(set(platform_required) - set(platform_data.columns))
-                if missing_platform:
-                    st.error("This is not a staged platform extract. Missing columns: " + ", ".join(missing_platform))
+                platform_errors = validate_platform_extract(platform_data)
+                if platform_errors:
+                    st.error("This staged extract cannot be analysed:")
+                    for message in platform_errors:
+                        st.write(f"• {message}")
                 else:
                     from quality_analytics import add_operational_predictions, build_operational_profiles, build_district_profiles, evaluate_detectors
                     from statistical_monitoring import detect_peer_anomalies, build_monthly_control_chart
@@ -556,6 +613,13 @@ with tabs[6]:
                     from cold_chain_planning import build_cold_chain_profiles
                     from equipment_maintenance import build_equipment_maintenance_profiles
                     from infrastructure_reliability import build_infrastructure_profiles
+                    from workforce_planning import build_workforce_profiles
+                    from build_platform import (
+                        _build_integrated_facility_priority,
+                        _build_operational_resilience_views,
+                        _build_supply_cold_chain_resilience_view,
+                    )
+                    import tempfile
 
                     with st.spinner("Running quality, statistical, resource and commodity supply-chain analytics..."):
                         predicted = add_operational_predictions(platform_data)
@@ -581,6 +645,36 @@ with tabs[6]:
                             resource_facilities, periods=24, start_month="2025-01-01", seed=42,
                             equipment_monthly=equipment["facility_monthly_summary"],
                         )
+                        workforce = build_workforce_profiles(
+                            resource_facilities, periods=24, start_month="2025-01-01", seed=42,
+                            recruitment_budget_credits=int(workforce_budget_input),
+                        )
+                        with tempfile.TemporaryDirectory() as integration_dir:
+                            integration_path = Path(integration_dir)
+                            _build_operational_resilience_views(
+                                resource_facilities,
+                                equipment["facility_monthly_summary"],
+                                infrastructure["monthly_reliability"],
+                                workforce["monthly_workforce"],
+                                integration_path,
+                            )
+                            _build_supply_cold_chain_resilience_view(
+                                resource_facilities,
+                                supply["inventory_ledger"],
+                                cold_chain["expiry_risk_summary"],
+                                integration_path,
+                            )
+                            integrated_priority_summary = _build_integrated_facility_priority(
+                                resource_facilities,
+                                pd.read_csv(integration_path / "facility_latest_operational_resilience.csv"),
+                                pd.read_csv(integration_path / "facility_latest_supply_cold_chain_resilience.csv"),
+                                facility_profile.rename(columns={"Facility": "Facility_Name"}),
+                                resource["facility_capacity"],
+                                integration_path,
+                            )
+                            integrated_priority_register = pd.read_csv(
+                                integration_path / "integrated_facility_priority_register.csv"
+                            )
                         metrics = None
                         if set(truth_required).issubset(platform_data.columns):
                             metrics = evaluate_detectors(platform_data)
@@ -611,6 +705,9 @@ with tabs[6]:
                             "cold_chain": cold_chain,
                             "equipment": equipment,
                             "infrastructure": infrastructure,
+                            "workforce": workforce,
+                            "integrated_priority_summary": integrated_priority_summary,
+                            "integrated_priority_register": integrated_priority_register,
                             "metrics": metrics,
                             "synthetic_truth_available": metrics is not None,
                         }
@@ -666,6 +763,28 @@ with tabs[6]:
                 "Equipment comparisons are descriptive associations, not causal estimates.",
                 "Upgrade credits are abstract and are not MWK.",
             ],
+            "workforce_facility_month_records": int(len(result["workforce"]["monthly_workforce"])),
+            "workforce_latest_mean_coverage_pct": round(float(result["workforce"]["latest_facility_workforce"]["Workforce_Coverage_Pct"].mean()), 2),
+            "workforce_latest_high_risk_facilities": int(result["workforce"]["latest_facility_workforce"]["Workforce_Risk_Band"].eq("High").sum()),
+            "workforce_baseline_required_positions": int(result["workforce"]["establishment"]["Illustrative_Establishment"].sum()),
+            "workforce_baseline_filled_positions": int(result["workforce"]["establishment"]["Baseline_Filled_Positions"].sum()),
+            "workforce_baseline_vacancies": int(result["workforce"]["establishment"]["Baseline_Vacancies"].sum()),
+            "workforce_recruitment_budget_credits": int(result["workforce"]["role_recruitment_scenario"]["Budget_Credits_Available"].iloc[0]),
+            "workforce_recruitment_funded_positions": int(result["workforce"]["role_recruitment_scenario"]["Funded_Positions"].sum()),
+            "workforce_recruitment_unfunded_positions": int(result["workforce"]["role_recruitment_scenario"]["Unfunded_Positions"].sum()),
+            "workforce_recruitment_unallocated_budget_credits": int(result["workforce"]["role_recruitment_scenario"]["Budget_Credits_Unallocated"].iloc[0]),
+            "workforce_latest_absence_rate_pct": round(float(result["workforce"]["latest_facility_workforce"]["Absence_Rate_Pct"].mean()), 2),
+            "workforce_assumptions": [
+                "All role establishments, filled positions, absences and overtime are synthetic.",
+                "Workload is a catchment-based proxy, not patient volume or service utilisation.",
+                "Role mixes are not official staffing norms; recruitment credits are not MWK.",
+            ],
+            "integrated_facility_priority": result["integrated_priority_summary"],
+            "integrated_priority_interpretation": (
+                "Equal-weighted synthetic screening across data quality, resource capacity, "
+                "operational resilience and supply/cold-chain review flags. The quality benchmark "
+                "covers all reporting periods; operational and supply snapshots use the latest simulated month."
+            ),
             "facility_indicator_combinations_with_valid_targets": int(len(valid_attainment_summary)),
             "facility_indicator_combinations_below_80_pct": int(valid_attainment_summary["attainment_pct"].lt(80).sum()),
             "facility_indicator_combinations_at_or_above_100_pct": int(valid_attainment_summary["attainment_pct"].ge(100).sum()),
@@ -715,6 +834,11 @@ with tabs[6]:
             "facility_latest_infrastructure_resilience.csv": result["infrastructure"]["latest_resilience"],
             "equipment_infrastructure_association.csv": result["infrastructure"]["equipment_association"],
             "infrastructure_upgrade_scenarios.csv": result["infrastructure"]["upgrade_scenarios"],
+            "facility_workforce_establishment.csv": result["workforce"]["establishment"],
+            "facility_monthly_workforce_capacity.csv": result["workforce"]["monthly_workforce"],
+            "facility_latest_workforce_capacity.csv": result["workforce"]["latest_facility_workforce"],
+            "workforce_recruitment_scenario.csv": result["workforce"]["role_recruitment_scenario"],
+            "integrated_facility_priority_register.csv": result["integrated_priority_register"],
         }
         if result["metrics"] is not None:
             export_tables["synthetic_detector_evaluation_metrics.csv"] = result["metrics"]
@@ -723,12 +847,624 @@ with tabs[6]:
             for filename, frame in export_tables.items():
                 archive.writestr(filename, frame.to_csv(index=False))
         st.download_button(
-            "Download complete expanded analysis pack (ZIP)",
+            "Download analytical outputs pack (ZIP)",
             data=export_buffer.getvalue(),
-            file_name="malawi_health_facility_data_intelligence_analysis.zip",
+            file_name="malawi_health_facility_analytical_outputs.zip",
             mime="application/zip",
             key="download_expanded_analysis_pack",
         )
+        st.markdown("**Integrated facility priority and management queue**")
+        st.caption(
+            "Facilities are ranked using four equally weighted synthetic domain scores: "
+            "all-period data-quality issue rate, illustrative resource-capacity gap, "
+            "latest-month operational review flag and latest-month supply/cold-chain review flag. "
+            "The score is a triage aid, not a validated clinical or official facility rating."
+        )
+        priority_summary = result["integrated_priority_summary"]
+        q1, q2, q3, q4 = st.columns(4)
+        q1.metric("Facilities ranked", priority_summary["facilities_prioritised"])
+        q2.metric("High review", priority_summary["high_review_facilities"])
+        q3.metric("Focused review", priority_summary["focused_review_facilities"])
+        q4.metric("Mean priority score", f'{priority_summary["mean_integrated_priority_score"]:.1f}/100')
+        priority_columns = [
+            "Integrated_Priority_Rank", "Facility_ID", "Facility_Name", "District",
+            "Priority_Band", "Integrated_Priority_Score", "Review_Domains",
+            "Data_Quality_Priority_Score", "Resource_Gap_Priority_Score",
+            "Operational_Priority_Score", "Supply_Cold_Chain_Priority_Score",
+        ]
+        st.dataframe(
+            result["integrated_priority_register"][priority_columns],
+            use_container_width=True, hide_index=True,
+        )
+        st.download_button(
+            "Download integrated facility priority register",
+            data=result["integrated_priority_register"].to_csv(index=False).encode("utf-8"),
+            file_name="integrated_facility_priority_register.csv",
+            mime="text/csv",
+            key="download_integrated_facility_priority_register",
+        )
+
+        st.markdown("### Facility corrective-action workflow")
+        st.caption(
+            "Create one accountable action per facility and simulated reporting month. "
+            "Assignments use the same SQLite register as the original data-quality workflow, "
+            "including field-level audit history. This is a local demonstration store, not a shared multi-user service."
+        )
+        from priority_action_workflow import build_priority_action_rows
+        priority_database_path = os.getenv(
+            "HEALTH_DATA_ACTION_DB",
+            str(ROOT / "data" / "warehouse" / "corrective_actions.sqlite"),
+        )
+        try:
+            priority_action_store = ActionRegisterStore(priority_database_path)
+            persisted_priority_actions = priority_action_store.get_actions()
+        except Exception as exc:
+            priority_action_store = None
+            persisted_priority_actions = st.session_state.get("integrated_priority_actions", {})
+            st.warning(
+                f"Persistent action storage is unavailable: {exc}. "
+                "Edits will be held only in this browser session."
+            )
+        latest_priority_month = result["workforce"]["monthly_workforce"]["Month"].max()
+        try:
+            priority_action_rows = build_priority_action_rows(
+                result["integrated_priority_register"],
+                latest_priority_month,
+                persisted_priority_actions,
+            )
+        except ValueError as exc:
+            st.error(f"Facility action queue could not be prepared: {exc}")
+            priority_action_rows = pd.DataFrame()
+        if not priority_action_rows.empty:
+            st.markdown("**Assign owners, document causes and set deadlines**")
+            with st.form("integrated_priority_action_form"):
+                edited_priority_actions = st.data_editor(
+                    priority_action_rows,
+                    use_container_width=True,
+                    hide_index=True,
+                    disabled=[
+                        "Record_ID", "Facility", "Month", "Programme", "Indicator",
+                        "Primary issue", "Issue count",
+                    ],
+                    column_config={
+                        "Status": st.column_config.SelectboxColumn(
+                            "Status",
+                            options=["Open", "In progress", "Resolved", "Escalated"],
+                            required=True,
+                        ),
+                        "Assigned owner": st.column_config.TextColumn("Assigned owner"),
+                        "Root cause": st.column_config.TextColumn("Root cause", width="medium"),
+                        "Corrective action / notes": st.column_config.TextColumn(
+                            "Corrective action / notes", width="large"
+                        ),
+                        "Due date": st.column_config.TextColumn("Due date (YYYY-MM-DD)"),
+                    },
+                    key="integrated_priority_action_editor",
+                )
+                save_priority_actions = st.form_submit_button(
+                    "Save facility action assignments", type="primary"
+                )
+            if save_priority_actions:
+                due_text = edited_priority_actions["Due date"].fillna("").astype(str).str.strip()
+                parsed_due = pd.to_datetime(
+                    due_text.where(due_text.ne(""), pd.NA),
+                    format="%Y-%m-%d", errors="coerce",
+                )
+                invalid_due = due_text.ne("") & parsed_due.isna()
+                if invalid_due.any():
+                    st.error(
+                        "Due dates must use YYYY-MM-DD. "
+                        f"{int(invalid_due.sum())} invalid value(s); nothing was saved."
+                    )
+                elif priority_action_store is not None:
+                    try:
+                        saved = priority_action_store.upsert_actions(
+                            edited_priority_actions.to_dict(orient="records")
+                        )
+                        st.success(
+                            f"Actions saved: {saved['inserted']} new · "
+                            f"{saved['updated']} updated · {saved['unchanged']} unchanged."
+                        )
+                        st.rerun()
+                    except Exception as exc:
+                        st.error(f"Could not save facility actions: {exc}")
+                else:
+                    st.session_state["integrated_priority_actions"] = {
+                        row["Record_ID"]: {
+                            key: value for key, value in row.items()
+                            if key != "Record_ID"
+                        }
+                        for row in edited_priority_actions.to_dict(orient="records")
+                    }
+                    st.success("Facility action assignments saved for this browser session.")
+                    st.rerun()
+
+        current_priority_actions = [
+            {"Record_ID": record_id, **fields}
+            for record_id, fields in persisted_priority_actions.items()
+            if fields.get("Programme") == "Integrated facility review"
+        ]
+        management_as_of = pd.Timestamp.now().normalize()
+        action_performance = None
+        executive_briefing = None
+        release_report = None
+        facility_view = None
+        if current_priority_actions:
+            priority_action_portfolio = pd.DataFrame(current_priority_actions)
+            today = management_as_of
+            priority_due = pd.to_datetime(
+                priority_action_portfolio["Due date"], errors="coerce"
+            )
+            priority_unresolved = ~priority_action_portfolio["Status"].eq("Resolved")
+            priority_overdue = (
+                priority_unresolved & priority_due.notna() & priority_due.lt(today)
+            )
+            a1, a2, a3, a4, a5 = st.columns(5)
+            a1.metric("Tracked actions", len(priority_action_portfolio))
+            a2.metric("Open", int(priority_action_portfolio["Status"].eq("Open").sum()))
+            a3.metric("In progress", int(priority_action_portfolio["Status"].eq("In progress").sum()))
+            a4.metric("Resolved", int(priority_action_portfolio["Status"].eq("Resolved").sum()))
+            a5.metric("Overdue", int(priority_overdue.sum()))
+            st.dataframe(
+                priority_action_portfolio.sort_values(
+                    ["Status", "Due date"], na_position="last"
+                ),
+                use_container_width=True,
+                hide_index=True,
+            )
+
+            st.markdown("#### Corrective-action performance")
+            try:
+                from action_performance import build_action_performance
+                action_performance = build_action_performance(
+                    priority_action_portfolio, as_of=management_as_of,
+                    priority_register=result["integrated_priority_register"],
+                )
+                action_kpis = action_performance["kpis"]
+                k1, k2, k3, k4 = st.columns(4)
+                k1.metric("Resolution rate", pct(action_kpis["resolution_rate_pct"] / 100))
+                k2.metric("Overdue unresolved", f"{action_kpis['overdue']:,}")
+                k3.metric("Escalated", f"{action_kpis['escalated']:,}")
+                k4.metric("Total tracked", f"{action_kpis['tracked']:,}")
+
+                district_performance = action_performance["district"]
+                monthly_performance = action_performance["monthly"]
+                if not district_performance.empty:
+                    st.plotly_chart(
+                        px.bar(
+                            district_performance.sort_values("tracked_actions"),
+                            x="District",
+                            y=["resolved_actions", "in_progress_actions",
+                               "open_actions", "escalated_actions"],
+                            title="Action workload and status by district",
+                            labels={"value": "Actions", "variable": "Status"},
+                            barmode="stack",
+                        ),
+                        use_container_width=True,
+                    )
+                    st.dataframe(
+                        district_performance.sort_values(
+                            ["resolution_rate_pct", "tracked_actions"],
+                            ascending=[False, False],
+                        ),
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+                if not monthly_performance.empty:
+                    trend_left, trend_right = st.columns(2)
+                    trend_left.plotly_chart(
+                        px.line(
+                            monthly_performance,
+                            x="Month",
+                            y=["tracked_actions", "resolved_actions"],
+                            markers=True,
+                            title="Monthly action throughput",
+                            labels={"value": "Actions", "variable": "Measure"},
+                        ),
+                        use_container_width=True,
+                    )
+                    trend_right.plotly_chart(
+                        px.line(
+                            monthly_performance,
+                            x="Month",
+                            y="resolution_rate_pct",
+                            markers=True,
+                            title="Monthly resolution rate",
+                            labels={"resolution_rate_pct": "Resolved (%)"},
+                        ),
+                        use_container_width=True,
+                    )
+                st.caption(
+                    "District and monthly metrics describe saved synthetic review actions, "
+                    "not verified health-system performance. Resolution means the action "
+                    "record was marked Resolved; it does not independently verify the outcome."
+                )
+            except ValueError as exc:
+                st.warning(f"Action performance metrics could not be calculated: {exc}")
+
+            st.download_button(
+                "Download integrated facility action register",
+                data=priority_action_portfolio.to_csv(index=False).encode("utf-8"),
+                file_name="integrated_facility_corrective_action_register.csv",
+                mime="text/csv",
+                key="download_integrated_facility_actions",
+            )
+            if priority_action_store is not None:
+                with st.expander("Integrated facility action audit history"):
+                    selected_priority_history = st.selectbox(
+                        "Facility action to inspect",
+                        priority_action_portfolio["Record_ID"].tolist(),
+                        key="integrated_priority_history_record",
+                    )
+                    priority_history = priority_action_store.history(
+                        selected_priority_history
+                    )
+                    if priority_history.empty:
+                        st.caption("No field changes have been recorded for this action yet.")
+                    else:
+                        st.dataframe(
+                            priority_history, use_container_width=True, hide_index=True
+                        )
+        else:
+            st.info(
+                "No integrated facility actions have been saved yet. "
+                "Assign an owner and submit the form above to create the first action records."
+            )
+            from action_performance import build_action_performance
+            action_performance = build_action_performance(
+                pd.DataFrame(columns=[
+                    "Facility", "Month", "Status", "Due date",
+                ]),
+                as_of=management_as_of,
+                priority_register=result["integrated_priority_register"],
+            )
+
+        st.markdown("### Executive management briefing")
+        st.caption(
+            "Cross-facility and district comparison, synthetic priority concentration, "
+            "action accountability and a rule-based management follow-up queue."
+        )
+        try:
+            from executive_management_briefing import build_executive_management_briefing
+            briefing_actions = pd.DataFrame(current_priority_actions).reindex(columns=[
+                "Record_ID", "Facility", "Month", "Status", "Assigned owner", "Due date",
+            ])
+            executive_briefing = build_executive_management_briefing(
+                result["integrated_priority_register"],
+                briefing_actions,
+                as_of=management_as_of,
+            )
+            briefing_kpis = executive_briefing["kpis"]
+            b1, b2, b3, b4, b5 = st.columns(5)
+            b1.metric("Facilities reviewed", f'{briefing_kpis["facilities"]:,}')
+            b2.metric("High review", f'{briefing_kpis["high_review"]:,}')
+            b3.metric("Focused review", f'{briefing_kpis["focused_review"]:,}')
+            b4.metric("Overdue actions", f'{briefing_kpis["overdue_actions"]:,}')
+            b5.metric("Action resolution", pct(briefing_kpis["action_resolution_rate_pct"] / 100))
+            st.write(
+                f'**Mean integrated priority:** {briefing_kpis["mean_priority_score"]:.1f}/100 · '
+                f'**Saved actions:** {briefing_kpis["tracked_actions"]:,}'
+            )
+            district_briefing = executive_briefing["district"]
+            domain_briefing = executive_briefing["domains"]
+            if not district_briefing.empty:
+                st.plotly_chart(
+                    px.bar(
+                        district_briefing,
+                        x="District",
+                        y=["high_review", "focused_review", "routine_review"],
+                        barmode="stack",
+                        title="Priority bands by district (synthetic facilities)",
+                        labels={"value": "Facilities", "variable": "Priority band"},
+                    ),
+                    use_container_width=True,
+                )
+                st.dataframe(
+                    district_briefing,
+                    use_container_width=True,
+                    hide_index=True,
+                )
+            domain_left, domain_right = st.columns([1, 1])
+            domain_left.plotly_chart(
+                px.bar(
+                    domain_briefing.sort_values("facilities_flagged"),
+                    x="facilities_flagged",
+                    y="Domain",
+                    orientation="h",
+                    title="Facilities flagged by review domain",
+                    labels={"facilities_flagged": "Facilities with non-zero component score"},
+                ),
+                use_container_width=True,
+            )
+            domain_right.dataframe(
+                domain_briefing,
+                use_container_width=True,
+                hide_index=True,
+            )
+            st.markdown("**Management follow-up queue**")
+            management_queue = executive_briefing["management_queue"]
+            briefing_columns = [
+                "Integrated_Priority_Rank", "Facility_Name", "District",
+                "Priority_Band", "Integrated_Priority_Score", "actions_tracked",
+                "overdue_actions", "open_actions", "in_progress_actions",
+                "resolved_actions", "Management_Follow_Up",
+            ]
+            st.dataframe(
+                management_queue[briefing_columns],
+                use_container_width=True,
+                hide_index=True,
+            )
+            st.download_button(
+                "Download executive management briefing",
+                data=executive_briefing["all_facilities"].to_csv(index=False).encode("utf-8"),
+                file_name="executive_facility_management_briefing.csv",
+                mime="text/csv",
+                key="download_executive_facility_management_briefing",
+            )
+            st.caption(
+                executive_briefing["synthetic_scope"]
+                + " District comparisons aggregate generated facility labels; "
+                "follow-up text is rule-based guidance for reviewing the synthetic register, "
+                "not an automated operational decision."
+            )
+        except ValueError as exc:
+            st.warning(f"Executive management briefing could not be prepared: {exc}")
+
+        st.markdown("### Platform release-readiness checks")
+        st.caption(
+            "Integrity checks for the current synthetic priority and action registers, "
+            "plus the local build manifest when one is available. This is not a substitute "
+            "for CI, notebook, browser, deployment or Power BI verification."
+        )
+        try:
+            from release_readiness import build_release_readiness_report
+            release_actions = pd.DataFrame(current_priority_actions).reindex(columns=[
+                "Record_ID", "Facility", "Month", "Status", "Due date",
+            ])
+            release_report = build_release_readiness_report(
+                result["integrated_priority_register"],
+                release_actions,
+                output_dir=ROOT / "data" / "warehouse",
+            )
+            r1, r2, r3, r4 = st.columns(4)
+            r1.metric("Readiness", release_report["readiness"])
+            r2.metric("Checks passed", release_report["passed"])
+            r3.metric("Warnings", release_report["warnings"])
+            r4.metric("Failures", release_report["failed"])
+            st.dataframe(
+                release_report["checks"],
+                use_container_width=True,
+                hide_index=True,
+            )
+            st.download_button(
+                "Download release-readiness report",
+                data=release_report["checks"].to_csv(index=False).encode("utf-8"),
+                file_name="platform_release_readiness_checks.csv",
+                mime="text/csv",
+                key="download_platform_release_readiness",
+            )
+            st.caption(release_report["scope"])
+        except (ValueError, OSError) as exc:
+            st.warning(f"Release-readiness checks could not be completed: {exc}")
+
+        st.markdown("### Facility management drill-down")
+        st.caption(
+            "Select a synthetic facility to review its integrated priority components, "
+            "all saved corrective actions across reporting months, deadlines and audit changes."
+        )
+        from facility_management_view import build_facility_management_view
+        priority_action_portfolio = pd.DataFrame(current_priority_actions)
+        priority_lookup = result["integrated_priority_register"].set_index("Facility_ID")
+        facility_ids = result["integrated_priority_register"]["Facility_ID"].astype(str).tolist()
+        selected_facility_id = st.selectbox(
+            "Facility to inspect",
+            facility_ids,
+            format_func=lambda value: (
+                f'{priority_lookup.loc[value, "Facility_Name"]} · '
+                f'{priority_lookup.loc[value, "District"]} · {value}'
+            ),
+            key="facility_management_drilldown_id",
+        )
+        selected_audit = pd.DataFrame(
+            columns=["changed_at", "field_name", "old_value", "new_value"]
+        )
+        facility_actions = priority_action_portfolio
+        if not facility_actions.empty:
+            facility_actions = facility_actions[
+                facility_actions["Facility"].astype(str).str.endswith(f"[{selected_facility_id}]")
+            ]
+            if priority_action_store is not None and not facility_actions.empty:
+                audit_record_id = st.selectbox(
+                    "Action audit trail",
+                    facility_actions["Record_ID"].astype(str).tolist(),
+                    format_func=lambda value: (
+                        f'{facility_actions.loc[facility_actions["Record_ID"].astype(str).eq(value), "Month"].iloc[0]} · {value}'
+                    ),
+                    key="facility_management_audit_record",
+                )
+                selected_audit = priority_action_store.history(audit_record_id)
+        try:
+            facility_view = build_facility_management_view(
+                result["integrated_priority_register"],
+                priority_action_portfolio.reindex(columns=[
+                    "Record_ID", "Facility", "Month", "Status", "Assigned owner",
+                    "Root cause", "Corrective action / notes", "Due date",
+                ]),
+                selected_facility_id,
+                audit_history=selected_audit,
+                as_of=management_as_of,
+            )
+            facility_priority = facility_view["facility"]
+            facility_progress = facility_view["progress"]
+            f1, f2, f3, f4, f5 = st.columns(5)
+            f1.metric("Priority band", str(facility_priority["Priority_Band"]))
+            f2.metric("Priority score", f'{float(facility_priority["Integrated_Priority_Score"]):.1f}/100')
+            f3.metric("Actions tracked", facility_progress["tracked"])
+            f4.metric("Resolved", facility_progress["resolved"])
+            f5.metric("Overdue", facility_progress["overdue"])
+            component_view = pd.DataFrame([
+                {"Domain": "Data quality", "Score": facility_priority["Data_Quality_Priority_Score"]},
+                {"Domain": "Resource gap", "Score": facility_priority["Resource_Gap_Priority_Score"]},
+                {"Domain": "Operational resilience", "Score": facility_priority["Operational_Priority_Score"]},
+                {"Domain": "Supply and cold chain", "Score": facility_priority["Supply_Cold_Chain_Priority_Score"]},
+            ])
+            st.plotly_chart(
+                px.bar(component_view, x="Domain", y="Score", range_y=[0, 100],
+                       title="Facility priority components (0–100)"),
+                use_container_width=True,
+            )
+            st.write(f'**Review domains:** {facility_priority["Review_Domains"] or "None recorded"}')
+            st.write(
+                f'**Action progress:** {facility_progress["resolution_rate_pct"]:.1f}% resolved · '
+                f'{facility_progress["open"]} open · {facility_progress["in_progress"]} in progress · '
+                f'{facility_progress["escalated"]} escalated'
+            )
+            if facility_view["actions"].empty:
+                st.info("No saved corrective actions exist for this facility yet. Priority context is still available above.")
+            else:
+                action_columns = [
+                    "Month", "Status", "Assigned owner", "Root cause",
+                    "Corrective action / notes", "Due date", "Overdue",
+                ]
+                st.dataframe(
+                    facility_view["actions"][action_columns],
+                    use_container_width=True,
+                    hide_index=True,
+                )
+                if not facility_view["monthly"].empty:
+                    st.plotly_chart(
+                        px.line(
+                            facility_view["monthly"], x="Month",
+                            y=["tracked_actions", "resolved_actions"],
+                            markers=True, title="Facility action history by reporting month",
+                            labels={"value": "Actions", "variable": "Measure"},
+                        ),
+                        use_container_width=True,
+                    )
+                if priority_action_store is not None:
+                    if facility_view["audit_history"].empty:
+                        st.caption("No field-level audit changes are recorded for the selected action.")
+                    else:
+                        st.dataframe(
+                            facility_view["audit_history"],
+                            use_container_width=True,
+                            hide_index=True,
+                        )
+            st.caption(
+                "Priority scores and action records are synthetic. Resolution means an action "
+                "was marked Resolved; the platform does not independently verify service outcomes. "
+                "The drill-down reads the existing local SQLite register and does not create a second store."
+            )
+        except ValueError as exc:
+            st.warning(f"Facility management view could not be prepared: {exc}")
+
+        # A separate management bundle is built after the saved action and
+        # executive views have been calculated, unlike the analytical-only ZIP above.
+        management_export_tables = {
+            "integrated_facility_priority_register.csv": result["integrated_priority_register"],
+            "integrated_facility_corrective_action_register.csv": pd.DataFrame(
+                current_priority_actions
+            ),
+        }
+        if action_performance is not None:
+            management_export_tables["district_action_performance.csv"] = action_performance["district"]
+            management_export_tables["monthly_action_performance.csv"] = action_performance["monthly"]
+            management_export_tables["validated_action_performance_register.csv"] = action_performance["actions"]
+        if executive_briefing is not None:
+            management_export_tables["executive_facility_management_briefing.csv"] = executive_briefing["all_facilities"]
+            management_export_tables["executive_district_briefing.csv"] = executive_briefing["district"]
+            management_export_tables["executive_domain_briefing.csv"] = executive_briefing["domains"]
+            management_export_tables["executive_management_queue_top_n.csv"] = executive_briefing["management_queue"]
+        if release_report is not None:
+            management_export_tables["platform_release_readiness_checks.csv"] = release_report["checks"]
+        if facility_view is not None:
+            management_export_tables["selected_facility_actions.csv"] = facility_view["actions"]
+            management_export_tables["selected_facility_monthly_action_progress.csv"] = facility_view["monthly"]
+            management_export_tables["selected_facility_priority_components.csv"] = pd.DataFrame([
+                {"Domain": "Data quality", "Score": facility_view["facility"]["Data_Quality_Priority_Score"]},
+                {"Domain": "Resource gap", "Score": facility_view["facility"]["Resource_Gap_Priority_Score"]},
+                {"Domain": "Operational resilience", "Score": facility_view["facility"]["Operational_Priority_Score"]},
+                {"Domain": "Supply and cold chain", "Score": facility_view["facility"]["Supply_Cold_Chain_Priority_Score"]},
+            ])
+        audit_rows = []
+        if priority_action_store is not None:
+            try:
+                integrated_record_ids = {
+                    str(item["Record_ID"]) for item in current_priority_actions
+                }
+                for record_id in sorted(integrated_record_ids):
+                    history_frame = priority_action_store.history(record_id)
+                    if not history_frame.empty:
+                        history_frame = history_frame.copy()
+                        history_frame.insert(0, "Record_ID", record_id)
+                        audit_rows.append(history_frame)
+            except Exception as exc:
+                st.warning(f"Full action audit history could not be added to the management export: {exc}")
+        if audit_rows:
+            management_export_tables["corrective_action_field_audit_history.csv"] = pd.concat(
+                audit_rows, ignore_index=True
+            )
+        lineage_report = None
+        try:
+            if action_performance is None or executive_briefing is None:
+                raise ValueError(
+                    "The action-performance and executive views must both be available "
+                    "before a complete management export can be issued"
+                )
+            from lineage_audit import build_lineage_reconciliation_report
+            lineage_report = build_lineage_reconciliation_report(
+                result["integrated_priority_register"],
+                pd.DataFrame(current_priority_actions),
+                action_performance,
+                executive_briefing,
+                management_export_tables,
+            )
+            management_export_tables["lineage_reconciliation_checks.csv"] = lineage_report
+        except ValueError as exc:
+            st.error(f"Management export lineage reconciliation failed: {exc}")
+
+        management_export_summary = {
+            "synthetic_data": True,
+            "generated_at_local_date": management_as_of.strftime("%Y-%m-%d"),
+            "facility_count": int(len(result["integrated_priority_register"])),
+            "saved_integrated_actions": int(len(current_priority_actions)),
+            "selected_facility_id": str(selected_facility_id) if "selected_facility_id" in locals() else None,
+            "included_tables": sorted(management_export_tables),
+            "executive_briefing_included": executive_briefing is not None,
+            "action_performance_included": action_performance is not None,
+            "release_readiness_included": release_report is not None,
+            "field_audit_history_included": bool(audit_rows),
+            "lineage_reconciliation_passed": lineage_report is not None,
+            "lineage_reconciliation_checks": int(len(lineage_report)) if lineage_report is not None else 0,
+            "interpretation": (
+                "All facility and action data are synthetic. This management bundle is a "
+                "session snapshot, not a live database backup or official Malawi health-system report."
+            ),
+        }
+        if lineage_report is not None:
+            from management_export import build_management_review_archive
+            management_export_payload = build_management_review_archive(
+                management_export_tables, management_export_summary
+            )
+            st.download_button(
+                "Download complete management review pack (ZIP)",
+                data=management_export_payload,
+                file_name="malawi_health_facility_management_review_pack.zip",
+                mime="application/zip",
+                key="download_complete_management_review_pack",
+            )
+            st.caption(
+                "The management review pack includes the saved integrated action register and "
+                "available executive, district, monthly, facility and audit-history outputs. "
+                "Cross-artifact lineage checks passed for the canonical facility and action "
+                "populations. It is a point-in-time export, not a database backup."
+            )
+        else:
+            st.warning(
+                "The complete management review ZIP is withheld because its dashboard-to-export "
+                "lineage checks did not pass."
+            )
+
         p1, p2, p3, p4, p5 = st.columns(5)
         p1.metric("Staged records", f"{result['records']:,}")
         p2.metric("Facilities", f"{result['facilities']:,}")
@@ -1228,6 +1964,48 @@ with tabs[6]:
             mime="application/zip",
             key="download_infrastructure_pack",
         )
+
+        st.markdown("## Workforce capacity and staffing intelligence")
+        st.info(
+            "Staff establishments, filled positions, absences and overtime are synthetic. "
+            "Role mixes are not official Malawi staffing norms. Workload is a catchment-based "
+            "proxy, not patient volume, and the metrics do not establish safe staffing or clinical quality."
+        )
+        workforce = result["workforce"]
+        latest_workforce = workforce["latest_facility_workforce"]
+        monthly_workforce = workforce["monthly_workforce"]
+        establishment = workforce["establishment"]
+        role_scenario = workforce["role_recruitment_scenario"]
+        w1,w2,w3,w4=st.columns(4)
+        w1.metric("Facilities monitored", f"{len(latest_workforce):,}")
+        w2.metric("Mean workforce coverage", f"{latest_workforce['Workforce_Coverage_Pct'].mean():.1f}%")
+        w3.metric("Baseline vacancies", f"{int(establishment['Baseline_Vacancies'].sum()):,}")
+        w4.metric("High review-priority facilities", f"{int(latest_workforce['Workforce_Risk_Band'].eq('High').sum()):,}")
+        wleft,wright=st.columns(2)
+        workforce_trend=monthly_workforce.groupby("Month",as_index=False).agg(
+            Workforce_Coverage_Pct=("Workforce_Coverage_Pct","mean"),
+            Absence_Rate_Pct=("Absence_Rate_Pct","mean"),
+            Estimated_Overtime_Hours=("Estimated_Overtime_Hours","mean"))
+        wleft.plotly_chart(px.line(workforce_trend,x="Month",y=["Workforce_Coverage_Pct","Absence_Rate_Pct"],
+            markers=True,title="Synthetic workforce coverage and absence trends"),use_container_width=True)
+        wright.plotly_chart(px.bar(latest_workforce.sort_values("Workforce_Coverage_Pct").head(15),
+            x="Workforce_Coverage_Pct",y="Facility_Name",color="Workforce_Risk_Band",orientation="h",
+            title="Facilities with lowest illustrative staffing coverage",
+            hover_data=["District","Vacant_Positions","Absent_Positions","Workforce_Pressure_Index"]),
+            use_container_width=True)
+        st.markdown("**Role-level establishment and vacancy profile**")
+        role_summary=establishment.groupby("Role",as_index=False).agg(
+            Establishment=("Illustrative_Establishment","sum"),
+            Baseline_Filled=("Baseline_Filled_Positions","sum"),
+            Vacancies=("Baseline_Vacancies","sum"))
+        st.plotly_chart(px.bar(role_summary,x="Role",y=["Baseline_Filled","Vacancies"],barmode="stack",
+            title="Synthetic filled positions and vacancies by role"),use_container_width=True)
+        st.markdown("**Illustrative recruitment allocation scenario**")
+        st.caption("The scenario allocates abstract recruitment credits to roles with the largest simulated vacancy totals. It is a transparent heuristic, not an HR plan, salary budget or approved establishment.")
+        st.dataframe(role_scenario,use_container_width=True,hide_index=True)
+        st.download_button("Download workforce capacity and recruitment pack",
+            data=export_buffer.getvalue(),file_name="malawi_health_facility_data_intelligence_analysis.zip",
+            mime="application/zip",key="download_workforce_pack")
 
         st.markdown("**Programme and indicator quality profile**")
         st.dataframe(result["programme"], use_container_width=True, hide_index=True)

@@ -48,17 +48,40 @@ def build_action_record_id(
     month: Any,
     programme: Any,
     indicator: Any,
+    source_fingerprint: str | None = None,
 ) -> str:
-    """Return a stable key independent of dataframe row order and active filters."""
+    """Return a stable row key, optionally scoped to an exact uploaded source version."""
     month_value = (
         pd.Timestamp(month).strftime("%Y-%m-%d")
         if month is not None and not pd.isna(month) else ""
     )
-    identity = "||".join(
-        str(value).strip()
-        for value in (source_name, facility, month_value, programme, indicator)
-    )
+    identity_parts = [source_name, facility, month_value, programme, indicator]
+    if source_fingerprint:
+        identity_parts.append(str(source_fingerprint).strip())
+    identity = "||".join(str(value).strip() for value in identity_parts)
     return "ACT-" + hashlib.sha256(identity.encode("utf-8")).hexdigest()[:20]
+
+
+def merge_session_actions(
+    existing: dict[str, dict[str, Any]],
+    records: Iterable[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """Merge edited action rows without dropping records outside the active filters."""
+    merged = {
+        str(record_id): dict(values)
+        for record_id, values in existing.items()
+        if isinstance(values, dict)
+    } if isinstance(existing, dict) else {}
+    for record in records:
+        record_id = str(record.get("Record_ID", "")).strip()
+        if not record_id:
+            continue
+        merged[record_id] = {
+            key: _value(value)
+            for key, value in record.items()
+            if key != "Record_ID"
+        }
+    return merged
 
 
 class ActionRegisterStore:
@@ -120,10 +143,14 @@ class ActionRegisterStore:
                 ids = list(dict.fromkeys(str(value) for value in record_ids))
                 if not ids:
                     return {}
-                placeholders = ",".join("?" for _ in ids)
-                rows = connection.execute(
-                    f"SELECT * FROM actions WHERE record_id IN ({placeholders})", ids
-                ).fetchall()
+                rows = []
+                # Stay below conservative SQLite bind-variable limits for large cohorts.
+                for start in range(0, len(ids), 500):
+                    batch = ids[start:start + 500]
+                    placeholders = ",".join("?" for _ in batch)
+                    rows.extend(connection.execute(
+                        f"SELECT * FROM actions WHERE record_id IN ({placeholders})", batch
+                    ).fetchall())
         result = {}
         reverse = {column: label for label, column in DB_COLUMNS.items()}
         for row in rows:

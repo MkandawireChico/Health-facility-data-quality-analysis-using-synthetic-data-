@@ -76,6 +76,21 @@ def test_analytical_quality_defects_are_flagged_not_quarantined():
     assert report["quality_issue_rows"] >= 4
 
 
+def test_non_finite_numeric_values_are_flagged_without_quarantine():
+    fact, facilities = sample_tables()
+    fact.loc[0, "Reported_Value"] = float("inf")
+    fact.loc[1, "Target_Value"] = float("-inf")
+    fact.loc[2, "Paper_Value"] = "not-numeric"
+    staged, quarantine, report = stage_reporting_data(fact, facilities)
+
+    assert quarantine.empty
+    assert len(staged) == len(fact)
+    assert staged.loc[0, "Quality_Invalid_Numeric_Count"] == 1
+    assert staged.loc[1, "Quality_Invalid_Numeric_Count"] == 1
+    assert staged.loc[2, "Quality_Invalid_Numeric_Count"] == 1
+    assert report["quality_issue_rows"] >= 3
+
+
 def test_required_schema_and_duplicate_facility_keys_are_enforced():
     fact, facilities = sample_tables()
     with pytest.raises(ValueError, match="Fact table missing"):
@@ -83,6 +98,20 @@ def test_required_schema_and_duplicate_facility_keys_are_enforced():
     duplicated = pd.concat([facilities, facilities.iloc[[0]]], ignore_index=True)
     with pytest.raises(ValueError, match="Facility_ID must be unique"):
         stage_reporting_data(fact, duplicated)
+
+
+def test_facility_dimension_keys_are_trimmed_and_blank_keys_rejected():
+    fact, facilities = sample_tables()
+    padded = facilities.copy()
+    padded["Facility_ID"] = "  " + padded["Facility_ID"] + "  "
+    staged, quarantine, _ = stage_reporting_data(fact, padded)
+    assert len(staged) == len(fact)
+    assert quarantine.empty
+
+    blank = facilities.copy()
+    blank.loc[blank.index[0], "Facility_ID"] = "   "
+    with pytest.raises(ValueError, match="Facility_ID must be populated"):
+        stage_reporting_data(fact, blank)
 
 
 def test_pipeline_persists_staged_quarantine_and_quality_report(tmp_path):
@@ -95,3 +124,33 @@ def test_pipeline_persists_staged_quarantine_and_quality_report(tmp_path):
     assert (tmp_path / "output/facility_reporting_staged.csv").exists()
     assert (tmp_path / "output/facility_reporting_quarantine.csv").exists()
     assert (tmp_path / "output/staging_quality_report.json").exists()
+
+
+
+def test_invalid_infinite_source_values_do_not_distort_source_reconciliation():
+    fact, facilities = sample_tables()
+    # Two valid source readings agree; the third is invalid and must not be
+    # counted as an observation or inflate the spread/discrepancy flag.
+    fact.loc[0, ["Paper_Value", "EMR_Value", "DHIS2_Value"]] = [100, 102, float("inf")]
+    staged, quarantine, report = stage_reporting_data(fact, facilities)
+
+    assert quarantine.empty
+    row = staged.loc[staged["Record_ID"].eq(fact.loc[0, "Record_ID"])].iloc[0]
+    assert row["Quality_Invalid_Numeric_Count"] == 1
+    assert row["Quality_Insufficient_Source_Count"] == False
+    assert row["Quality_Source_Spread"] == 2
+    assert row["Quality_Source_Discrepancy"] == False
+
+
+def test_fewer_than_two_finite_sources_are_marked_insufficient():
+    fact, facilities = sample_tables()
+    fact.loc[0, ["Paper_Value", "EMR_Value", "DHIS2_Value"]] = [
+        float("inf"), float("-inf"), 100,
+    ]
+    staged, quarantine, _ = stage_reporting_data(fact, facilities)
+
+    assert quarantine.empty
+    row = staged.loc[staged["Record_ID"].eq(fact.loc[0, "Record_ID"])].iloc[0]
+    assert row["Quality_Insufficient_Source_Count"] == True
+    assert pd.isna(row["Quality_Source_Spread"])
+    assert row["Quality_Source_Discrepancy"] == False

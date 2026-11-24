@@ -2,7 +2,7 @@
 
 ## Status and intended use
 
-This guide is the implementation specification for the expanded seven-page Power BI report. It complements the semantic-model, Power Query and DAX files in this folder. The existing PBIX is still the original 960-record report; the expanded 288,000-record report must be assembled and saved in Power BI Desktop. No expanded PBIX or new screenshots are claimed by this guide.
+This guide is the implementation specification for the expanded thirteen-page Power BI report. It complements the semantic-model, Power Query and DAX files in this folder. The existing PBIX is still the original 960-record report; the expanded 288,000-record report must be assembled and saved in Power BI Desktop. No expanded PBIX or new screenshots are claimed by this guide.
 
 The full cohort is synthetic. Display a visible banner on every page:
 
@@ -14,7 +14,7 @@ Import `dashboard/powerbi_theme.json` through View → Themes → Browse for the
 
 - Canvas: 16:9 widescreen; suggested working page size 1280 × 720.
 - Header: report title, page subtitle and synthetic-data banner.
-- Left navigation rail: seven clearly labelled page buttons using page-navigation bookmarks.
+- Left navigation rail: thirteen clearly labelled page buttons using page-navigation bookmarks.
 - Global slicers: reporting year/month, district, programme and indicator.
 - Keep facility selection on pages where it is meaningful; avoid applying facility filters to district aggregate facts unless the filter path is explicitly designed.
 - Add a visible Reset filters bookmark on every page.
@@ -172,7 +172,7 @@ Interpretation:
 - Commodity names are illustrative examples, not an approved national list.
 - The replenishment worklist is a scenario, not an order or operational recommendation.
 
-## Optional page 10 — Facility detail
+## Optional page 14 — Facility detail
 
 Only add this page if the report remains readable:
 - facility profile and synthetic catchment attributes;
@@ -227,7 +227,7 @@ Interpretation:
 
 ## Companion Streamlit analysis export
 
-The Expanded Platform workspace provides a ZIP handover package alongside its individual CSV downloads. The package contains the management summary JSON, monthly quality trends, facility benchmark, programme/indicator profile, district and district-month profiles, statistical peer anomalies, monthly issue-control output, target-attainment facts, resource-capacity/allocation scenario tables, commodity stock ledger and replenishment worklist, cold-chain temperature monitoring, batch ledger and expiry-risk summary, equipment asset register, asset-month performance, facility-month equipment summary, maintenance work orders and latest asset-risk snapshot. Detector evaluation metrics are included only when synthetic ground-truth labels are present. The summary carries an explicit synthetic-data disclaimer and records whether synthetic evaluation was performed.
+The Expanded Platform workspace provides a ZIP handover package alongside its individual CSV downloads. The package contains the management summary JSON, monthly quality trends, facility benchmark, programme/indicator profile, district and district-month profiles, statistical peer anomalies, monthly issue-control output, target-attainment facts, resource-capacity/allocation scenario tables, commodity stock ledger and replenishment worklist, cold-chain temperature monitoring, batch ledger and expiry-risk summary, equipment asset register, asset-month performance, facility-month equipment summary, maintenance work orders and latest asset-risk snapshot, facility infrastructure profiles, monthly infrastructure reliability, latest infrastructure resilience, equipment/infrastructure association, infrastructure upgrade scenarios, workforce establishment, monthly workforce capacity, latest workforce capacity and recruitment scenarios. Detector evaluation metrics are included only when synthetic ground-truth labels are present. The summary carries an explicit synthetic-data disclaimer and records whether synthetic evaluation was performed.
 
 The guide does not substitute for a completed Power BI Desktop refresh and visual review.
 
@@ -259,10 +259,28 @@ Layout:
 - Domain availability trend for power, water and connectivity.
 - Latest facility resilience review list with risk band and unserved interruption hours.
 - Power interruption bands compared with equipment operational uptime (descriptive association only).
-- Facility-level upgrade scenario table showing package, abstract cost credits, illustrative avoided hours and budget selection.
+- Facility-level upgrade scenario table showing package, abstract cost credits, illustrative avoided hours and budget selection; zero-benefit packages remain unselected and do not consume the scenario budget.
 
 Interpretation:
 - Infrastructure profiles and events are synthetic, not utility-provider observations or engineering inspections.
 - Availability is not verified clinical service availability and does not establish patient impact.
 - Infrastructure/equipment association is not causal.
 - Upgrade packages, avoided-hour assumptions and abstract credits are not quotations, MWK, procurement specifications or operational recommendations.
+
+
+## Page 13 — Workforce capacity and staffing intelligence
+
+**Decision question:** Where do synthetic role vacancies and monthly staffing availability indicate potential capacity pressure in the model?
+
+Layout:
+- KPI strip: latest mean workforce coverage, baseline vacancies, high review-priority facilities and mean absence rate.
+- Monthly workforce coverage and absence trend.
+- Facility review table with establishment, filled, vacant, absent and available-on-duty positions.
+- Role-level filled positions versus vacancies.
+- Role-level recruitment scenario with abstract cost credits, funded and unfunded positions.
+
+Interpretation:
+- Establishments, filled positions, absences and overtime are synthetic.
+- Catchment population is a workload proxy, not patient volume or service utilisation.
+- Role mixes are not official Malawi staffing norms or safe-staffing thresholds.
+- Recruitment credits are abstract, not MWK or salary estimates. This is not an approved HR plan.

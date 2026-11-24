@@ -423,3 +423,57 @@ CALCULATE (
 
 // Infrastructure metrics are simulated availability proxies, not clinical
 // service availability. Upgrade credits are abstract, not MWK.
+
+
+// Workforce capacity. Synthetic planning proxies, not HR records or staffing standards.
+Workforce Mean Coverage Pct =
+AVERAGE ( FactLatestWorkforceCapacity[Workforce_Coverage_Pct] )
+
+Workforce High Review-Priority Facilities =
+CALCULATE (
+    DISTINCTCOUNT ( FactLatestWorkforceCapacity[Facility_ID] ),
+    FactLatestWorkforceCapacity[Workforce_Risk_Band] = "High"
+)
+
+Workforce Baseline Vacancies =
+SUM ( FactFacilityWorkforceEstablishment[Baseline_Vacancies] )
+
+Workforce Vacant Positions =
+SUM ( FactMonthlyWorkforceCapacity[Vacant_Positions] )
+
+Workforce Latest Absence Rate Pct =
+VAR LatestWorkforceMonth =
+    CALCULATE (
+        MAX ( FactMonthlyWorkforceCapacity[Month] ),
+        REMOVEFILTERS ( DimDate )
+    )
+RETURN
+    CALCULATE (
+        DIVIDE (
+            SUM ( FactMonthlyWorkforceCapacity[Absent_Positions] ),
+            SUM ( FactMonthlyWorkforceCapacity[Filled_Positions] )
+        ),
+        REMOVEFILTERS ( DimDate ),
+        FactMonthlyWorkforceCapacity[Month] = LatestWorkforceMonth
+    )
+
+Workforce Absent Positions =
+SUM ( FactMonthlyWorkforceCapacity[Absent_Positions] )
+
+Workforce Absence Rate Pct =
+DIVIDE (
+    SUM ( FactMonthlyWorkforceCapacity[Absent_Positions] ),
+    SUM ( FactMonthlyWorkforceCapacity[Filled_Positions] )
+)
+
+Workforce Estimated Overtime Hours =
+SUM ( FactMonthlyWorkforceCapacity[Estimated_Overtime_Hours] )
+
+Workforce Mean Pressure Index =
+AVERAGE ( FactMonthlyWorkforceCapacity[Workforce_Pressure_Index] )
+
+Workforce Funded Recruitment Positions =
+SUM ( FactWorkforceRecruitmentScenario[Funded_Positions] )
+
+Workforce Unfunded Recruitment Positions =
+SUM ( FactWorkforceRecruitmentScenario[Unfunded_Positions] )

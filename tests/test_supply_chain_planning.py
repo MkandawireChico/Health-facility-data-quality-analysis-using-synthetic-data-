@@ -56,10 +56,24 @@ def test_reproducible_and_zero_budget():
 def test_invalid_inputs_fail_clearly():
     with pytest.raises(ValueError, match="Facility dimension missing"):
         build_supply_chain_profiles(facility_dimension().drop(columns=["District"]))
+    with pytest.raises(ValueError, match="at least one facility"):
+        build_supply_chain_profiles(facility_dimension().iloc[:0])
+    blank_id = facility_dimension().copy()
+    blank_id.loc[blank_id.index[0], "Facility_ID"] = "   "
+    with pytest.raises(ValueError, match="Facility_ID"):
+        build_supply_chain_profiles(blank_id)
     with pytest.raises(ValueError, match="periods"):
         build_supply_chain_profiles(facility_dimension(), periods=0)
     with pytest.raises(ValueError, match="budget_credits"):
         build_supply_chain_profiles(facility_dimension(), budget_credits=-1)
+    with pytest.raises(ValueError, match="budget_credits"):
+        build_supply_chain_profiles(facility_dimension(), budget_credits=True)
+    with pytest.raises(ValueError, match="periods"):
+        build_supply_chain_profiles(facility_dimension(), periods=True)
+    with pytest.raises(ValueError, match="lead_time_days"):
+        build_supply_chain_profiles(facility_dimension(), lead_time_days=True)
+    with pytest.raises(ValueError, match="buffer_days"):
+        build_supply_chain_profiles(facility_dimension(), buffer_days=True)
     with pytest.raises(ValueError, match="unique"):
         build_supply_chain_profiles(pd.concat([facility_dimension(), facility_dimension().iloc[[0]]]))
 
@@ -76,3 +90,10 @@ def test_pipeline_writes_all_outputs(tmp_path):
     for filename in report["outputs"]:
         assert (tmp_path / "analytics" / filename).exists()
     assert (tmp_path / "analytics" / "supply_chain_planning_report.json").exists()
+
+def test_invalid_catchment_population_is_rejected():
+    for invalid_population in ["not-a-number", float("nan"), float("inf"), -1]:
+        data = facility_dimension().copy()
+        data.loc[data.index[0], "Catchment_Population"] = invalid_population
+        with pytest.raises(ValueError, match="Catchment_Population"):
+            build_supply_chain_profiles(data)

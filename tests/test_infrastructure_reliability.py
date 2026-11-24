@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+import infrastructure_reliability as infrastructure_module
 from infrastructure_reliability import build_infrastructure_profiles, run_infrastructure_planning
 
 
@@ -66,6 +67,27 @@ def test_scenario_budget_is_never_exceeded_and_facility_pairs_complete():
     assert scenarios["Synthetic_Data"].all()
 
 
+def test_zero_benefit_upgrade_scenarios_do_not_consume_budget(monkeypatch):
+    monkeypatch.setattr(infrastructure_module, "INFRASTRUCTURE_UPGRADES", [
+        {
+            "Upgrade": "No-benefit test package",
+            "Domain": "Test",
+            "Cost_Credits": 100,
+            "Power_Reduction_Factor": 0.0,
+            "Water_Reduction_Factor": 0.0,
+            "Connectivity_Reduction_Factor": 0.0,
+        }
+    ])
+    result = build_infrastructure_profiles(
+        facilities(), periods=2, seed=5, budget_credits=500
+    )
+    scenarios = result["upgrade_scenarios"]
+    assert scenarios["Illustrative_Avoided_Interruption_Hours"].eq(0).all()
+    assert not scenarios["Selected_Package_For_Facility"].any()
+    assert not scenarios["Within_Illustrative_Budget"].any()
+    assert scenarios["Budget_Credits_Unallocated"].eq(500).all()
+
+
 def test_invalid_inputs_and_output_artifacts(tmp_path):
     with pytest.raises(ValueError, match="missing required columns"):
         build_infrastructure_profiles(facilities().drop(columns=["District"]))
@@ -73,8 +95,14 @@ def test_invalid_inputs_and_output_artifacts(tmp_path):
         build_infrastructure_profiles(facilities().iloc[:0])
     with pytest.raises(ValueError, match="periods"):
         build_infrastructure_profiles(facilities(), periods=0)
-    with pytest.raises(ValueError, match="non-negative"):
+    with pytest.raises(ValueError, match="periods"):
+        build_infrastructure_profiles(facilities(), periods=True)
+    with pytest.raises(ValueError, match="non-negative integer"):
         build_infrastructure_profiles(facilities(), budget_credits=-1)
+    with pytest.raises(ValueError, match="non-negative integer"):
+        build_infrastructure_profiles(facilities(), budget_credits=1000.5)
+    with pytest.raises(ValueError, match="non-negative integer"):
+        build_infrastructure_profiles(facilities(), budget_credits=True)
     facility_path = tmp_path / "facilities.csv"
     facilities().to_csv(facility_path, index=False)
     report = run_infrastructure_planning(facility_path, tmp_path / "analytics", periods=2, seed=4)
@@ -83,3 +111,10 @@ def test_invalid_inputs_and_output_artifacts(tmp_path):
     for filename in report["outputs"]:
         assert (tmp_path / "analytics" / filename).exists()
     assert (tmp_path / "analytics" / "infrastructure_planning_report.json").exists()
+
+def test_invalid_catchment_population_is_rejected():
+    for invalid_population in ["not-a-number", float("nan"), float("inf"), -1]:
+        data = facilities().copy()
+        data.loc[data.index[0], "Catchment_Population"] = invalid_population
+        with pytest.raises(ValueError, match="Catchment_Population"):
+            build_infrastructure_profiles(data)

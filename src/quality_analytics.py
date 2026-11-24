@@ -40,7 +40,18 @@ def add_operational_predictions(data: pd.DataFrame) -> pd.DataFrame:
     result = data.copy()
     reported = pd.to_numeric(result["Reported_Value"], errors="coerce")
     target = pd.to_numeric(result["Target_Value"], errors="coerce")
-    ratio = reported / target.where(target.gt(0))
+    finite_reported = pd.Series(
+        np.isfinite(reported.to_numpy(dtype=float)), index=result.index
+    )
+    finite_target = pd.Series(
+        np.isfinite(target.to_numpy(dtype=float)), index=result.index
+    )
+    valid_denominator = finite_reported & finite_target & target.gt(0)
+    ratio = reported.where(valid_denominator) / target.where(valid_denominator)
+    # A finite input pair can still overflow during division; never let an
+    # infinite ratio become a false operational outlier signal.
+    finite_ratio = pd.Series(np.isfinite(ratio.to_numpy(dtype=float)), index=result.index)
+    ratio = ratio.where(finite_ratio)
     # Generator outliers are injected at 2–3x target. The 1.5x threshold
     # intentionally leaves a margin above normal synthetic variation.
     result["Operational_Detected_Outlier"] = ratio.gt(1.5).fillna(False)
@@ -94,13 +105,40 @@ def evaluate_detectors(data: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def _validate_profile_dimensions(
+    data: pd.DataFrame, dimensions: set[str], profile_name: str
+) -> pd.DataFrame:
+    """Reject incomplete grouping keys before producing operational profiles."""
+    missing = sorted(dimensions - set(data.columns))
+    if missing:
+        raise ValueError(f"Staged data missing {profile_name} dimensions: {missing}")
+
+    result = data.copy()
+    for column in dimensions - {"Month"}:
+        values = result[column]
+        blank = values.isna() | values.astype("string").str.strip().eq("").fillna(True)
+        if blank.any():
+            raise ValueError(
+                f"Staged data contains blank {profile_name} dimension: {column}"
+            )
+
+    months = pd.to_datetime(result["Month"], errors="coerce")
+    if months.isna().any():
+        raise ValueError("Staged data contains invalid or missing Month values")
+    if getattr(months.dt, "tz", None) is not None:
+        raise ValueError("Staged data Month values must be timezone-naive")
+    result["Month"] = months.dt.to_period("M").dt.to_timestamp()
+    return result
+
+
 def build_operational_profiles(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Build monthly, facility and programme profiles without ground-truth fields."""
     predicted = add_operational_predictions(data)
-    required = {"Month", "Facility_ID", "District", "Programme", "Indicator"}
-    missing = sorted(required - set(predicted.columns))
-    if missing:
-        raise ValueError(f"Staged data missing profile dimensions: {missing}")
+    predicted = _validate_profile_dimensions(
+        predicted,
+        {"Month", "Facility_ID", "Facility", "District", "Programme", "Indicator"},
+        "profile",
+    )
 
     issue_cols = [
         "Quality_Missing_Reported_Value", "Quality_Source_Discrepancy",
@@ -110,7 +148,7 @@ def build_operational_profiles(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.Dat
         predicted[col] = _as_bool(predicted[col])
     predicted["Operational_Issue_Count"] = predicted[issue_cols].sum(axis=1)
     predicted["Operational_Any_Detected_Issue"] = predicted[issue_cols].any(axis=1)
-    predicted["Month"] = pd.to_datetime(predicted["Month"], errors="coerce").dt.to_period("M").dt.to_timestamp()
+    # Month was validated and normalised before aggregation.
 
     monthly = predicted.groupby("Month", dropna=False).agg(
         records=("Facility_ID", "size"),
@@ -171,10 +209,9 @@ def build_operational_profiles(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.Dat
 def build_district_profiles(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Build district and district-month profiles from operational flags only."""
     predicted = add_operational_predictions(data)
-    required = {"Month", "Facility_ID", "District"}
-    missing = sorted(required - set(predicted.columns))
-    if missing:
-        raise ValueError(f"Staged data missing district dimensions: {missing}")
+    predicted = _validate_profile_dimensions(
+        predicted, {"Month", "Facility_ID", "District"}, "district"
+    )
 
     issue_cols = [
         "Quality_Missing_Reported_Value", "Quality_Source_Discrepancy",
@@ -183,10 +220,7 @@ def build_district_profiles(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFr
     for column in issue_cols:
         predicted[column] = _as_bool(predicted[column])
     predicted["Operational_Any_Detected_Issue"] = predicted[issue_cols].any(axis=1)
-    predicted["Month"] = (
-        pd.to_datetime(predicted["Month"], errors="coerce")
-        .dt.to_period("M").dt.to_timestamp()
-    )
+    # Month was validated and normalised before aggregation.
 
     aggregations = {
         "records": ("Facility_ID", "size"),

@@ -22,10 +22,15 @@ def _prepare(data: pd.DataFrame) -> pd.DataFrame:
     frame["Month"] = pd.to_datetime(frame["Month"], errors="coerce").dt.to_period("M").dt.to_timestamp()
     frame["Reported_Value"] = pd.to_numeric(frame["Reported_Value"], errors="coerce")
     frame["Target_Value"] = pd.to_numeric(frame["Target_Value"], errors="coerce")
+    finite_reported = pd.Series(
+        np.isfinite(frame["Reported_Value"].to_numpy(dtype=float)), index=frame.index
+    )
+    finite_target = pd.Series(
+        np.isfinite(frame["Target_Value"].to_numpy(dtype=float)), index=frame.index
+    )
     frame["Valid_Attainment_Record"] = (
-        frame["Month"].notna() & frame["Reported_Value"].notna()
-        & frame["Reported_Value"].ge(0) & frame["Target_Value"].notna()
-        & frame["Target_Value"].gt(0)
+        frame["Month"].notna() & finite_reported & finite_target
+        & frame["Reported_Value"].ge(0) & frame["Target_Value"].gt(0)
     )
     frame["Attainment_Contribution"] = frame["Reported_Value"].where(frame["Valid_Attainment_Record"], 0)
     frame["Target_Contribution"] = frame["Target_Value"].where(frame["Valid_Attainment_Record"], 0)

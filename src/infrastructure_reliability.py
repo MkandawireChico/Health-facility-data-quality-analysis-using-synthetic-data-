@@ -45,7 +45,12 @@ def _validate_facilities(facilities: pd.DataFrame) -> pd.DataFrame:
         raise ValueError("Facility_ID values must be unique")
     for column in ["Facility_Name", "District", "Facility_Type", "Urban_Rural"]:
         result[column] = result[column].fillna("Unknown").astype(str).str.strip()
-    result["Catchment_Population"] = pd.to_numeric(result["Catchment_Population"], errors="coerce").fillna(0).clip(lower=0)
+    result["Catchment_Population"] = pd.to_numeric(result["Catchment_Population"], errors="coerce")
+    population = result["Catchment_Population"]
+    if population.isna().any() or not np.isfinite(population.to_numpy(dtype=float)).all():
+        raise ValueError("Catchment_Population must contain finite numeric values")
+    if population.lt(0).any():
+        raise ValueError("Catchment_Population must contain non-negative numeric values")
     return result
 
 
@@ -58,10 +63,12 @@ def build_infrastructure_profiles(
     budget_credits: int = 50000,
 ) -> dict[str, pd.DataFrame]:
     """Create facility profiles, facility-month interruption records and upgrade scenarios."""
-    if not isinstance(periods, int) or periods < 1:
+    if isinstance(periods, bool) or not isinstance(periods, (int, np.integer)) or periods < 1:
         raise ValueError("periods must be a positive integer")
-    if budget_credits < 0:
-        raise ValueError("budget_credits must be non-negative")
+    if (isinstance(budget_credits, bool)
+            or not isinstance(budget_credits, (int, np.integer))
+            or budget_credits < 0):
+        raise ValueError("budget_credits must be a non-negative integer")
     fac = _validate_facilities(facilities)
     months = pd.date_range(pd.Timestamp(start_month).to_period("M").to_timestamp(), periods=periods, freq="MS")
     rng = np.random.default_rng(seed)
@@ -206,9 +213,12 @@ def build_infrastructure_profiles(
     ).reset_index(drop=True)
     scenarios["Selected_Package_For_Facility"] = False
     best_indices = scenarios.groupby("Facility_ID")["Avoided_Hours_Per_100_Credits"].idxmax()
-    best_indices = scenarios.loc[best_indices].sort_values(
-        "Avoided_Hours_Per_100_Credits", ascending=False
-    ).index
+    best_indices = scenarios.loc[best_indices]
+    # Do not recommend or fund a package when the simulated baseline has no
+    # interruption exposure for the package to mitigate.
+    best_indices = best_indices.loc[
+        best_indices["Illustrative_Avoided_Interruption_Hours"].gt(0)
+    ].sort_values("Avoided_Hours_Per_100_Credits", ascending=False).index
     scenarios.loc[best_indices, "Selected_Package_For_Facility"] = True
     scenarios["Within_Illustrative_Budget"] = False
     remaining = int(budget_credits)

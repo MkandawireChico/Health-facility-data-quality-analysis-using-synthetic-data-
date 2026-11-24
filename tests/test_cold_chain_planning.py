@@ -91,9 +91,17 @@ def test_invalid_inputs_fail_clearly():
     with pytest.raises(ValueError, match="Facility dimension missing"):
         build_cold_chain_profiles(facility_dimension().drop(columns=["District"]))
     with pytest.raises(ValueError, match="at least one facility"):
+        build_cold_chain_profiles(facility_dimension().iloc[:0])
+    blank_id = facility_dimension().copy()
+    blank_id.loc[blank_id.index[0], "Facility_ID"] = "   "
+    with pytest.raises(ValueError, match="Facility_ID"):
+        build_cold_chain_profiles(blank_id)
+    with pytest.raises(ValueError, match="at least one facility"):
         build_cold_chain_profiles(facility_dimension().iloc[0:0])
     with pytest.raises(ValueError, match="periods"):
         build_cold_chain_profiles(facility_dimension(), periods=0)
+    with pytest.raises(ValueError, match="periods"):
+        build_cold_chain_profiles(facility_dimension(), periods=True)
     with pytest.raises(ValueError, match="Temperature bounds"):
         build_cold_chain_profiles(facility_dimension(), temperature_min_c=8, temperature_max_c=2)
     with pytest.raises(ValueError, match="unique"):
@@ -111,3 +119,10 @@ def test_pipeline_writes_all_outputs(tmp_path: Path):
     for filename in report["outputs"]:
         assert (tmp_path / "analytics" / filename).exists()
     assert (tmp_path / "analytics" / "cold_chain_planning_report.json").exists()
+
+def test_invalid_catchment_population_is_rejected():
+    for invalid_population in ["not-a-number", float("nan"), float("inf"), -1]:
+        data = facility_dimension().copy()
+        data.loc[data.index[0], "Catchment_Population"] = invalid_population
+        with pytest.raises(ValueError, match="Catchment_Population"):
+            build_cold_chain_profiles(data)

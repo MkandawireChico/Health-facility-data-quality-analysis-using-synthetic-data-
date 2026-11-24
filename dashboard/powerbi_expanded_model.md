@@ -118,16 +118,18 @@ Do **not** import `Ground_Truth_*` fields into FactReporting. They are controlle
 9. **Commodity availability and replenishment** — monitor synthetic stockouts, unmet demand, days of cover and budget-constrained replenishment. 
 10. **Cold-chain and expiry intelligence** — review synthetic temperature excursions, monitoring coverage, FEFO batch balances, near-expiry stock, expired quantities and facility-commodity risk bands. 
 11. **Equipment maintenance and uptime** — monitor synthetic asset registers, preventive maintenance compliance, breakdowns, downtime, service availability, operational uptime and open work orders.
+12. **Facility infrastructure and utilities reliability** — review synthetic power, water and connectivity interruptions, resilience scores and illustrative upgrade scenarios.
+13. **Workforce capacity and staffing intelligence** — review synthetic establishment, vacancies, monthly attendance proxies, workload pressure and recruitment scenarios.
 
 ## Build instructions
 
 1. Run `python src/build_platform.py` from the repository root.
 2. In Power BI Desktop, create a text parameter named `pWarehouseRoot` pointing to the generated `data/warehouse` folder (no trailing slash).
-3. Create/load the queries in `dashboard/powerquery/`: `FactReporting`, `DimFacility`, `DimIndicator`, `DimDate`, `DimSource`, `FactSourceObservation`, `FactMonthlyQualityTrend`, `FactMonthlyIssueControlChart`, `FactDistrictProfile`, `FactDistrictMonthlyTrend`, `FactPeerAnomaly`, `FactDetectorEvaluation`, `FactFacilityIndicatorAttainment`, `FactDistrictIndicatorAttainment`, `FactMonthlyIndicatorAttainment`, `FactProgrammeIndicatorAttainment`, `FactFacilityResourceCapacity`, `FactResourceAllocationScenario`, `DimCommodity`, `FactFacilityCommodityStock`, `FactCommodityReplenishmentPlan`, `DimColdChainCommodity`, `FactColdChainTemperature`, `FactCommodityBatchLedger`, `FactColdChainExpiryRisk`, `DimEquipmentType`, `FactEquipmentAssetRegister`, `FactEquipmentAssetMonthly`, `FactFacilityEquipmentMonthly`, `FactEquipmentMaintenanceWorkOrders` and `FactEquipmentLatestAssetRisk`.
+3. Create/load the queries in `dashboard/powerquery/`: `FactReporting`, `DimFacility`, `DimIndicator`, `DimDate`, `DimSource`, `FactSourceObservation`, `FactMonthlyQualityTrend`, `FactMonthlyIssueControlChart`, `FactDistrictProfile`, `FactDistrictMonthlyTrend`, `FactPeerAnomaly`, `FactDetectorEvaluation`, `FactFacilityIndicatorAttainment`, `FactDistrictIndicatorAttainment`, `FactMonthlyIndicatorAttainment`, `FactProgrammeIndicatorAttainment`, `FactFacilityResourceCapacity`, `FactResourceAllocationScenario`, `DimCommodity`, `FactFacilityCommodityStock`, `FactCommodityReplenishmentPlan`, `DimColdChainCommodity`, `FactColdChainTemperature`, `FactCommodityBatchLedger`, `FactColdChainExpiryRisk`, `DimEquipmentType`, `FactEquipmentAssetRegister`, `FactEquipmentAssetMonthly`, `FactFacilityEquipmentMonthly`, `FactEquipmentMaintenanceWorkOrders`, `FactEquipmentLatestAssetRisk`, `FactFacilityInfrastructureProfiles`, `FactMonthlyInfrastructureReliability`, `FactLatestInfrastructureResilience`, `FactEquipmentInfrastructureAssociation`, `FactInfrastructureUpgradeScenarios`, `FactFacilityWorkforceEstablishment`, `FactMonthlyWorkforceCapacity`, `FactLatestWorkforceCapacity` and `FactWorkforceRecruitmentScenario`.
 4. The FactReporting query removes all `Ground_Truth_*` fields before loading; keep detector evaluation as a separate synthetic-only governance table.
 5. Create `DimDistrict` using `dashboard/dax/dimension_tables.dax`, then create the relationships listed above. Mark DimDate as the date table and sort MonthName by MonthNumber.
 6. Add measures from `dashboard/dax/health_data_quality_measures.dax`.
-7. Add the DAX resource, commodity, cold-chain and equipment measures and build the eleven report pages using the layout plan.
+7. Add the DAX resource, commodity, cold-chain and equipment measures and build the thirteen report pages using the layout plan.
 8. Validate filter behaviour at facility, district, month, programme and indicator levels.
 9. Keep the synthetic-data disclaimer visible on every report page and in exported PDFs.
 
@@ -172,8 +174,6 @@ The query files are executable Power Query M templates, not screenshots or mocku
 | FactProgrammeIndicatorAttainment | Overall programme-indicator attainment |
 | FactFacilityResourceCapacity | Facility baseline capacity requirement, synthetic availability and gap |
 | FactResourceAllocationScenario | Facility allocation and residual capacity by scenario |
-| FactFacilityResourceCapacity | Synthetic baseline requirement, availability and gap by facility |
-| FactResourceAllocationScenario | Facility-level allocations and residual gaps by scenario |
 | DimCommodity | Illustrative commodity catalogue keyed by Commodity_ID |
 | FactFacilityCommodityStock | Facility × commodity × month simulated stock ledger |
 | FactCommodityReplenishmentPlan | Latest-snapshot budget-constrained replenishment worklist |
@@ -251,3 +251,23 @@ Relationships:
 - FactEquipmentInfrastructureAssociation is an aggregate band table; it has no facility or date key and should not be joined to facility-level facts.
 
 Do not create fact-to-fact relationships. The infrastructure/equipment comparison is descriptive and not causal. All configurations, interruptions, resilience scores and upgrade costs are synthetic. Abstract credits are not MWK; see `docs/infrastructure_reliability_methodology.md`.
+
+
+## Workforce capacity and staffing scenario facts
+
+| Fact | Grain | Purpose |
+|---|---|---|
+| FactFacilityWorkforceEstablishment | Facility × role | Synthetic establishment, filled posts and vacancy baseline |
+| FactMonthlyWorkforceCapacity | Facility × month | Filled/on-duty positions, absence, overtime and workload/capacity proxies |
+| FactLatestWorkforceCapacity | Facility × latest month | Latest staffing coverage and review band |
+| FactWorkforceRecruitmentScenario | Role | Vacancy totals and abstract-budget recruitment scenario |
+
+Relationships:
+- DimFacility[Facility_ID] 1 → * FactFacilityWorkforceEstablishment[Facility_ID]
+- DimFacility[Facility_ID] 1 → * FactMonthlyWorkforceCapacity[Facility_ID]
+- DimDate[MonthStart] 1 → * FactMonthlyWorkforceCapacity[Month]
+- DimFacility[Facility_ID] 1 → * FactLatestWorkforceCapacity[Facility_ID]
+- DimDate[MonthStart] 1 → * FactLatestWorkforceCapacity[Month]
+- FactWorkforceRecruitmentScenario is role-aggregate and has no facility or date key; do not connect it to facility facts.
+
+Use single-direction dimension-to-fact relationships and no fact-to-fact joins. All staffing values and role assumptions are synthetic. Catchment population is a workload proxy, not patient volume. Role mixes are not official staffing norms. Recruitment credits are not MWK. See `docs/workforce_planning_methodology.md`.

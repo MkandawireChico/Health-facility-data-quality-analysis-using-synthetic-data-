@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from action_store import ActionRegisterStore, build_action_record_id
+from action_store import ActionRegisterStore, build_action_record_id, merge_session_actions
 
 
 def sample_action(**updates):
@@ -77,3 +77,82 @@ def test_action_record_id_is_stable_across_row_order_and_date_formats():
     )
     assert first == reordered
     assert first != other_source
+
+
+
+def test_action_record_id_is_scoped_to_uploaded_content_version():
+    first_upload = build_action_record_id(
+        "monthly_report.csv", "Facility A", "2025-01-01", "HIV", "ART",
+        source_fingerprint="sha256:version-one",
+    )
+    replacement_upload = build_action_record_id(
+        "monthly_report.csv", "Facility A", "2025-01-01", "HIV", "ART",
+        source_fingerprint="sha256:version-two",
+    )
+    same_upload = build_action_record_id(
+        "monthly_report.csv", "Facility A", "2025-01-01", "HIV", "ART",
+        source_fingerprint="sha256:version-one",
+    )
+    assert first_upload == same_upload
+    assert first_upload != replacement_upload
+
+
+def test_action_record_id_legacy_key_remains_unchanged_without_fingerprint():
+    legacy = build_action_record_id(
+        "cohort.csv", "Facility A", "2025-01-01", "HIV", "ART"
+    )
+    explicit_none = build_action_record_id(
+        "cohort.csv", "Facility A", "2025-01-01", "HIV", "ART",
+        source_fingerprint=None,
+    )
+    assert legacy == explicit_none
+
+
+
+def test_session_action_merge_preserves_records_outside_active_filters():
+    existing = {
+        "ACT-OLD": {
+            "Facility": "Facility A",
+            "Month": "2025-01-01",
+            "Status": "In progress",
+            "Assigned owner": "Officer A",
+        }
+    }
+    edited = {
+        **sample_action(Record_ID="ACT-NEW", Facility="Facility B"),
+        "Primary issue": "Missing value",
+    }
+    merged = merge_session_actions(existing, [edited])
+    assert set(merged) == {"ACT-OLD", "ACT-NEW"}
+    assert merged["ACT-OLD"]["Assigned owner"] == "Officer A"
+    assert merged["ACT-NEW"]["Facility"] == "Facility B"
+    assert merged["ACT-NEW"]["Month"] == "2024-01-01"
+    assert merged["ACT-NEW"]["Primary issue"] == "Missing value"
+
+
+def test_session_action_merge_retains_complete_fields_for_export():
+    merged = merge_session_actions({}, [sample_action(Record_ID="ACT-FULL")])
+    required = {
+        "Facility", "Month", "Programme", "Indicator", "Primary issue",
+        "Issue count", "Status", "Assigned owner", "Root cause",
+        "Corrective action / notes", "Due date",
+    }
+    assert required.issubset(merged["ACT-FULL"])
+
+
+
+def test_get_actions_can_scope_and_chunk_large_record_id_lists(tmp_path):
+    store = ActionRegisterStore(tmp_path / "actions.sqlite")
+    rows = [
+        sample_action(Record_ID=f"ACT-{index:04d}", Facility=f"Facility {index}")
+        for index in range(1_105)
+    ]
+    result = store.upsert_actions(rows)
+    assert result["inserted"] == 1_105
+
+    selected_ids = [f"ACT-{index:04d}" for index in range(1, 1_105)]
+    selected = store.get_actions(selected_ids)
+    assert len(selected) == 1_104
+    assert "ACT-0001" in selected
+    assert "ACT-1104" in selected
+    assert "ACT-1105" not in selected

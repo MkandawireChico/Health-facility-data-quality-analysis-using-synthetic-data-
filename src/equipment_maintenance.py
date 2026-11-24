@@ -53,7 +53,11 @@ def _validate_facilities(facilities: pd.DataFrame) -> pd.DataFrame:
     if fac["Facility_ID"].duplicated().any():
         raise ValueError("Facility_ID values must be unique")
     fac["Catchment_Population"] = pd.to_numeric(fac["Catchment_Population"], errors="coerce")
-    fac["Catchment_Population"] = fac["Catchment_Population"].fillna(0).clip(lower=0)
+    population = fac["Catchment_Population"]
+    if population.isna().any() or not np.isfinite(population.to_numpy(dtype=float)).all():
+        raise ValueError("Catchment_Population must contain finite numeric values")
+    if population.lt(0).any():
+        raise ValueError("Catchment_Population must contain non-negative numeric values")
     for column in ["Facility_Name", "District", "Facility_Type", "Urban_Rural"]:
         fac[column] = fac[column].fillna("Unknown").astype(str).str.strip()
     return fac
@@ -66,7 +70,7 @@ def build_equipment_maintenance_profiles(
     seed: int = 42,
 ) -> dict[str, Any]:
     """Build synthetic asset register, monthly performance and maintenance events."""
-    if not isinstance(periods, int) or periods < 1:
+    if isinstance(periods, bool) or not isinstance(periods, (int, np.integer)) or periods < 1:
         raise ValueError("periods must be a positive integer")
     fac = _validate_facilities(facilities)
     months = pd.date_range(pd.Timestamp(start_month).to_period("M").to_timestamp(), periods=periods, freq="MS")

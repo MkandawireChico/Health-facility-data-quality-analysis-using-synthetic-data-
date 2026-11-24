@@ -1,46 +1,55 @@
-# Health Facility Data Quality Assessment & Reporting Dashboard
-## Rumphi District, Malawi (Synthetic Portfolio Dataset)
+# Malawi Health Facility Data Intelligence & Performance Monitoring Platform
 
 ## Project Overview
 
-This project demonstrates a practical data quality assessment and reporting workflow for health facilities, using a realistic **synthetic** dataset representing monthly reporting across multiple programme areas and three parallel data sources (Paper Register, EMR, DHIS2).
+A portfolio-scale, reproducible health-facility data intelligence platform built around a fully synthetic Malawi-oriented reporting environment. It combines data engineering, data-quality assessment, longitudinal statistical monitoring, programme target-attainment analysis, facility and district intelligence, and operational planning scenarios in one Python, Streamlit, Jupyter and Power BI project.
 
-The analysis identifies incomplete records, inconsistencies between reporting systems, delayed reporting, unusual values, and other data-quality problems that would affect programme monitoring and decision-making in a real health information system.
+The expanded default cohort models **120 synthetic facilities, six Malawi district labels, 60 monthly periods, eight programme areas and 40 indicators — 288,000 facility-month-indicator records**. The platform then stages and validates the data, evaluates controlled quality defects, produces analytical outputs, and runs planning modules for resources, commodities, cold-chain batches, equipment, infrastructure and workforce capacity.
 
-Built as a portfolio demonstration for Data Technician, Data Analyst, Monitoring & Evaluation (M&E), and health informatics roles.
+**Data governance:** every facility record, facility identifier, population, observation, target, stock movement, asset, staffing profile, event, cost and planning output is synthetic. District names are geographic labels only; results do not describe actual Malawi districts, facilities or Ministry of Health performance. No patient-level or employee-level personal data is included. This is a portfolio prototype, not a production health information system or an operational clinical, staffing, engineering or procurement recommendation.
 
-**All data in this project is synthetic, generated programmatically with a fixed random seed (see `notebooks/health_data_quality_analysis.ipynb`, Section 1). It does not represent actual patient, facility, or Ministry of Health data. Facility names are illustrative, chosen to be plausible for the district, not drawn from any real facility list.**
+## Platform capabilities
+
+- **Data engineering:** reproducible cohort generation, relational-style facility and reporting facts, staging, structural validation and quarantine.
+- **Data quality:** completeness, source reconciliation, timeliness, outlier detection, risk prioritisation and synthetic detector evaluation.
+- **Statistical monitoring:** robust peer-group anomaly detection, monthly issue-rate trends and retrospective denominator-aware control limits.
+- **Programme intelligence:** indicator-specific target attainment at facility, district, programme and monthly grain, with valid-data denominators.
+- **Operational planning:** constrained resource allocation, commodity stockout and replenishment scenarios, cold-chain and batch-expiry review, equipment maintenance and uptime, infrastructure resilience, and workforce capacity scenarios.
+- **Decision support:** interactive Streamlit workspace with an integrated facility priority register combining data quality, resource gaps, operational resilience and supply/cold-chain review; corrective-action register with field-level audit history (session-only by default; optional operator-configured shared SQLite storage); downloadable analytical outputs; notebook analysis; and a Power BI semantic-model implementation pack.
+- **Release integrity:** pass/warning/fail checks for integrated priority scores, facility/action IDs, action dates and local build-artifact SHA-256 manifests, with a downloadable Streamlit report.
+- **Exact source-grid integrity:** validates the full configured facility × month × programme-indicator grid, configured reporting months and canonical facility metadata before ETL; see [the reconciliation contract](docs/platform_grid_integrity.md).
+- **Operational ledger reconciliation:** validates resource-allocation constraints, commodity and batch stock balances, maintenance work-order costs/downtime, infrastructure availability formulas and workforce count/rate identities; see [the operational reconciliation contract](docs/operational_ledger_reconciliation.md).
+- **Integrated prioritisation methodology:** transparent equal-weighted synthetic screening, explicit time-scope labels, facility-population reconciliation and review-domain explanations. See [the methodology](docs/integrated_facility_priority_methodology.md).
+- **Executive management briefing:** cross-facility and district priority comparisons, domain concentration, corrective-action accountability, overdue workload, resolution progress and a ranked, rule-based follow-up queue with CSV export.
+- **Facility management drill-down:** inspect each facility's priority-domain scores, saved action history across reporting months, owners, root causes, deadlines, overdue status, resolution progress and field-level audit trail using the existing action register.
+- **Corrective-action management:** facility-level owner assignment, root-cause documentation, due dates, status tracking, overdue monitoring, CSV export and SQLite field-level audit history. See [the workflow documentation](docs/integrated_facility_corrective_action_workflow.md). The dashboard also reports district workload, resolution rates and monthly action throughput.
+
+## Baseline demonstration
+
+The repository began as a smaller **960-record Rumphi-oriented demonstration** covering eight fictional facilities and 12 months. Its original Power BI report and four page exports remain available as a baseline example. The expanded platform described above is the current development focus; the original PBIX has not yet been rebuilt to include the expanded semantic model.
 
 ## Problem Statement
 
-Health programmes depend on accurate, complete, and timely information for monitoring performance and supporting operational decisions. Where information is recorded across paper registers, electronic medical records, and platforms like DHIS2, differences between sources create real data-quality problems: missing values, duplicate or inconsistent records, delayed reporting, out-of-range values, and disagreement between systems. These problems make routine reporting less reliable and increase the time required for verification and correction.
+Health programmes depend on accurate, complete and timely information for monitoring performance and supporting operational decisions. Where information is recorded across paper registers, electronic medical records and digital reporting platforms, differences between sources create data-quality problems: missing values, duplicate or inconsistent records, delayed reporting and unusual values. These issues make routine reporting less reliable and increase the effort required for verification and correction.
 
-This project demonstrates how a Data Technician or M&E Assistant could identify these issues systematically using Python, and present the results through a Power BI dashboard designed around an M&E Officer's actual follow-up workflow.
+This project demonstrates an end-to-end analytical workflow that moves from synthetic raw reporting data through validation and monitoring to prioritised review outputs and illustrative operational planning scenarios.
 
 ## Objectives
 
-1. Assess data completeness across facilities and programme areas
-2. Identify inconsistencies between paper, EMR, and DHIS2 records
-3. Identify unusual or potentially erroneous reported values
-4. Analyse reporting timeliness
-5. Identify facilities with recurring data-quality problems
-6. Analyse trends in reported indicators over time
-7. Produce a prioritized, risk-ranked view to support M&E follow-up decisions
-8. Demonstrate a complete, reproducible workflow from raw data to actionable output
+1. Build a reproducible, multi-year synthetic health reporting dataset.
+2. Validate reporting structures and quarantine structural failures.
+3. Measure completeness, consistency, timeliness and validity.
+4. Evaluate quality detectors against controlled synthetic defects without leaking ground-truth labels into operational scoring.
+5. Monitor facility, district, programme and indicator patterns over time.
+6. Compare reported values with targets at like-for-like indicator grain.
+7. Demonstrate constrained, transparent operational planning scenarios.
+8. Deliver reusable outputs through Python, Streamlit, Jupyter and a Power BI implementation pack.
 
 ## Synthetic Dataset
 
-Generated in the notebook (not sourced from anywhere): 8 fictional facilities x 12 months (2025) x 5 programme areas x 2 indicators each x information from 3 reporting sources = **960 monthly facility-indicator records**.
+The expanded generator produces 288,000 facility-month-indicator records by default: 120 synthetic facilities × 60 months × 8 programme areas × 5 indicators. It also creates a facility dimension and a generation manifest. The default seed and configuration make the cohort reproducible. Controlled quality defects and ground-truth labels support detector evaluation; ground truth is excluded from operational profiling and monitoring.
 
-Programme areas: **HIV, TB, Maternal Health, Child Health, Outpatient** (two indicators each — e.g. HIV has "Patients on ART" and "New ART Initiations").
-
-Four categories of realistic data-quality problems are deliberately injected with their own fixed random seeds, so the exact affected rows are reproducible:
-- **Missing reported values** — 3% of records
-- **Source discrepancies** (DHIS2 perturbed 40–60% from the other sources) — 5% of records
-- **Outliers** (reported value inflated to 2–3x target) — 2% of records
-- **Forced late reports** — an additional 8% of records, on top of the ~12% baseline lateness rate
-
-No real patient-level information is included anywhere in this project.
+The original 960-row dataset is retained as a baseline demonstration and should not be confused with the expanded generated cohort. All data is synthetic and generated for portfolio demonstration only.
 
 ## Tools Used
 
@@ -62,7 +71,7 @@ Raw Synthetic Data → Data Inspection → Data Cleaning → Data Validation
 - **Timeliness** — was reporting completed on time? (`Calculated_Timeliness`, based on reporting dates vs. due dates)
 - **Validity** — do reported values fall within a reasonable range? (`Outlier_Flag`, using IQR method grouped by indicator)
 
-## Key Findings
+## Baseline demo findings (960-row dataset)
 
 The following figures are calculated from the committed 960-row raw synthetic dataset using the current field-presence, timeliness, hybrid consistency and IQR rules. They describe this generated dataset only; they are not real Rumphi District or Ministry of Health results.
 
@@ -107,14 +116,17 @@ The app prefers `data/raw/synthetic_health_facility_data.csv` and falls back to 
 4. Deploy. Streamlit installs packages from the repository `requirements.txt`.
 5. If deployment reports a missing file or dependency, use the app's **Manage app** logs to identify and resolve the issue before sharing the URL.
 
-The repository includes automated tests for the reporting intake pipeline and a Streamlit `AppTest` smoke test in CI. These verify core logic and that the app renders without a runtime exception; they are not a substitute for a visual browser review of the deployed app.
+The repository includes automated tests for the reporting intake pipeline, expanded planning modules and a Streamlit `AppTest` smoke test in CI. These tests are intended to verify core logic and app rendering; they are not a substitute for a visual browser review of the deployed app. **Current validation status:** the latest expanded feature branch has not yet completed a successful CI run because GitHub Actions runner allocation is blocked by the repository billing limit. Treat the expanded branch as unvalidated until the release checklist is completed.
 
 ### Power BI report
 
-The Power BI dashboard is implemented and included in the repository:
+The repository contains a **completed baseline Power BI report** for the original 960-record demonstration. The expanded 288,000-record platform has a separate semantic-model implementation pack, including Power Query templates, DAX measures and a thirteen-page report specification; the expanded PBIX has **not** yet been assembled or refreshed in Power BI Desktop.
 
 - Power BI file: [dashboard/health_facility_data_quality_dashboard.pbix](dashboard/health_facility_data_quality_dashboard.pbix)
 - Dashboard documentation: [dashboard/powerbi_dashboard_documentation.md](dashboard/powerbi_dashboard_documentation.md)
+- Expanded model, query and DAX implementation specification: [dashboard/powerbi_expanded_model.md](dashboard/powerbi_expanded_model.md)
+- Expanded thirteen-page report build guide: [dashboard/powerbi_report_build_guide.md](dashboard/powerbi_report_build_guide.md)
+- Release gate and manual verification steps: [docs/release_validation_checklist.md](docs/release_validation_checklist.md)
 - Data Quality Overview: [dashboard/Data_Quality_Overview.png](dashboard/Data_Quality_Overview.png)
 - Facility Performance: [dashboard/Facility_Performance.png](dashboard/Facility_Performance.png)
 - Source Consistency: [dashboard/Source_Consistency.png](dashboard/Source_Consistency.png)
@@ -209,11 +221,11 @@ This project uses entirely synthetic data. No real patient information, patient 
 
 Demonstrates skills relevant to: Data Technician · Data Analyst · Monitoring & Evaluation Assistant · Health Information Systems Assistant · M&E Data Officer · Research Data Assistant · Health Informatics roles — specifically the ability to move from raw, imperfect data to validated information and a prioritized, actionable output.
 
-## Future Improvements
+## Remaining validation and future work
 
-- Capture and add genuine screenshots of the deployed Streamlit app after completing a visual browser QA pass
+- Capture genuine screenshots of the expanded Streamlit workspace after completing a visual browser QA pass
 - Validate the statistical thresholds and peer-group assumptions against appropriately governed operational data before any real-world use
-- Extend the automated tests to cover the production data-quality module and end-to-end dataset generation
+- Execute the complete automated test suite and full default platform build after GitHub Actions runner capacity is restored
 - If properly anonymised and aggregated operational reporting data ever becomes available for a comparable workflow, assess whether the synthetic patterns generalise
 
 ## Author
@@ -293,7 +305,7 @@ python src/etl_pipeline.py
 Then upload `data/warehouse/staged/facility_reporting_staged.csv` in the app.
 The upload and resulting analysis remain session-scoped; shared database
 persistence is not configured. The Expanded Platform page also provides a
-one-click ZIP export containing the management summary, monthly/facility/
+one-click analytical ZIP export containing the management summary, monthly/facility/
 programme/district profiles, peer anomalies, monthly control-chart output and
 synthetic-only detector evaluation metrics when labels are available. The
 expanded generated data is not committed to the repository.
@@ -324,8 +336,8 @@ By default it builds the full 288,000-record cohort and writes reproducible
 outputs under the Git-ignored `data/warehouse/` directory. Use
 `--facilities`, `--periods`, `--seed` and `--output-dir` to configure a
 smaller or alternate run. The end-to-end unit test uses a small cohort; the
-separate GitHub Actions **Expanded platform build** workflow runs the full
-default cohort and publishes generated validation artefacts as a short-lived
+separate GitHub Actions **Platform build** workflow (`platform-build.yml`)
+runs the full default cohort and publishes generated validation artefacts as a short-lived
 workflow artifact.
 
 
@@ -333,7 +345,7 @@ workflow artifact.
 
 The expanded platform includes a separate Power BI implementation pack:
 [`dashboard/powerbi_expanded_model.md`](dashboard/powerbi_expanded_model.md).
-It documents the star schema, relationship design, seven-page report plan and
+It documents the star schema, relationship design, expanded thirteen-page report plan (with an optional facility-detail page) and
 synthetic-data governance. The accessible light theme is in
 [`dashboard/powerbi_theme.json`](dashboard/powerbi_theme.json), and the report
 build and visual QA guide is in
@@ -344,8 +356,8 @@ and calculated dimensions in
 [`dashboard/dax/dimension_tables.dax`](dashboard/dax/dimension_tables.dax).
 Power Query M templates for the reporting fact, dimensions, source observations,
 district intelligence, monthly trends, statistical anomalies, detector
-evaluation and facility/district/programme/monthly target attainment are in
-`dashboard/powerquery/`. Target-attainment calculations and interpretation
+evaluation, target attainment, resource allocation, commodity supply, cold-chain,
+equipment, infrastructure and workforce facts are in `dashboard/powerquery/`. Target-attainment calculations and interpretation
 safeguards are documented in
 [`docs/target_attainment_methodology.md`](docs/target_attainment_methodology.md).
 
@@ -441,3 +453,73 @@ All assets, failures, maintenance events, condition scores and costs are synthet
 The expanded platform now includes a synthetic infrastructure reliability layer covering power interruptions and backup response, water shortages and storage buffering, connectivity downtime, monthly domain availability, a composite resilience review score, descriptive comparisons with simulated equipment uptime, and illustrative facility upgrade scenarios under an abstract credit ceiling.
 
 See [infrastructure reliability methodology](docs/infrastructure_reliability_methodology.md). All infrastructure configurations, interruptions, scores, and upgrade assumptions are synthetic. They are not utility-provider observations, engineering assessments, verified clinical service availability, or procurement advice. Abstract credits are not MWK.
+
+
+## Workforce capacity and staffing intelligence
+
+A further synthetic planning layer models facility-role establishments, filled and vacant posts, monthly absence and overtime, catchment-based workload proxies, facility coverage review bands, and a role-level recruitment scenario under an abstract credit ceiling. The role categories and weights are illustrative, not official Malawi staffing norms. No employee or patient records are generated. Catchment population is not patient volume; recruitment credits are not MWK. See [workforce planning methodology](docs/workforce_planning_methodology.md).
+
+
+### Reproducible full-platform build and deployment notes
+
+For the complete analytical platform (not just the original CSV assessment
+workflow), install the pinned-by-range project dependencies and run the
+orchestrator from the repository root:
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python src/build_platform.py
+pytest -q
+```
+
+The default build creates 120 synthetic facilities, 60 monthly periods and
+288,000 facility-month-indicator fact records. It writes raw, staged, quarantine
+and analytical outputs beneath `data/warehouse/`, which is intentionally
+excluded from version control. For a quick development run, use a smaller
+cohort, for example:
+
+```bash
+python src/build_platform.py --facilities 12 --periods 6 --output-dir data/warehouse-smoke
+```
+
+The platform build summary is written to
+`data/warehouse/platform_build_summary.json`. Its `outputs` object is the
+artifact manifest; each listed path should exist after a successful build.
+The build includes synthetic resource, commodity, cold-chain, equipment,
+infrastructure and workforce scenarios. These modules use explicit
+illustrative assumptions and abstract credits, not official standards,
+verified facility observations or Malawi Kwacha budgets.
+
+The Streamlit app is launched separately:
+
+```bash
+streamlit run dashboard/streamlit_app.py
+```
+
+The Streamlit Community Cloud deployment linked above is a hosted app and
+should not be assumed to reflect unmerged feature branches. The expanded
+platform code and Power BI semantic-model pack require successful CI,
+deployment refresh and a visual verification pass before they can be described
+as live and fully validated. The existing PBIX remains the original report
+until the expanded semantic model is rebuilt and saved from Power BI Desktop.
+
+
+The final release gate and ordered merge procedure are documented in
+[`docs/release_validation_checklist.md`](docs/release_validation_checklist.md).
+
+The final repository-wide audit, PR dependency review and remaining release blockers are recorded in [`docs/final_repository_audit.md`](docs/final_repository_audit.md).
+
+The dashboard also provides a separate complete management review ZIP, assembled after the management views run, with the integrated priority register, saved corrective-action portfolio, district/monthly action performance, full executive facility briefing, executive district/domain summaries, top-N management queue, release-readiness checks, selected-facility drill-down and available field-level action audit history. The ZIP summary records which optional sections were included.
+
+
+The management review ZIP is now gated by cross-artifact lineage checks in
+`src/lineage_audit.py`. Before the ZIP is offered, the dashboard reconciles
+the executive facility output to the canonical priority register; saved action
+IDs and status totals to the validated action-performance register; district
+and monthly totals across the management views; and each exported CSV table to
+the exact DataFrame shown by its dashboard section. The report is included in
+the ZIP as `lineage_reconciliation_checks.csv`. If a required view is missing
+or a reconciliation fails, the complete management ZIP is withheld. The
+executive facility CSV is the full portfolio; the management queue is a
+separate top-12 subset.

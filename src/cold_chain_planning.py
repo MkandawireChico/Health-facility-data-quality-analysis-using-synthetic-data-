@@ -92,7 +92,7 @@ def build_cold_chain_profiles(
     missing = REQUIRED_FACILITY_COLUMNS - set(facilities.columns)
     if missing:
         raise ValueError(f"Facility dimension missing required columns: {sorted(missing)}")
-    if not isinstance(periods, (int, np.integer)) or periods < 1:
+    if isinstance(periods, bool) or not isinstance(periods, (int, np.integer)) or periods < 1:
         raise ValueError("periods must be a positive integer")
     if not np.isfinite(temperature_min_c) or not np.isfinite(temperature_max_c) or temperature_min_c >= temperature_max_c:
         raise ValueError("Temperature bounds must be finite and minimum must be below maximum")
@@ -100,11 +100,12 @@ def build_cold_chain_profiles(
     fac = facilities[list(REQUIRED_FACILITY_COLUMNS)].copy()
     if fac.empty:
         raise ValueError("Facility dimension must contain at least one facility")
+    fac["Facility_ID"] = fac["Facility_ID"].astype("string").str.strip()
     fac["Catchment_Population"] = pd.to_numeric(fac["Catchment_Population"], errors="coerce")
-    if fac["Facility_ID"].isna().any() or fac["Facility_ID"].duplicated().any():
+    if fac["Facility_ID"].isna().any() or fac["Facility_ID"].eq("").any() or fac["Facility_ID"].duplicated().any():
         raise ValueError("Facility_ID must be populated and unique")
-    if fac["Catchment_Population"].isna().any() or fac["Catchment_Population"].lt(0).any():
-        raise ValueError("Catchment_Population must contain non-negative numeric values")
+    if fac["Catchment_Population"].isna().any() or not np.isfinite(fac["Catchment_Population"].to_numpy(dtype=float)).all() or fac["Catchment_Population"].lt(0).any():
+        raise ValueError("Catchment_Population must contain finite non-negative numeric values")
 
     catalog = pd.DataFrame(COLD_CHAIN_CATALOG)
     months = pd.date_range(start=start_month, periods=periods, freq="MS")

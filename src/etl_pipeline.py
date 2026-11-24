@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 FACT_REQUIRED = [
@@ -45,11 +46,14 @@ def stage_reporting_data(
         raise ValueError(f"Facility table missing required columns: {missing_facilities}")
     if facilities.empty:
         raise ValueError("Facility dimension cannot be empty")
-    if facilities["Facility_ID"].duplicated().any():
+    dimension = facilities.copy()
+    dimension["Facility_ID"] = dimension["Facility_ID"].astype("string").str.strip()
+    if dimension["Facility_ID"].isna().any() or dimension["Facility_ID"].eq("").any():
+        raise ValueError("Facility_ID must be populated in the facility dimension")
+    if dimension["Facility_ID"].duplicated().any():
         raise ValueError("Facility_ID must be unique in the facility dimension")
 
     work = fact.copy().reset_index(drop=True)
-    dimension = facilities.copy()
     for column in ["Record_ID", "Facility_ID", "Programme", "Indicator", "Data_Source"]:
         work[column] = work[column].astype("string").str.strip()
 
@@ -87,8 +91,12 @@ def stage_reporting_data(
     work["Quality_Invalid_Numeric_Count"] = 0
     work["Quality_Negative_Value_Count"] = 0
     for column in NUMERIC_FIELDS:
-        invalid = fact[column].notna().reset_index(drop=True) & work[column].isna()
-        negative = work[column].lt(0)
+        # Numeric coercion alone accepts +/- infinity; these values can poison
+        # aggregates and anomaly thresholds, so treat them as invalid inputs.
+        original_present = fact[column].notna().reset_index(drop=True)
+        finite = pd.Series(np.isfinite(work[column].to_numpy(dtype=float)), index=work.index)
+        invalid = original_present & (work[column].isna() | ~finite)
+        negative = work[column].lt(0) & finite
         work["Quality_Invalid_Numeric_Count"] += invalid.astype(int)
         work["Quality_Negative_Value_Count"] += negative.astype(int)
 
@@ -101,18 +109,29 @@ def stage_reporting_data(
         & work["Deadline_Date"].notna()
         & work["Submission_Date"].gt(work["Deadline_Date"])
     )
-    source_count = work[["Paper_Value", "EMR_Value", "DHIS2_Value"]].notna().sum(axis=1)
+    # Reconcile source comparisons using finite observations only. Invalid
+    # numeric values remain visible in staged data and are separately flagged,
+    # but must not distort source counts, spreads or discrepancy decisions.
+    source_columns = ["Paper_Value", "EMR_Value", "DHIS2_Value"]
+    source_values = work[source_columns].where(
+        np.isfinite(work[source_columns].to_numpy(dtype=float))
+    )
+    source_count = source_values.notna().sum(axis=1)
     work["Quality_Insufficient_Source_Count"] = source_count.lt(2)
-    source_max = work[["Paper_Value", "EMR_Value", "DHIS2_Value"]].max(axis=1)
-    source_min = work[["Paper_Value", "EMR_Value", "DHIS2_Value"]].min(axis=1)
-    work["Quality_Source_Spread"] = source_max - source_min
+    source_max = source_values.max(axis=1)
+    source_min = source_values.min(axis=1)
+    with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
+        source_spread = source_max - source_min
+        relative_spread = source_max / source_min.where(source_min.gt(0))
+    work["Quality_Source_Spread"] = source_spread.where(np.isfinite(source_spread))
     work["Quality_Source_Discrepancy"] = (
-        source_count.ge(2) & work["Quality_Source_Spread"].gt(5)
+        source_count.ge(2)
+        & work["Quality_Source_Spread"].gt(5)
         & (
             source_min.le(0)
-            | ((source_max - source_min) / source_min.where(source_min.gt(0)) > 0.20)
+            | relative_spread.gt(1.20)
         )
-    )
+    ).fillna(False)
 
     for column in structural.columns:
         work[f"Structural_{column}"] = structural[column].astype(bool)

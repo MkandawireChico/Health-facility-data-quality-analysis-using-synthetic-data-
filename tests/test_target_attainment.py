@@ -44,6 +44,18 @@ def test_profiles_do_not_expose_ground_truth_and_keep_indicator_grain():
     assert set(result["district_indicator"]["Indicator_Key"]) == {"HIV|ART", "TB|Screening"}
     assert "Month" in result["monthly_indicator"].columns
 
+def test_infinite_values_are_excluded_from_attainment_denominator():
+    data = fixture()
+    data.loc[0, "Reported_Value"] = float("inf")
+    data.loc[1, "Target_Value"] = float("inf")
+    result = build_target_attainment_profiles(data)
+    row = result["facility_indicator"].query(
+        "Facility_ID == 'f1' and Programme == 'HIV'"
+    ).iloc[0]
+    assert row["valid_attainment_records"] == 0
+    assert pd.isna(row["attainment_pct"])
+
+
 def test_required_columns_are_validated():
     with pytest.raises(ValueError, match="Target attainment input missing"):
         build_target_attainment_profiles(fixture().drop(columns=["Target_Value"]))

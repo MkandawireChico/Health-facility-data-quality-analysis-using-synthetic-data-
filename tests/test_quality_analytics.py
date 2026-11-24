@@ -47,6 +47,19 @@ def test_perfect_detector_confusion_metrics_and_outlier_rule():
     assert metrics.loc["late", "specificity"] == 1
 
 
+def test_non_finite_values_do_not_create_operational_outlier_signals():
+    data = analytics_fixture()
+    data.loc[0, "Reported_Value"] = float("inf")
+    data.loc[1, "Target_Value"] = float("inf")
+    data.loc[2, "Reported_Value"] = float("1e308")
+    data.loc[2, "Target_Value"] = float("1e-308")
+
+    result = add_operational_predictions(data)
+
+    assert not result.loc[[0, 1, 2], "Operational_Detected_Outlier"].any()
+    assert result.loc[[0, 1, 2], "Operational_Outlier_Ratio"].isna().all()
+
+
 def test_operational_predictions_do_not_depend_on_ground_truth():
     data = analytics_fixture()
     first = add_operational_predictions(data)
@@ -103,3 +116,30 @@ def test_district_profiles_are_volume_normalised_and_ground_truth_free():
 def test_district_profile_rejects_missing_dimensions():
     with pytest.raises(ValueError, match="district dimensions"):
         build_district_profiles(analytics_fixture().drop(columns=["District"]))
+
+def test_operational_profiles_reject_missing_facility_label():
+    data = analytics_fixture().drop(columns=["Facility"])
+    with pytest.raises(ValueError, match="Facility"):
+        build_operational_profiles(data)
+\n
+
+def test_operational_profiles_reject_missing_or_invalid_months():
+    data = analytics_fixture()
+    data.loc[0, "Month"] = None
+    with pytest.raises(ValueError, match="invalid or missing Month"):
+        build_operational_profiles(data)
+
+
+def test_operational_profiles_reject_blank_grouping_dimensions():
+    data = analytics_fixture()
+    data.loc[0, "Facility_ID"] = "  "
+    with pytest.raises(ValueError, match="blank profile dimension: Facility_ID"):
+        build_operational_profiles(data)
+
+
+def test_district_profiles_reject_blank_district_labels():
+    data = analytics_fixture()
+    data.loc[0, "District"] = ""
+    with pytest.raises(ValueError, match="blank district dimension: District"):
+        build_district_profiles(data)
+\n

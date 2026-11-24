@@ -50,8 +50,20 @@ def test_zero_pool_and_excess_pool_are_handled():
 def test_invalid_facility_dimension_and_parameters_fail_clearly():
     with pytest.raises(ValueError, match="Facility dimension missing"):
         build_resource_planning_profiles(facilities().drop(columns=["District"]))
+    with pytest.raises(ValueError, match="at least one facility"):
+        build_resource_planning_profiles(facilities().iloc[:0])
+    blank_id = facilities().copy()
+    blank_id.loc[blank_id.index[0], "Facility_ID"] = "   "
+    with pytest.raises(ValueError, match="Facility_ID"):
+        build_resource_planning_profiles(blank_id)
     with pytest.raises(ValueError, match="resource_pool"):
         build_resource_planning_profiles(facilities(), resource_pool=-1)
+    with pytest.raises(ValueError, match="resource_pool"):
+        build_resource_planning_profiles(facilities(), resource_pool=True)
+    with pytest.raises(ValueError, match="units_per_10000_population"):
+        build_resource_planning_profiles(facilities(), units_per_10000_population=True)
+    with pytest.raises(ValueError, match="units_per_10000_population"):
+        build_resource_planning_profiles(facilities(), units_per_10000_population=float("inf"))
     with pytest.raises(ValueError, match="unique"):
         build_resource_planning_profiles(pd.concat([facilities(), facilities().iloc[[0]]]))
     with pytest.raises(ValueError, match="positive"):
@@ -66,3 +78,10 @@ def test_pipeline_writes_resource_outputs(tmp_path):
     for filename in report["outputs"]:
         assert (tmp_path / "analytics" / filename).exists()
     assert (tmp_path / "analytics" / "resource_planning_report.json").exists()
+
+def test_invalid_catchment_population_is_rejected():
+    for invalid_population in ["not-a-number", float("nan"), float("inf"), -1]:
+        data = facilities().copy()
+        data.loc[data.index[0], "Catchment_Population"] = invalid_population
+        with pytest.raises(ValueError, match="Catchment_Population"):
+            build_resource_planning_profiles(data)

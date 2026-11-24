@@ -44,19 +44,22 @@ def build_supply_chain_profiles(
     if missing:
         raise ValueError(f"Facility dimension missing required columns: {sorted(missing)}")
     for name, value in (("periods", periods), ("lead_time_days", lead_time_days)):
-        if not isinstance(value, (int, np.integer)) or value < 1:
+        if isinstance(value, bool) or not isinstance(value, (int, np.integer)) or value < 1:
             raise ValueError(f"{name} must be a positive integer")
-    if not isinstance(buffer_days, (int, np.integer)) or buffer_days < 0:
+    if isinstance(buffer_days, bool) or not isinstance(buffer_days, (int, np.integer)) or buffer_days < 0:
         raise ValueError("buffer_days must be a non-negative integer")
-    if not isinstance(budget_credits, (int, np.integer)) or budget_credits < 0:
+    if isinstance(budget_credits, bool) or not isinstance(budget_credits, (int, np.integer)) or budget_credits < 0:
         raise ValueError("budget_credits must be a non-negative integer")
 
     fac = facilities[list(REQUIRED_FACILITY_COLUMNS)].copy()
+    if fac.empty:
+        raise ValueError("Facility dimension must contain at least one facility")
+    fac["Facility_ID"] = fac["Facility_ID"].astype("string").str.strip()
     fac["Catchment_Population"] = pd.to_numeric(fac["Catchment_Population"], errors="coerce")
-    if fac["Facility_ID"].isna().any() or fac["Facility_ID"].duplicated().any():
+    if fac["Facility_ID"].isna().any() or fac["Facility_ID"].eq("").any() or fac["Facility_ID"].duplicated().any():
         raise ValueError("Facility_ID must be populated and unique")
-    if fac["Catchment_Population"].isna().any() or fac["Catchment_Population"].lt(0).any():
-        raise ValueError("Catchment_Population must contain non-negative numeric values")
+    if fac["Catchment_Population"].isna().any() or not np.isfinite(fac["Catchment_Population"].to_numpy(dtype=float)).all() or fac["Catchment_Population"].lt(0).any():
+        raise ValueError("Catchment_Population must contain finite non-negative numeric values")
 
     catalog = pd.DataFrame(COMMODITIES)
     months = pd.date_range(start=start_month, periods=periods, freq="MS")
