@@ -6,7 +6,9 @@ import pandas as pd
 REQUIRED_ACTION_COLUMNS = {"Facility", "Month", "Status", "Due date"}
 
 
-def build_action_performance(actions: pd.DataFrame, as_of=None) -> dict[str, pd.DataFrame | dict]:
+def build_action_performance(
+    actions: pd.DataFrame, as_of=None, priority_register: pd.DataFrame | None = None
+) -> dict[str, pd.DataFrame | dict]:
     """Return validated portfolio KPIs and district/month performance tables."""
     missing = sorted(REQUIRED_ACTION_COLUMNS - set(actions.columns))
     if missing:
@@ -37,6 +39,38 @@ def build_action_performance(actions: pd.DataFrame, as_of=None) -> dict[str, pd.
     if data["District"].isna().any() or data["District"].str.strip().eq("").any():
         raise ValueError("Action facility labels must end with (District) [Facility_ID]")
     data["District"] = data["District"].str.strip()
+    if priority_register is not None:
+        required_priority = {"Facility_ID", "District"}
+        missing_priority = sorted(required_priority - set(priority_register.columns))
+        if missing_priority:
+            raise ValueError(
+                f"Priority register is missing columns for district reconciliation: {missing_priority}"
+            )
+        priority = priority_register[["Facility_ID", "District"]].copy()
+        priority["Facility_ID"] = priority["Facility_ID"].astype("string").str.strip()
+        priority["District"] = priority["District"].astype("string").str.strip()
+        if (
+            priority["Facility_ID"].isna().any()
+            or priority["Facility_ID"].eq("").any()
+            or priority["Facility_ID"].duplicated().any()
+            or priority["District"].isna().any()
+            or priority["District"].eq("").any()
+        ):
+            raise ValueError("Priority register contains invalid facility-to-district mappings")
+        data["Facility_ID"] = data["Facility"].str.extract(
+            r"\[([^]]+)\]\s*$", expand=False
+        ).astype("string").str.strip()
+        if data["Facility_ID"].isna().any() or not data["Facility_ID"].isin(
+            priority["Facility_ID"]
+        ).all():
+            raise ValueError("Action register references facility IDs absent from the priority register")
+        expected_district = data["Facility_ID"].map(
+            priority.set_index("Facility_ID")["District"]
+        )
+        if not data["District"].reset_index(drop=True).equals(
+            expected_district.reset_index(drop=True)
+        ):
+            raise ValueError("Action facility district does not match the canonical priority register")
     due_text = data["Due date"].fillna("").astype(str).str.strip()
     due = pd.to_datetime(
         due_text.where(due_text.ne(""), pd.NA),
