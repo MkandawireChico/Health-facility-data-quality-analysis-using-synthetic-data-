@@ -63,7 +63,7 @@ def build_lineage_reconciliation_report(
         source_status = action_register["Status"].astype(str).value_counts().to_dict()
         districts = action_register["Facility"].astype(str).str.extract(
             r"\(([^()]*)\)\s*\[[^]]+\]\s*$", expand=False
-        )
+        ).str.strip()
         if districts.isna().any():
             raise ValueError("Saved action register contains an unparseable district label")
         source_district = {}
