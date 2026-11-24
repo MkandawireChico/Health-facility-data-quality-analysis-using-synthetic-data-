@@ -633,6 +633,13 @@ def test_integrated_facility_priority_register_ranks_cross_domain_pressures(tmp_
     assert register.iloc[0]["Priority_Band"] == "High review"
     assert register.iloc[0]["Review_Domains"] == "data_quality;resource_capacity;operational_resilience;supply_cold_chain"
 
+    bad_resource = resource.copy()
+    bad_resource.loc[0, "Baseline_Capacity_Coverage_Pct"] = 99
+    with pytest.raises(RuntimeError, match="coverage does not reconcile"):
+        _build_integrated_facility_priority(
+            facilities, operational, supply, quality, bad_resource, tmp_path
+        )
+
 
 def test_integrated_facility_priority_register_rejects_domain_population_drift(tmp_path):
     import pandas as pd
