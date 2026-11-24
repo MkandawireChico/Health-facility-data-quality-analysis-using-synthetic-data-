@@ -94,3 +94,31 @@ def test_lineage_rejects_queue_with_unknown_facility():
     exports["executive_management_queue_top_n.csv"] = executive["management_queue"]
     with pytest.raises(ValueError, match="outside the canonical register"):
         build_lineage_reconciliation_report(priority, actions, performance, executive, exports)
+
+
+
+def test_lineage_accepts_a_valid_empty_action_portfolio():
+    priority, _, _, _, exports = _fixtures()
+    empty_actions = pd.DataFrame(columns=[
+        "Record_ID", "Facility", "Month", "Status", "Assigned owner", "Due date"
+    ])
+    performance = build_action_performance(
+        pd.DataFrame(columns=["Facility", "Month", "Status", "Due date"]),
+        as_of="2026-10-12", priority_register=priority,
+    )
+    executive = build_executive_management_briefing(priority, empty_actions, as_of="2026-10-12")
+    exports = {
+        "integrated_facility_priority_register.csv": priority,
+        "integrated_facility_corrective_action_register.csv": empty_actions,
+        "district_action_performance.csv": performance["district"],
+        "monthly_action_performance.csv": performance["monthly"],
+        "validated_action_performance_register.csv": performance["actions"],
+        "executive_facility_management_briefing.csv": executive["all_facilities"],
+        "executive_district_briefing.csv": executive["district"],
+        "executive_domain_briefing.csv": executive["domains"],
+        "executive_management_queue_top_n.csv": executive["management_queue"],
+    }
+    report = build_lineage_reconciliation_report(
+        priority, empty_actions, performance, executive, exports
+    )
+    assert report.set_index("check").loc["saved_action_population", "observed_value"] == 0
