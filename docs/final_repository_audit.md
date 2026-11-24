@@ -779,3 +779,12 @@ The central build already generated SHA-256 hashes and relative paths for every 
 - Added an end-to-end regression test for persisted configuration/runtime metadata and temporary-file cleanup.
 
 The existing SHA-256 artifact manifest remains the integrity mechanism for generated output files. A dependency lockfile has not been introduced because a compatibility-resolution run is not available; minimum-version requirements remain a documented reproducibility limitation. CI, full build and tests remain unverified until GitHub runner execution is restored.
+
+
+## Prompt 43 — security and data-governance hardening
+
+A dashboard review found that the corrective-action store defaulted to a shared server-local SQLite path even when a user had not explicitly configured persistent storage. In a public multi-user Streamlit deployment, action notes and assignments from uploads could therefore be retained beyond the browser session in a shared process-level database. The dashboard now defaults to session-only action storage. Persistent SQLite storage is enabled only when the operator explicitly sets `HEALTH_DATA_ACTION_DB`; the interface warns that this is shared storage requiring access restrictions, authorisation and durable backups. This is a safer default, not a substitute for user authentication or row-level access controls.
+
+A second issue affected the standalone corrective-action CSV download: it serialized text fields directly, unlike the ZIP management export, which already neutralized spreadsheet formula prefixes. Added a shared spreadsheet-safe CSV serializer and routed the standalone action-register download through it. Added a regression test for formula-like owner text and numeric-column preservation.
+
+No claim is made that the app provides authentication, tenant isolation, encryption at rest or production-grade shared persistence. Uploaded data remains subject to the app operator's hosting, logging, memory and infrastructure policies. CI and runtime tests remain unverified pending successful runner execution.
