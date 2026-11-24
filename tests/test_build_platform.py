@@ -741,9 +741,9 @@ def test_generated_fact_grain_rejects_facility_metadata_drift():
     })
     fact = pd.DataFrame([{
         "Facility_ID": "F1", "Month": "2024-01-01", "Programme": "HIV",
-        "Indicator": "A", "Facility_Name": "Incorrect Facility", "District": "North",
+        "Indicator": "A", "Facility": "Incorrect Facility", "District": "North",
     }])
-    with pytest.raises(RuntimeError, match="Facility_Name"):
+    with pytest.raises(RuntimeError, match="facility name"):
         _validate_generated_fact_grain(
             fact, facilities, 1, 1,
             expected_indicator_pairs={("HIV", "A")},
