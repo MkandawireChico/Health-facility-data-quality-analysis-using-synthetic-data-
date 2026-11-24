@@ -84,3 +84,33 @@ def test_action_performance_rejects_malformed_nonempty_due_date():
 def test_action_performance_rejects_invalid_reference_date():
     with pytest.raises(ValueError, match="valid timezone-naive date"):
         build_action_performance(action_frame(), as_of="NaT")
+
+
+def test_action_performance_rejects_district_mismatch_against_priority_register():
+    priorities = pd.DataFrame([
+        {"Facility_ID": "F-001", "District": "North"},
+        {"Facility_ID": "F-002", "District": "North"},
+        {"Facility_ID": "F-003", "District": "South"},
+        {"Facility_ID": "F-004", "District": "South"},
+    ])
+    bad = action_frame()
+    bad.loc[0, "Facility"] = "Alpha Clinic (South) [F-001]"
+    with pytest.raises(ValueError, match="district does not match"):
+        build_action_performance(
+            bad, as_of="2026-10-01", priority_register=priorities
+        )
+
+
+def test_action_performance_rejects_unknown_facility_id_against_priority_register():
+    priorities = pd.DataFrame([
+        {"Facility_ID": "F-001", "District": "North"},
+        {"Facility_ID": "F-002", "District": "North"},
+        {"Facility_ID": "F-003", "District": "South"},
+        {"Facility_ID": "F-004", "District": "South"},
+    ])
+    bad = action_frame()
+    bad.loc[0, "Facility"] = "Unknown Clinic (North) [F-999]"
+    with pytest.raises(ValueError, match="facility IDs absent"):
+        build_action_performance(
+            bad, as_of="2026-10-01", priority_register=priorities
+        )
