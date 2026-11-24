@@ -243,3 +243,12 @@ and PR #26. GitHub Actions execution is still unverified at the time of this
 addendum; do not treat added tests as passing. The review does not change the
 mixed time scopes of the four priority inputs or the synthetic-only
 interpretation.
+
+
+The same audit also found that resource baseline gap units were reconciled to
+requirement and available units, but the coverage percentage used in the
+priority score was only range-checked. The build now independently recalculates
+coverage as available units divided by positive illustrative requirement units,
+multiplied by 100 and rounded to two decimals. A regression case rejects a
+coverage value that does not match the underlying unit counts. This retains
+legitimate capacity values above 100% as synthetic surplus.
