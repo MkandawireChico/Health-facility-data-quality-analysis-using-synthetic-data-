@@ -835,3 +835,25 @@ def test_quality_profile_population_rejects_per_group_count_drift_with_same_tota
 
     with pytest.raises(RuntimeError, match="facility quality profile per-group record counts"):
         _validate_quality_profile_population(staged, facility, district, programme)
+
+
+
+def test_build_summary_records_configuration_and_runtime_versions(tmp_path):
+    summary = build_platform(
+        output_dir=tmp_path / "warehouse", seed=17, facility_count=2,
+        start_month="2024-03-01", periods=1,
+    )
+    assert summary["build_configuration"] == {
+        "seed": 17, "facility_count": 2, "start_month": "2024-03-01",
+        "periods": 1, "expected_fact_records": 80,
+    }
+    environment = summary["runtime_environment"]
+    assert environment["python_version"]
+    assert environment["pandas_version"]
+    assert environment["numpy_version"]
+    persisted = json.loads(
+        (tmp_path / "warehouse" / "platform_build_summary.json").read_text()
+    )
+    assert persisted["build_configuration"] == summary["build_configuration"]
+    assert persisted["runtime_environment"] == environment
+    assert not (tmp_path / "warehouse" / ".platform_build_summary.json.tmp").exists()
