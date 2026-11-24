@@ -205,3 +205,8 @@ Regression coverage was added in tests/test_operational_reconciliation.py for va
 A code-review adjustment was made for a valid cold-chain edge case: when no lot exists in a facility-commodity-month, the lot ledger can legitimately have no row. The reconciler accepts that only when all batch-backed quantities in the risk summary are zero; it rejects orphan lot rows and non-zero summary quantities without batch movements.
 
 These source and test changes are committed on feat/facility-workforce-capacity-intelligence and remain part of PR #26. The latest source/test commits have no reported workflow run, and the earlier runner failure returned no executed steps or logs. The new tests and full build have NOT been run successfully. The checks are authored controls, not evidence of passing CI or real-world operational validity.
+
+
+### Cold-chain reconciliation precision follow-up — 24 November 2026
+
+A final code review tightened near-expiry reconciliation: the batch ledger's Near_Expiry_90_Days field is a Boolean lot flag, while the risk summary reports the number of units. The reconciler now sums Closing_Stock_Units only for lots whose 90-day flag is true, rather than summing Boolean flags. A multi-lot regression test verifies this distinction. The cold-chain reconciler also explicitly permits risk-summary-only rows when the facility/commodity/month has zero batch-backed quantities, while rejecting non-zero summary quantities without lot movements and orphan lot records.
