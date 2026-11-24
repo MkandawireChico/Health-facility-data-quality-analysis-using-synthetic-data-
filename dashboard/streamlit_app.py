@@ -1362,19 +1362,13 @@ with tabs[6]:
                 "session snapshot, not a live database backup or official Malawi health-system report."
             ),
         }
-        management_export_buffer = io.BytesIO()
-        with zipfile.ZipFile(
-            management_export_buffer, mode="w", compression=zipfile.ZIP_DEFLATED
-        ) as archive:
-            archive.writestr(
-                "management_summary.json",
-                json.dumps(management_export_summary, indent=2),
-            )
-            for filename, frame in management_export_tables.items():
-                archive.writestr(filename, frame.to_csv(index=False))
+        from management_export import build_management_review_archive
+        management_export_payload = build_management_review_archive(
+            management_export_tables, management_export_summary
+        )
         st.download_button(
             "Download complete management review pack (ZIP)",
-            data=management_export_buffer.getvalue(),
+            data=management_export_payload,
             file_name="malawi_health_facility_management_review_pack.zip",
             mime="application/zip",
             key="download_complete_management_review_pack",
