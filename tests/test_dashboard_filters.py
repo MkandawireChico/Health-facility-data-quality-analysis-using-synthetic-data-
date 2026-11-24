@@ -87,3 +87,29 @@ def test_dashboard_filters_ignore_unknown_issue_filter(dashboard_records):
         issue_filter="All records",
     )
     assert result.index.tolist() == [0, 1]
+
+
+def test_dashboard_filter_single_mask_matches_expected_rows_at_288k_scale():
+    facilities = [f"F{i:03d}" for i in range(120)]
+    programmes = ["HIV", "TB", "Maternal"]
+    months = pd.date_range("2021-01-01", periods=60, freq="MS")
+    frame = pd.DataFrame({
+        "Facility": [facilities[i % 120] for i in range(288_000)],
+        "Programme": [programmes[(i // 120) % 3] for i in range(288_000)],
+        "Month": [months[(i // 360) % 60] for i in range(288_000)],
+        "Requires_Follow_Up": [i % 7 == 0 for i in range(288_000)],
+    })
+    result = apply_dashboard_filters(
+        frame,
+        selected_facilities=["F001", "F002"],
+        selected_programmes=["HIV"],
+        date_range=(date(2022, 1, 1), date(2022, 12, 1)),
+        issue_filter="Requires follow-up",
+    )
+    expected = frame[
+        frame["Facility"].isin(["F001", "F002"])
+        & frame["Programme"].eq("HIV")
+        & pd.to_datetime(frame["Month"]).between("2022-01-01", "2022-12-01")
+        & frame["Requires_Follow_Up"]
+    ]
+    pd.testing.assert_frame_equal(result, expected)
