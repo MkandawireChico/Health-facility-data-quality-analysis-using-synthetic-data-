@@ -937,9 +937,9 @@ with tabs[6]:
             for record_id, fields in persisted_priority_actions.items()
             if fields.get("Programme") == "Integrated facility review"
         ]
+        management_as_of = pd.Timestamp.now().normalize()
         if current_priority_actions:
             priority_action_portfolio = pd.DataFrame(current_priority_actions)
-            management_as_of = pd.Timestamp.now().normalize()
             today = management_as_of
             priority_due = pd.to_datetime(
                 priority_action_portfolio["Due date"], errors="coerce"
