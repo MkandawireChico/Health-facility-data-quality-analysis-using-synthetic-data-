@@ -99,13 +99,20 @@ def _validate_generated_fact_grain(
 
     metadata_columns = ["Facility_Name", "District"]
     if set(metadata_columns).issubset(facilities.columns):
-        if not set(metadata_columns).issubset(fact.columns):
+        fact_name_column = (
+            "Facility_Name" if "Facility_Name" in fact.columns
+            else "Facility" if "Facility" in fact.columns
+            else None
+        )
+        if fact_name_column is None or "District" not in fact.columns:
             raise RuntimeError("Generated fact is missing canonical facility metadata")
         canonical = facilities.set_index("Facility_ID")[metadata_columns]
-        for column in metadata_columns:
-            expected_values = fact["Facility_ID"].map(canonical[column])
-            if not fact[column].astype(str).equals(expected_values.astype(str)):
-                raise RuntimeError(f"Generated fact {column} values do not match the facility dimension")
+        expected_names = fact["Facility_ID"].map(canonical["Facility_Name"])
+        if not fact[fact_name_column].astype(str).equals(expected_names.astype(str)):
+            raise RuntimeError("Generated fact facility name values do not match the facility dimension")
+        expected_districts = fact["Facility_ID"].map(canonical["District"])
+        if not fact["District"].astype(str).equals(expected_districts.astype(str)):
+            raise RuntimeError("Generated fact District values do not match the facility dimension")
 
     return {
         "unique_facility_month_groups": expected_groups,
