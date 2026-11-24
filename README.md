@@ -511,3 +511,15 @@ The final release gate and ordered merge procedure are documented in
 The final repository-wide audit, PR dependency review and remaining release blockers are recorded in [`docs/final_repository_audit.md`](docs/final_repository_audit.md).
 
 The dashboard also provides a separate complete management review ZIP, assembled after the management views run, with the integrated priority register, saved corrective-action portfolio, district/monthly action performance, full executive facility briefing, executive district/domain summaries, top-N management queue, release-readiness checks, selected-facility drill-down and available field-level action audit history. The ZIP summary records which optional sections were included.
+
+
+The management review ZIP is now gated by cross-artifact lineage checks in
+`src/lineage_audit.py`. Before the ZIP is offered, the dashboard reconciles
+the executive facility output to the canonical priority register; saved action
+IDs and status totals to the validated action-performance register; district
+and monthly totals across the management views; and each exported CSV table to
+the exact DataFrame shown by its dashboard section. The report is included in
+the ZIP as `lineage_reconciliation_checks.csv`. If a required view is missing
+or a reconciliation fails, the complete management ZIP is withheld. The
+executive facility CSV is the full portfolio; the management queue is a
+separate top-12 subset.
