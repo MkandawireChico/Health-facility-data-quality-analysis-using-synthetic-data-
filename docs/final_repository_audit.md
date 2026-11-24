@@ -210,3 +210,8 @@ These source and test changes are committed on feat/facility-workforce-capacity-
 ### Cold-chain reconciliation precision follow-up — 24 November 2026
 
 A final code review tightened near-expiry reconciliation: the batch ledger's Near_Expiry_90_Days field is a Boolean lot flag, while the risk summary reports the number of units. The reconciler now sums Closing_Stock_Units only for lots whose 90-day flag is true, rather than summing Boolean flags. A multi-lot regression test verifies this distinction. The cold-chain reconciler also explicitly permits risk-summary-only rows when the facility/commodity/month has zero batch-backed quantities, while rejecting non-zero summary quantities without lot movements and orphan lot records.
+
+
+### Latest CI result for operational reconciliation — 24 November 2026
+
+The latest branch head 0f655c407ad7dd8b226291721bcc3d9d20b5f2b4 triggered Project quality checks run #290 (45346668300) and Expanded platform build run #264 (45346668416). Both completed with failure at job level. Their job records contain steps=null and logs_url=null. Therefore, the available Actions response does not establish that the test or build commands executed, and it does not establish a code-level test failure or a passing result. Full test and build validation remains outstanding.
