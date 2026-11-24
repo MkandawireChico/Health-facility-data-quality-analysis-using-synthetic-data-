@@ -114,6 +114,19 @@ assessed = assess_dataset(source_df)
 register = build_issue_register(assessed)
 facility_metrics = facility_summary(assessed)
 
+# Keep the corrective-action portfolio scoped to this exact source version,
+# independently of the interactive facility/programme/date filters.
+source_action_rows = assessed[assessed["Requires_Follow_Up"]]
+current_source_action_ids = [
+    build_action_record_id(
+        source_name, row["Facility"], row["Month"],
+        row["Programme"], row["Indicator"],
+        source_fingerprint=source_fingerprint,
+    )
+    for _, row in source_action_rows.iterrows()
+]
+current_source_action_id_set = set(current_source_action_ids)
+
 with st.sidebar:
     facilities = sorted(assessed["Facility"].dropna().astype(str).unique())
     programmes = sorted(assessed["Programme"].dropna().astype(str).unique())
@@ -310,10 +323,14 @@ with tabs[4]:
     )
     try:
         action_store = ActionRegisterStore(database_path)
-        persisted_actions = action_store.get_actions()
+        persisted_actions = action_store.get_actions(current_source_action_ids)
     except Exception as exc:
         action_store = None
-        persisted_actions = st.session_state.get("action_register", {})
+        persisted_actions = {
+            record_id: values
+            for record_id, values in st.session_state.get("action_register", {}).items()
+            if record_id in current_source_action_id_set
+        }
         st.warning(
             f"SQLite persistence is unavailable: {exc}. Changes will remain in this browser session only."
         )
@@ -387,7 +404,7 @@ with tabs[4]:
                     f"SQLite save: {save_result['inserted']:,} new · "
                     f"{save_result['updated']:,} updated · {save_result['unchanged']:,} unchanged"
                 )
-                persisted_actions = action_store.get_actions()
+                persisted_actions = action_store.get_actions(current_source_action_ids)
             except Exception as exc:
                 st.warning(f"Could not save action changes: {exc}")
         else:
@@ -395,7 +412,11 @@ with tabs[4]:
                 st.session_state.get("action_register", {}),
                 edited.to_dict(orient="records"),
             )
-            persisted_actions = st.session_state["action_register"]
+            persisted_actions = {
+                record_id: values
+                for record_id, values in st.session_state["action_register"].items()
+                if record_id in current_source_action_id_set
+            }
     else:
         st.info("There are no new follow-up records in the current filter selection. Previously saved actions remain available below.")
 
