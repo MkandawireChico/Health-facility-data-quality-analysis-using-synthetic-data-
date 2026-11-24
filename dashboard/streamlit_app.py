@@ -168,8 +168,11 @@ if issue_filter in issue_map:
     filtered = filtered[filtered[issue_map[issue_filter]]]
 
 if filtered.empty:
-    st.warning("No records match the current filters. Adjust the selections in the sidebar.")
-    st.stop()
+    st.warning(
+        "No records match the current filters. Adjust the selections in the sidebar. "
+        "The remaining dashboard sections stay available so you can inspect the saved "
+        "action portfolio and expanded platform outputs."
+    )
 
 n = len(filtered)
 completeness = filtered["Calculated_Completeness"].mean()
