@@ -305,7 +305,7 @@ python src/etl_pipeline.py
 Then upload `data/warehouse/staged/facility_reporting_staged.csv` in the app.
 The upload and resulting analysis remain session-scoped; shared database
 persistence is not configured. The Expanded Platform page also provides a
-one-click ZIP export containing the management summary, monthly/facility/
+one-click analytical ZIP export containing the management summary, monthly/facility/
 programme/district profiles, peer anomalies, monthly control-chart output and
 synthetic-only detector evaluation metrics when labels are available. The
 expanded generated data is not committed to the repository.
@@ -509,3 +509,4 @@ The final release gate and ordered merge procedure are documented in
 [`docs/release_validation_checklist.md`](docs/release_validation_checklist.md).
 
 The final repository-wide audit, PR dependency review and remaining release blockers are recorded in [`docs/final_repository_audit.md`](docs/final_repository_audit.md).
+ The dashboard also provides a separate complete management review ZIP, assembled after the management views run, with the integrated priority register, saved corrective-action portfolio, district/monthly action performance, full executive facility briefing, executive district/domain summaries, top-N management queue, release-readiness checks, selected-facility drill-down and available field-level action audit history. The ZIP summary records which optional sections were included.
