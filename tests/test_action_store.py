@@ -138,3 +138,21 @@ def test_session_action_merge_retains_complete_fields_for_export():
         "Corrective action / notes", "Due date",
     }
     assert required.issubset(merged["ACT-FULL"])
+
+
+
+def test_get_actions_can_scope_and_chunk_large_record_id_lists(tmp_path):
+    store = ActionRegisterStore(tmp_path / "actions.sqlite")
+    rows = [
+        sample_action(Record_ID=f"ACT-{index:04d}", Facility=f"Facility {index}")
+        for index in range(1_105)
+    ]
+    result = store.upsert_actions(rows)
+    assert result["inserted"] == 1_105
+
+    selected_ids = [f"ACT-{index:04d}" for index in range(1, 1_105)]
+    selected = store.get_actions(selected_ids)
+    assert len(selected) == 1_104
+    assert "ACT-0001" in selected
+    assert "ACT-1104" in selected
+    assert "ACT-1105" not in selected
