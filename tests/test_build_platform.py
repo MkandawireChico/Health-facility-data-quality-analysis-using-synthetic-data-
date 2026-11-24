@@ -792,3 +792,46 @@ def test_generated_fact_grain_rejects_missing_indicator_coverage_with_correct_ro
             fact, facilities, 8, 2,
             expected_indicator_pairs={("HIV", "A"), ("HIV", "B")},
         )
+
+
+def test_quality_profile_population_rejects_swapped_group_labels_with_matching_totals():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_quality_profile_population
+
+    staged = pd.DataFrame({
+        "Facility_ID": ["F1", "F1", "F2", "F2"],
+        "District": ["North", "North", "South", "South"],
+        "Programme": ["HIV", "TB", "HIV", "TB"],
+        "Indicator": ["A", "B", "A", "B"],
+    })
+    facility = pd.DataFrame({"Facility_ID": ["F1", "F2"], "records": [2, 2]})
+    district = pd.DataFrame({"District": ["North", "South"], "records": [2, 2]})
+    programme = pd.DataFrame({
+        "Programme": ["HIV", "TB"], "Indicator": ["A", "B"], "records": [2, 2],
+    })
+    district.loc[:, "District"] = ["East", "West"]
+
+    with pytest.raises(RuntimeError, match="district quality profile group labels"):
+        _validate_quality_profile_population(staged, facility, district, programme)
+
+
+def test_quality_profile_population_rejects_per_group_count_drift_with_same_total():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_quality_profile_population
+
+    staged = pd.DataFrame({
+        "Facility_ID": ["F1", "F1", "F2", "F2"],
+        "District": ["North", "North", "South", "South"],
+        "Programme": ["HIV", "TB", "HIV", "TB"],
+        "Indicator": ["A", "B", "A", "B"],
+    })
+    facility = pd.DataFrame({"Facility_ID": ["F1", "F2"], "records": [1, 3]})
+    district = pd.DataFrame({"District": ["North", "South"], "records": [2, 2]})
+    programme = pd.DataFrame({
+        "Programme": ["HIV", "TB"], "Indicator": ["A", "B"], "records": [2, 2],
+    })
+
+    with pytest.raises(RuntimeError, match="facility quality profile per-group record counts"):
+        _validate_quality_profile_population(staged, facility, district, programme)
