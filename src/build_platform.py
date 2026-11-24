@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -964,6 +965,18 @@ def build_platform(
 
     summary = {
         "synthetic_data": True,
+        "build_configuration": {
+            "seed": seed,
+            "facility_count": facility_count,
+            "start_month": start_month,
+            "periods": periods,
+            "expected_fact_records": generator.expected_record_count,
+        },
+        "runtime_environment": {
+            "python_version": sys.version.split()[0],
+            "pandas_version": pd.__version__,
+            "numpy_version": np.__version__,
+        },
         "seed": seed,
         "facility_count": facility_count,
         "period_count": periods,
@@ -1091,7 +1104,14 @@ def build_platform(
     summary["artifact_total_bytes"] = sum(
         item["size_bytes"] for item in summary["artifact_manifest"].values()
     )
-    (output_dir / "platform_build_summary.json").write_text(json.dumps(summary, indent=2))
+    # Publish via atomic replacement: interrupted writes cannot leave a truncated
+    # canonical summary that appears to be a completed build.
+    summary_path = output_dir / "platform_build_summary.json"
+    temporary_summary_path = summary_path.with_name("." + summary_path.name + ".tmp")
+    temporary_summary_path.write_text(
+        json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8"
+    )
+    temporary_summary_path.replace(summary_path)
     return summary
 
 
