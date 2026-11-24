@@ -672,3 +672,78 @@ def test_supply_cold_chain_resilience_view_flags_explicit_temperature_data_gaps(
     assert result["latest_supply_review_facilities"] == 1
     assert latest.loc[0, "Data_Gap_Cold_Chain_Pairs"] == 1
     assert bool(latest.loc[0, "Supply_Review_Flag"])
+
+
+
+def test_generated_fact_grain_rejects_indicator_substitution_with_same_row_count():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_generated_fact_grain
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1"]})
+    fact = pd.DataFrame([
+        {"Facility_ID": "F1", "Month": "2024-01-01", "Programme": "HIV", "Indicator": "A"},
+        {"Facility_ID": "F1", "Month": "2024-01-01", "Programme": "HIV", "Indicator": "C"},
+    ])
+    with pytest.raises(RuntimeError, match="catalogue does not match"):
+        _validate_generated_fact_grain(
+            fact, facilities, 2, 1,
+            expected_indicator_pairs={("HIV", "A"), ("HIV", "B")},
+        )
+
+
+def test_generated_fact_grain_rejects_one_missing_indicator_and_one_duplicate_month_pair():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_generated_fact_grain
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1", "F2"]})
+    fact = pd.DataFrame([
+        {"Facility_ID": "F1", "Month": "2024-01-01", "Programme": "HIV", "Indicator": "A"},
+        {"Facility_ID": "F1", "Month": "2024-01-01", "Programme": "HIV", "Indicator": "B"},
+        {"Facility_ID": "F2", "Month": "2024-01-01", "Programme": "HIV", "Indicator": "A"},
+        {"Facility_ID": "F2", "Month": "2024-01-01", "Programme": "HIV", "Indicator": "C"},
+    ])
+    with pytest.raises(RuntimeError, match="catalogue does not match"):
+        _validate_generated_fact_grain(
+            fact, facilities, 4, 1,
+            expected_indicator_pairs={("HIV", "A"), ("HIV", "B")},
+        )
+
+
+def test_generated_fact_grain_rejects_unconfigured_month_even_when_period_count_matches():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_generated_fact_grain
+
+    facilities = pd.DataFrame({"Facility_ID": ["F1"]})
+    fact = pd.DataFrame([
+        {"Facility_ID": "F1", "Month": "2024-02-01", "Programme": "HIV", "Indicator": "A"},
+    ])
+    with pytest.raises(RuntimeError, match="configured periods"):
+        _validate_generated_fact_grain(
+            fact, facilities, 1, 1,
+            expected_indicator_pairs={("HIV", "A")},
+            expected_months=pd.date_range("2024-01-01", periods=1, freq="MS"),
+        )
+
+
+def test_generated_fact_grain_rejects_facility_metadata_drift():
+    import pandas as pd
+    import pytest
+    from build_platform import _validate_generated_fact_grain
+
+    facilities = pd.DataFrame({
+        "Facility_ID": ["F1"], "Facility_Name": ["Canonical Facility"],
+        "District": ["North"],
+    })
+    fact = pd.DataFrame([{
+        "Facility_ID": "F1", "Month": "2024-01-01", "Programme": "HIV",
+        "Indicator": "A", "Facility_Name": "Incorrect Facility", "District": "North",
+    }])
+    with pytest.raises(RuntimeError, match="Facility_Name"):
+        _validate_generated_fact_grain(
+            fact, facilities, 1, 1,
+            expected_indicator_pairs={("HIV", "A")},
+            expected_months=pd.date_range("2024-01-01", periods=1, freq="MS"),
+        )
