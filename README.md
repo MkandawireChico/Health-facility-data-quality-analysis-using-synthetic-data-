@@ -1,9 +1,9 @@
 # Health Facility Data Quality Assessment & Reporting Dashboard
-## Rumphi District, Malawi (Synthetic Portfolio Dataset)
+## Rumphi District, Malawi — Health Reporting Analytics
 
 ## Project Overview
 
-This project demonstrates a practical data quality assessment and reporting workflow for health facilities, using a realistic **synthetic** dataset representing monthly reporting across multiple programme areas and three parallel data sources (Paper Register, EMR, DHIS2).
+This project demonstrates a practical data quality assessment and reporting workflow for health facilities, using a generated case-study dataset representing monthly reporting across multiple programme areas and three parallel data sources (Paper Register, EMR, DHIS2).
 
 The analysis identifies incomplete records, inconsistencies between reporting systems, delayed reporting, unusual values, and other data-quality problems that would affect programme monitoring and decision-making in a real health information system.
 
@@ -28,7 +28,7 @@ This project demonstrates how a Data Technician or M&E Assistant could identify 
 7. Produce a prioritized, risk-ranked view to support M&E follow-up decisions
 8. Demonstrate a complete, reproducible workflow from raw data to actionable output
 
-## Synthetic Dataset
+## Dataset Design
 
 Generated in the notebook (not sourced from anywhere): 8 fictional facilities x 12 months (2025) x 5 programme areas x 2 indicators each x information from 3 reporting sources = **960 monthly facility-indicator records**.
 
@@ -51,7 +51,7 @@ Python is used for reproducible data generation, validation, assessment and visu
 ## Project Workflow
 
 ```
-Raw Synthetic Data → Data Inspection → Data Cleaning → Data Validation
+Raw Data → Data Inspection → Data Cleaning → Data Validation
     → Data Quality Assessment → Exploratory Analysis → Key Findings → Streamlit & Power BI Reporting
 ```
 
@@ -203,7 +203,7 @@ pytest -q
 
 ## Ethical Considerations
 
-This project uses entirely synthetic data. No real patient information, patient identifiers, or actual facility records are used at any point. Facility names and all numerical results exist solely to demonstrate the workflow. This project does not claim to represent actual Ministry of Health, DHIS2, or Rumphi District facility performance.
+The dataset is generated for portfolio demonstration. It contains no real patient information, patient identifiers, or actual facility records, and its figures do not represent Ministry of Health, DHIS2, or Rumphi District performance.
 
 ## Portfolio Relevance
 
