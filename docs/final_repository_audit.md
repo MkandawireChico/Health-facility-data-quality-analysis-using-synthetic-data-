@@ -735,3 +735,26 @@ The 288,000-row dashboard filter test commit triggered quality run #355
 and returned `steps: null` and `logs_url: null`. This again does not
 establish whether pytest or the build command executed. The 288,000-row
 regression test and source optimizations remain unverified by CI.
+
+
+## Integrated platform consistency audit — Prompt 41, 24 November 2026
+
+A deeper end-to-end review found a gap in the quality-profile reconciliation
+gate. It checked total record counts and number of groups, but did not verify
+that the actual facility, district and programme-indicator labels matched the
+staged source groups. A profile could therefore substitute a different set
+of labels while preserving the same total and group count.
+
+The build validator now:
+- rejects missing or blank group labels and duplicate profile groups;
+- compares the exact normalized group-key population against the staged fact;
+- compares every group's record count, not only the grand total.
+
+Added regressions for swapped district labels with matching totals and
+per-facility count drift that preserves the overall record total. Existing
+valid profile fixture and count/duplicate guards remain in place.
+
+This closes a source-level lineage gap in the build gate. The new tests and
+full end-to-end build have not been executed here; GitHub Actions has
+continued to return job failures without step logs, so execution remains
+unverified.
