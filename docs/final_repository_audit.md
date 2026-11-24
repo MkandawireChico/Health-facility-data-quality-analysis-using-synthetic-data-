@@ -215,3 +215,31 @@ A final code review tightened near-expiry reconciliation: the batch ledger's Nea
 ### Latest CI result for operational reconciliation — 24 November 2026
 
 The latest branch head 0f655c407ad7dd8b226291721bcc3d9d20b5f2b4 triggered Project quality checks run #290 (45346668300) and Expanded platform build run #264 (45346668416). Both completed with failure at job level. Their job records contain steps=null and logs_url=null. Therefore, the available Actions response does not establish that the test or build commands executed, and it does not establish a code-level test failure or a passing result. Full test and build validation remains outstanding.
+
+
+## Integrated priority and executive queue audit — 24 November 2026
+
+A focused review of the cross-domain priority register and executive management
+briefing found that the briefing checked component-score arithmetic but did not
+independently enforce the documented priority-band thresholds or the
+priority-register's deterministic rank sequence. This could allow a stale or
+manually edited register to display a score that did not match its band, or
+ranks that did not follow descending score and ascending facility ID.
+
+The executive briefing now rejects:
+- priority bands inconsistent with the documented thresholds (High review
+  >=50, Focused review >=25 and <50, Routine review <25);
+- fractional, missing, non-positive or non-contiguous ranks; and
+- rank sequences that do not follow descending integrated score with ascending
+  Facility_ID as the deterministic tie-break.
+
+Regression tests cover inconsistent bands, fractional ranks, incorrect rank
+order and tied scores. The management queue itself intentionally retains its
+separate operational sort (priority score, then overdue actions, then rank);
+the canonical priority rank remains the score/Facility_ID ordering.
+
+The source and tests are committed to the existing workforce-capacity branch
+and PR #26. GitHub Actions execution is still unverified at the time of this
+addendum; do not treat added tests as passing. The review does not change the
+mixed time scopes of the four priority inputs or the synthetic-only
+interpretation.
