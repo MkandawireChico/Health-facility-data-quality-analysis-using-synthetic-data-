@@ -143,10 +143,14 @@ class ActionRegisterStore:
                 ids = list(dict.fromkeys(str(value) for value in record_ids))
                 if not ids:
                     return {}
-                placeholders = ",".join("?" for _ in ids)
-                rows = connection.execute(
-                    f"SELECT * FROM actions WHERE record_id IN ({placeholders})", ids
-                ).fetchall()
+                rows = []
+                # Stay below conservative SQLite bind-variable limits for large cohorts.
+                for start in range(0, len(ids), 500):
+                    batch = ids[start:start + 500]
+                    placeholders = ",".join("?" for _ in batch)
+                    rows.extend(connection.execute(
+                        f"SELECT * FROM actions WHERE record_id IN ({placeholders})", batch
+                    ).fetchall())
         result = {}
         reverse = {column: label for label, column in DB_COLUMNS.items()}
         for row in rows:
