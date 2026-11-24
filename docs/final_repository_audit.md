@@ -565,3 +565,17 @@ These are source changes and authored tests only. The repository's Actions
 runner/log problem still prevents confirmation that the tests execute
 successfully; no test pass, full platform build, browser download, merge or
 deployment is claimed. PR #26 remains the active unmerged change set.
+
+
+
+### Prompt 36 CI observation — 24 November 2026
+
+The Prompt 36 documentation commit triggered Expanded platform build run #317
+(run ID 45352015899) and Project quality checks run #344 (run ID
+45352015719). Both completed with job-level failure. The jobs expose
+`steps: null` and `logs_url: null`; direct log retrieval returned
+`BlobNotFound`. Consequently, the new management-export regression tests
+and the full platform build have not been verified by Actions. The run does
+not provide evidence of a Python exception or test assertion failure, and it
+does not establish success. Continue to treat automated validation as
+blocked/unverified until a run records actual steps and logs.
