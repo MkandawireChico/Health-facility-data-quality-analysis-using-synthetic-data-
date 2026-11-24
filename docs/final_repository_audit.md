@@ -758,3 +758,13 @@ This closes a source-level lineage gap in the build gate. The new tests and
 full end-to-end build have not been executed here; GitHub Actions has
 continued to return job failures without step logs, so execution remains
 unverified.
+
+
+### Prompt 41 CI observation — 24 November 2026
+
+The new profile-lineage regression commit triggered quality run #358
+(run ID 45353520200, job ID 138305541212) and expanded build run #331
+(run ID 45353520161, job ID 138305540950). Both jobs failed and exposed
+`steps: null` and `logs_url: null`; the metadata does not establish
+whether pytest or the build command executed. Exact profile-group checks
+and the full platform build therefore remain unverified by CI.
