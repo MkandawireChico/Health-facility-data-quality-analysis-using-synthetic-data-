@@ -645,3 +645,13 @@ build. The optimization is supported by source-level complexity reasoning and
 authored regression tests, not a measured speedup claim. GitHub Actions remains
 unable to provide job steps/logs; the full build, test suite and peak-memory
 profile remain unverified. No merge or deployment is claimed.
+
+
+### Prompt 38 CI observation — 24 November 2026
+
+The new fact-grid regression test commit triggered Project quality checks run
+#350 (run ID 45352711357) and Expanded platform build run #323 (run ID
+45352711409). Both jobs completed with failure and returned `steps: null`
+and `logs_url: null`. The run metadata does not establish whether the
+new tests or full build commands executed. The optimized validator and default
+scale contract therefore remain unverified by CI.
