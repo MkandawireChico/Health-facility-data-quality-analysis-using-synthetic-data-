@@ -768,3 +768,14 @@ The new profile-lineage regression commit triggered quality run #358
 `steps: null` and `logs_url: null`; the metadata does not establish
 whether pytest or the build command executed. Exact profile-group checks
 and the full platform build therefore remain unverified by CI.
+
+
+## Prompt 42 — reproducible build metadata and summary publication
+
+The central build already generated SHA-256 hashes and relative paths for every advertised output. This pass closes two release-engineering gaps:
+
+- The persisted summary now records the exact build configuration (seed, facility count, normalized start month, period count and expected fact-row count) and runtime versions (Python, pandas and NumPy). This makes an artifact bundle easier to interpret and reproduce without implying a fully locked dependency environment.
+- The summary JSON is written to a sibling temporary file and atomically replaced only after serialization completes. An interrupted write should not leave a partially written summary at the canonical completion path.
+- Added an end-to-end regression test for persisted configuration/runtime metadata and temporary-file cleanup.
+
+The existing SHA-256 artifact manifest remains the integrity mechanism for generated output files. A dependency lockfile has not been introduced because a compatibility-resolution run is not available; minimum-version requirements remain a documented reproducibility limitation. CI, full build and tests remain unverified until GitHub runner execution is restored.
