@@ -77,3 +77,32 @@ def test_action_record_id_is_stable_across_row_order_and_date_formats():
     )
     assert first == reordered
     assert first != other_source
+
+
+
+def test_action_record_id_is_scoped_to_uploaded_content_version():
+    first_upload = build_action_record_id(
+        "monthly_report.csv", "Facility A", "2025-01-01", "HIV", "ART",
+        source_fingerprint="sha256:version-one",
+    )
+    replacement_upload = build_action_record_id(
+        "monthly_report.csv", "Facility A", "2025-01-01", "HIV", "ART",
+        source_fingerprint="sha256:version-two",
+    )
+    same_upload = build_action_record_id(
+        "monthly_report.csv", "Facility A", "2025-01-01", "HIV", "ART",
+        source_fingerprint="sha256:version-one",
+    )
+    assert first_upload == same_upload
+    assert first_upload != replacement_upload
+
+
+def test_action_record_id_legacy_key_remains_unchanged_without_fingerprint():
+    legacy = build_action_record_id(
+        "cohort.csv", "Facility A", "2025-01-01", "HIV", "ART"
+    )
+    explicit_none = build_action_record_id(
+        "cohort.csv", "Facility A", "2025-01-01", "HIV", "ART",
+        source_fingerprint=None,
+    )
+    assert legacy == explicit_none
