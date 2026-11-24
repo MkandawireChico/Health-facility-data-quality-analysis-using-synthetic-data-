@@ -21,6 +21,11 @@ from cold_chain_planning import run_cold_chain_planning
 from equipment_maintenance import run_equipment_maintenance
 from infrastructure_reliability import run_infrastructure_planning
 from workforce_planning import run_workforce_planning
+from operational_reconciliation import (
+    validate_resource_allocations, validate_stock_ledger,
+    validate_cold_chain_ledger, validate_equipment_ledger,
+    validate_infrastructure_ledger, validate_workforce_ledger,
+)
 
 
 
@@ -855,6 +860,31 @@ def build_platform(
     )
 
 
+    operational_ledger_reconciliation = {
+        "resource_allocation": validate_resource_allocations(
+            pd.read_csv(analytics_dir / "facility_resource_capacity.csv"),
+            pd.read_csv(analytics_dir / "resource_allocation_scenarios.csv"),
+        ),
+        "commodity_stock": validate_stock_ledger(
+            pd.read_csv(analytics_dir / "facility_commodity_stock_ledger.csv"),
+        ),
+        "cold_chain_batches": validate_cold_chain_ledger(
+            pd.read_csv(analytics_dir / "facility_commodity_batch_ledger.csv"),
+            pd.read_csv(analytics_dir / "cold_chain_expiry_risk_summary.csv"),
+        ),
+        "equipment_maintenance": validate_equipment_ledger(
+            pd.read_csv(analytics_dir / "equipment_asset_monthly_performance.csv"),
+            pd.read_csv(analytics_dir / "equipment_maintenance_work_orders.csv"),
+        ),
+        "infrastructure": validate_infrastructure_ledger(
+            pd.read_csv(analytics_dir / "facility_monthly_infrastructure_reliability.csv"),
+        ),
+        "workforce": validate_workforce_ledger(
+            pd.read_csv(analytics_dir / "facility_monthly_workforce_capacity.csv"),
+        ),
+    }
+
+
     operational_resilience = _build_operational_resilience_views(
         facilities,
         pd.read_csv(analytics_dir / "facility_equipment_monthly_summary.csv"),
@@ -887,6 +917,7 @@ def build_platform(
         "monthly_analytics_population": monthly_population,
         "quality_profile_population": quality_profile_population,
         "operational_planning_population": operational_planning_population,
+        "operational_ledger_reconciliation": operational_ledger_reconciliation,
         "operational_resilience": operational_resilience,
         "supply_cold_chain_resilience": supply_cold_chain_resilience,
         "integrated_facility_priority": integrated_facility_priority,
