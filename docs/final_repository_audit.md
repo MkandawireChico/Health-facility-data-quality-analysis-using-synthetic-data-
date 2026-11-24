@@ -433,3 +433,34 @@ completed with failure. Its step list remained empty, as did the expanded
 platform build step list. Neither retry produced downloadable job logs. Both
 reruns therefore ended in the same diagnostic state: job-level failure with
 no command-level evidence.
+
+
+## Application and dashboard QA — Prompt 34, 24 November 2026
+
+A source-level review of the Streamlit upload and corrective-action workflows
+identified two persistence-boundary defects.
+
+First, uploaded corrective-action record IDs were based on the source filename
+and row dimensions, but not the uploaded file contents. Replacing a CSV with
+different content under the same filename could therefore reuse prior action
+assignments. Uploaded files now contribute a SHA-256 content fingerprint to
+their action IDs. The bundled demonstration dataset retains its legacy ID
+scheme, avoiding an unnecessary change to existing bundled-demo action keys.
+Tests cover repeat uploads, changed file content and legacy-key compatibility.
+
+Second, when SQLite was unavailable, the session fallback replaced the entire
+session action dictionary with only the currently filtered editor rows. This
+could discard actions outside the active filters. It also stored only editable
+fields, so the fallback portfolio/export could omit facility, month, programme,
+indicator and issue context. The fallback now merges by Record_ID, preserves
+records outside the active filter, and stores the complete edited row. Tests
+cover preservation and field completeness.
+
+The application review also reconfirmed that action persistence on the hosted
+Streamlit Community Cloud filesystem is not a shared durable multi-user
+database; this limitation remains explicitly disclosed. The review was source
+inspection only: no browser interaction, hosted-app smoke test, database
+migration test against a live deployment, or full pytest run was completed.
+The changes are committed to the existing workforce branch and PR #26. CI
+results must be checked separately and are not inferred from these source
+changes.
