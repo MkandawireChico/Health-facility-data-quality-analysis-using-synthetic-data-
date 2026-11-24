@@ -252,3 +252,27 @@ coverage as available units divided by positive illustrative requirement units,
 multiplied by 100 and rounded to two decimals. A regression case rejects a
 coverage value that does not match the underlying unit counts. This retains
 legitimate capacity values above 100% as synthetic surplus.
+
+
+## Cross-dashboard corrective-action reconciliation audit — 24 November 2026
+
+A cross-check of the executive briefing against the separate district/month
+action-performance module identified a district attribution risk. The action
+register stores a human-readable facility label containing both a district
+and a canonical Facility_ID. The executive briefing previously used the ID to
+join actions to the priority register but did not verify that the district
+embedded in the label matched the canonical district. A stale or edited label
+could therefore attribute an action to one district in the action-performance
+dashboard and another in the executive briefing.
+
+The executive briefing now extracts the district from the action label and
+requires an exact match to the canonical priority-register district for that
+Facility_ID. Regression tests reject mismatched districts and compare
+district-level tracked, resolved, overdue, open, in-progress and escalated
+counts between the executive briefing and action-performance module.
+
+This closes a known district attribution inconsistency at the executive
+integration boundary. It does not validate action ownership, evidence of
+completion, or real-world facility identity; all data remain synthetic.
+The new tests have been committed but automated execution is still
+unverified.
