@@ -103,7 +103,7 @@ def test_infrastructure_hours_availability_and_score_reconcile():
         "Unserved_Water_Shortage_Hours": 5, "Connectivity_Downtime_Hours": 7,
         "Power_Availability_Pct": 99.19, "Water_Availability_Pct": 99.33,
         "Connectivity_Availability_Pct": 99.06,
-        "Infrastructure_Resilience_Score": 98.87,
+        "Infrastructure_Resilience_Score": 94.29,
     }])
     assert validate_infrastructure_ledger(monthly, profiles)["facility_month_rows"] == 1
     monthly.loc[0, "Unserved_Power_Interruption_Hours"] = 7
