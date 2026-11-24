@@ -725,3 +725,13 @@ benchmark has been executed in this environment, and the Actions runner
 failures documented in Prompt 39 still prevent CI verification. The full
 build, browser rerun behavior and Streamlit hosted deployment remain
 unverified.
+
+
+### Prompt 40 CI observation — 24 November 2026
+
+The 288,000-row dashboard filter test commit triggered quality run #355
+(run ID 45353250685, job ID 138304643854) and expanded build run #328
+(run ID 45353250712, job ID 138304644151). Both jobs completed with failure
+and returned `steps: null` and `logs_url: null`. This again does not
+establish whether pytest or the build command executed. The 288,000-row
+regression test and source optimizations remain unverified by CI.
