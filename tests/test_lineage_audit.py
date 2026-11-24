@@ -18,11 +18,11 @@ def _fixtures():
          "Data_Quality_Priority_Score":20.0,"Resource_Gap_Priority_Score":80.0,
          "Operational_Priority_Score":100.0,"Supply_Cold_Chain_Priority_Score":100.0,"Review_Domains":"multiple"},
         {"Facility_ID":"F-002","Facility_Name":"Beta","District":"South","Priority_Band":"Routine review",
-         "Integrated_Priority_Rank":2,"Integrated_Priority_Score":10.0,
+         "Integrated_Priority_Rank":3,"Integrated_Priority_Score":10.0,
          "Data_Quality_Priority_Score":10.0,"Resource_Gap_Priority_Score":30.0,
          "Operational_Priority_Score":0.0,"Supply_Cold_Chain_Priority_Score":0.0,"Review_Domains":"quality"},
         {"Facility_ID":"F-003","Facility_Name":"Gamma","District":"North","Priority_Band":"Focused review",
-         "Integrated_Priority_Rank":3,"Integrated_Priority_Score":30.0,
+         "Integrated_Priority_Rank":2,"Integrated_Priority_Score":30.0,
          "Data_Quality_Priority_Score":20.0,"Resource_Gap_Priority_Score":20.0,
          "Operational_Priority_Score":40.0,"Supply_Cold_Chain_Priority_Score":40.0,"Review_Domains":"several"},
     ])
