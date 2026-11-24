@@ -641,6 +641,23 @@ def _build_integrated_facility_priority(
         raise RuntimeError("Resource capacity coverage must be between 0 and 200")
     if combined["Baseline_Gap_Units"].lt(0).any():
         raise RuntimeError("Resource baseline gaps cannot be negative")
+    if combined["Illustrative_Requirement_Units"].le(0).any():
+        raise RuntimeError("Resource requirements must be positive")
+    if combined["Synthetic_Available_Units"].lt(0).any():
+        raise RuntimeError("Synthetic available resource units cannot be negative")
+    expected_coverage = (
+        100 * combined["Synthetic_Available_Units"]
+        / combined["Illustrative_Requirement_Units"]
+    ).round(2)
+    if not np.allclose(
+        expected_coverage,
+        combined["Baseline_Capacity_Coverage_Pct"],
+        atol=0.011,
+        rtol=0,
+    ):
+        raise RuntimeError(
+            "Resource baseline capacity coverage does not reconcile with available and required units"
+        )
     for column in ["Mean_Operational_Uptime_Pct", "Infrastructure_Resilience_Score", "Workforce_Coverage_Pct"]:
         if not combined[column].between(0, 100).all():
             raise RuntimeError(f"Operational measure {column} must be between 0 and 100")
