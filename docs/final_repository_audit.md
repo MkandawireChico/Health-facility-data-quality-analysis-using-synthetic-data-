@@ -788,3 +788,31 @@ A dashboard review found that the corrective-action store defaulted to a shared 
 A second issue affected the standalone corrective-action CSV download: it serialized text fields directly, unlike the ZIP management export, which already neutralized spreadsheet formula prefixes. Added a shared spreadsheet-safe CSV serializer and routed the standalone action-register download through it. Added a regression test for formula-like owner text and numeric-column preservation.
 
 No claim is made that the app provides authentication, tenant isolation, encryption at rest or production-grade shared persistence. Uploaded data remains subject to the app operator's hosting, logging, memory and infrastructure policies. CI and runtime tests remain unverified pending successful runner execution.
+
+
+## Prompt 44 — final release-readiness and documentation reconciliation
+
+Reviewed the current README, release audit, dependency declaration and both GitHub Actions workflow definitions on the workforce-capacity branch.
+
+Documentation correction:
+- The README previously described the corrective-action register as persistently local without qualifying its deployment scope. It now accurately states that storage is session-only by default and that shared SQLite persistence is optional and operator-configured. This matches the Prompt 43 implementation and avoids implying safe multi-user persistence.
+
+Release gate register (current evidence, not assumptions):
+
+| Gate | Current status | Evidence required to close |
+|---|---|---|
+| Source changes and focused regression tests | Implemented; execution unverified for recent changes | Successful pytest run on final PR head |
+| Full 288,000-row platform build | Not verified | Successful build workflow and inspected artifact manifest |
+| GitHub Actions | Blocked / unexplained pre-step failures | Runner allocation restored and actual step logs available |
+| Notebook | JSON and code-cell syntax validation is in workflow; end-to-end execution unverified | Execute all notebook cells from repository root and notebooks directory |
+| Power BI expanded model | Implementation pack exists; expanded PBIX not assembled/refreshed | Refresh queries, validate relationships/measures, save separate expanded PBIX and inspect visuals |
+| Streamlit application | Source reviewed; browser and hosted branch state unverified | Local browser smoke test, then post-deployment smoke test against deployed commit |
+| Corrective-action storage | Session-only default; optional shared SQLite | Verify deployment configuration, authorisation boundary, backup/restore and persistence expectations before enabling shared storage |
+| Security and governance | Safer defaults and spreadsheet-safe exports; no authentication/tenant isolation claim | Deployment-specific access-control and data-retention review |
+| PR integration | #26 is part of a dependent PR stack; merge/deploy not authorised by this audit | Recheck current PR graph, merge parents in order only after all required checks pass |
+
+The two workflow YAML files were inspected again. The quality workflow runs dependency installation, compileall, notebook JSON/code-cell parsing and pytest. The expanded build workflow installs requirements, runs the full build and uploads warehouse outputs. Their definitions do not provide evidence that those steps have executed successfully: recent jobs repeatedly returned no step records and no logs. No attempt was made to bypass required checks or weaken validation.
+
+The README's baseline PBIX distinction and synthetic-data disclaimer remain intact. The repository audit still records the expanded Power BI PBIX, notebook execution, browser QA and deployment verification as outstanding. The top-level audit's PR-stack snapshot is historical (dated 23 November); recheck live PR states and base relationships immediately before any merge rather than treating that snapshot as current.
+
+**Release decision: NOT READY TO MERGE OR RELEASE.** The source-level work is substantial, but the remaining CI, full-build, notebook, Power BI, browser and deployment gates are genuine release blockers. No tests or deployment are claimed as successful in this prompt.
