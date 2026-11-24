@@ -105,3 +105,17 @@ def test_management_review_archive_is_byte_for_byte_deterministic():
     second = build_management_review_archive(tables, summary)
 
     assert first == second
+
+
+def test_standalone_csv_export_neutralizes_formula_like_text():
+    from management_export import spreadsheet_safe_csv_bytes
+
+    frame = pd.DataFrame({
+        "Owner": ["=HYPERLINK(\"https://example.invalid\")", "  +SUM(1,2)", "M&E Officer"],
+        "Issue count": [3, 4, 5],
+    })
+    exported = spreadsheet_safe_csv_bytes(frame).decode("utf-8")
+    assert "'=HYPERLINK" in exported
+    assert "'  +SUM" in exported
+    assert "M&E Officer" in exported
+    assert "3" in exported and "4" in exported and "5" in exported
