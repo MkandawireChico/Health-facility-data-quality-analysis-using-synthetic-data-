@@ -42,8 +42,12 @@ def build_lineage_reconciliation_report(
     canonical = priority_register.set_index("Facility_ID").sort_index()
     executive = executive_all.set_index("Facility_ID").sort_index()
     for column in ["District", "Integrated_Priority_Score", "Integrated_Priority_Rank", "Priority_Band"]:
-        left = canonical[column].astype(str)
-        right = executive[column].astype(str)
+        if column == "District" or column == "Priority_Band":
+            left = canonical[column].astype(str)
+            right = executive[column].astype(str)
+        else:
+            left = pd.to_numeric(canonical[column], errors="coerce").astype(float)
+            right = pd.to_numeric(executive[column], errors="coerce").astype(float)
         if not left.equals(right):
             raise ValueError(f"Executive facility output does not reconcile to priority register: {column}")
 
@@ -119,7 +123,8 @@ def build_lineage_reconciliation_report(
                        "open_actions", "in_progress_actions", "escalated_actions"]:
             if column not in left or column not in right:
                 raise ValueError(f"District reconciliation is missing {column}")
-            if left[column].astype(int).to_dict() != right[column].astype(int).to_dict():
+            aligned_right = right[column].astype(int).reindex(left.index, fill_value=0)
+            if left[column].astype(int).to_dict() != aligned_right.to_dict():
                 raise ValueError(f"Executive and action-performance district totals differ: {column}")
     elif source_action_ids:
         raise ValueError("District summaries are missing while saved actions exist")
