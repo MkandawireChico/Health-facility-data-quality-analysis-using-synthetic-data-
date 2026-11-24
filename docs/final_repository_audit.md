@@ -511,3 +511,14 @@ have not been executed in a local environment. GitHub Actions job records for
 recent commits have repeatedly failed at job level with no step records or
 downloadable logs, so no test or build success is claimed. No merge or
 deployment was performed.
+
+
+### Prompt 35 empty-filter state refinement
+
+The previous no-match branch called `st.stop()`, hiding every dashboard tab
+when the selected facility/programme/date/status filters returned zero rows.
+It now shows a clear warning but allows the remaining tabs to render. This
+keeps the saved action portfolio and expanded platform views accessible even
+when the current analytical slice is empty. The charts and metrics in the
+current slice are expected to show empty/N/A values rather than fabricate
+observations. This interaction has not yet been browser-tested.
