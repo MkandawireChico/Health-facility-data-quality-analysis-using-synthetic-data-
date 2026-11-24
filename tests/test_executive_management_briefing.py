@@ -188,3 +188,29 @@ def test_priority_ties_use_facility_id_as_deterministic_order():
     tied.loc[2, "Integrated_Priority_Rank"] = 2
     result = build_executive_management_briefing(tied, action_rows())
     assert result["all_facilities"].sort_values("Integrated_Priority_Rank")["Facility_ID"].tolist() == ["F-001", "F-002", "F-003"]
+
+
+
+def test_action_district_label_must_match_canonical_facility_district():
+    bad = action_rows()
+    bad.loc[0, "Facility"] = "Alpha (South) [F-001]"
+    with pytest.raises(ValueError, match="district does not match"):
+        build_executive_management_briefing(priority_rows(), bad, as_of="2026-10-12")
+
+
+def test_executive_district_action_totals_reconcile_to_action_performance():
+    from action_performance import build_action_performance
+
+    actions = action_rows()
+    executive = build_executive_management_briefing(
+        priority_rows(), actions, as_of="2026-10-12"
+    )
+    performance = build_action_performance(actions, as_of="2026-10-12")
+    left = executive["district"].set_index("District").sort_index()
+    right = performance["district"].set_index("District").sort_index()
+    assert left["tracked_actions"].equals(right["tracked_actions"])
+    assert left["resolved_actions"].equals(right["resolved_actions"])
+    assert left["overdue_actions"].equals(right["overdue_actions"])
+    assert left["open_actions"].equals(right["open_actions"])
+    assert left["in_progress_actions"].equals(right["in_progress_actions"])
+    assert left["escalated_actions"].equals(right["escalated_actions"])
