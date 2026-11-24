@@ -122,3 +122,22 @@ def test_lineage_accepts_a_valid_empty_action_portfolio():
         priority, empty_actions, performance, executive, exports
     )
     assert report.set_index("check").loc["saved_action_population", "observed_value"] == 0
+
+
+
+def test_lineage_rejects_monthly_status_total_drift():
+    priority, actions, performance, executive, exports = _fixtures()
+    performance["monthly"] = performance["monthly"].copy()
+    performance["monthly"].loc[0, "resolved_actions"] = 88
+    exports["monthly_action_performance.csv"] = performance["monthly"]
+    with pytest.raises(ValueError, match="Monthly action total does not reconcile"):
+        build_lineage_reconciliation_report(priority, actions, performance, executive, exports)
+
+
+def test_lineage_rejects_executive_facility_status_total_drift():
+    priority, actions, performance, executive, exports = _fixtures()
+    executive["all_facilities"] = executive["all_facilities"].copy()
+    executive["all_facilities"].loc[0, "open_actions"] = 88
+    exports["executive_facility_management_briefing.csv"] = executive["all_facilities"]
+    with pytest.raises(ValueError, match="Executive facility status total"):
+        build_lineage_reconciliation_report(priority, actions, performance, executive, exports)
