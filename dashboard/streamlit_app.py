@@ -22,6 +22,7 @@ from reporting import (
     validate_dataset,
 )
 from dashboard_filters import apply_dashboard_filters
+from management_export import spreadsheet_safe_csv_bytes
 
 DATA_PATHS = [
     ROOT / "data" / "raw" / "synthetic_health_facility_data.csv",
@@ -475,7 +476,7 @@ with tabs[4]:
         )
         st.download_button(
             "Download complete corrective action register",
-            data=all_actions_df.to_csv(index=False).encode("utf-8"),
+            data=spreadsheet_safe_csv_bytes(all_actions_df),
             file_name="health_facility_corrective_action_register.csv",
             mime="text/csv",
             key="download_complete_action_register",
