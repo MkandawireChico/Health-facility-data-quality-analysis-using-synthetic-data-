@@ -878,6 +878,7 @@ def build_platform(
         ),
         "infrastructure": validate_infrastructure_ledger(
             pd.read_csv(analytics_dir / "facility_monthly_infrastructure_reliability.csv"),
+            pd.read_csv(analytics_dir / "facility_infrastructure_profiles.csv"),
         ),
         "workforce": validate_workforce_ledger(
             pd.read_csv(analytics_dir / "facility_monthly_workforce_capacity.csv"),
