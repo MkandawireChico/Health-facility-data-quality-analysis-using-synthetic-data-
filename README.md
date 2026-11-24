@@ -64,7 +64,7 @@ Raw Data → Data Inspection → Data Cleaning → Data Validation
 
 ## Key Findings
 
-The following figures are calculated from the committed 960-row raw synthetic dataset using the current field-presence, timeliness, hybrid consistency and IQR rules. They describe this generated dataset only; they are not real Rumphi District or Ministry of Health results.
+The following figures are calculated from the committed 960-row raw dataset using the current field-presence, timeliness, hybrid consistency and IQR rules. They describe this generated dataset only; they are not real Rumphi District or Ministry of Health results.
 
 1. **Actual field completeness is 99.5%**, calculated from the presence of six required fields rather than the generator's simulated completeness score. Timely reporting is **80.8%** (776 of 960 records).
 2. **271 of 960 records (28.2%)** have at least one quality flag under the current rules. This is the distinct-record count; issue counts overlap. The individual counts are 28 missing reported values, 184 late reports, 64 source reviews and 14 IQR outliers.
@@ -176,7 +176,7 @@ health-facility-data-quality/
 └── README.md
 ```
 
-**What belongs where:** `data/` holds the raw synthetic and processed datasets; `notebooks/` contains the reproducible analysis; `docs/` defines the upload contract and operational workflow; `dashboard/` contains the Power BI report, exports and Streamlit workspace; `src/` contains reusable data generation, assessment and reporting logic; `tests/` covers quality rules, intake/assessment behaviour and app rendering; `visuals/charts/` holds notebook chart exports.
+**What belongs where:** `data/` holds the raw and processed datasets; `notebooks/` contains the reproducible analysis; `docs/` defines the upload contract and operational workflow; `dashboard/` contains the Power BI report, exports and Streamlit workspace; `src/` contains reusable data generation, assessment and reporting logic; `tests/` covers quality rules, intake/assessment behaviour and app rendering; `visuals/charts/` holds notebook chart exports.
 
 ## How to Run
 
@@ -242,9 +242,9 @@ The pipeline implementation is in [src/etl_pipeline.py](src/etl_pipeline.py), wi
 
 ### Detector evaluation and longitudinal analytics
 
-Run `python src/quality_analytics.py` after staging to evaluate the missing-value, source-discrepancy, outlier and timeliness detectors against the generator's synthetic ground-truth labels. The evaluation reports confusion counts, precision, recall, F1, specificity, false-positive rate and accuracy. The same command writes monthly trends, facility benchmarks and programme/indicator profiles under `data/warehouse/analytics/`.
+Run `python src/quality_analytics.py` after staging to evaluate the missing-value, source-discrepancy, outlier and timeliness detectors against the generator's injected-defect ground-truth labels. The evaluation reports confusion counts, precision, recall, F1, specificity, false-positive rate and accuracy. The same command writes monthly trends, facility benchmarks and programme/indicator profiles under `data/warehouse/analytics/`.
 
-Ground-truth labels are used only to calculate evaluation metrics. Operational predictions, monthly trends and facility/programme profiles do not use those labels. Metrics describe performance against controlled synthetic defects, not validated performance on real health reporting data. The outlier rule is Reported_Value / Target_Value > 1.5.
+Ground-truth labels are used only to calculate evaluation metrics. Operational predictions, monthly trends and facility/programme profiles do not use those labels. Metrics describe performance against controlled injected defects, not validated performance on real health reporting data. The outlier rule is Reported_Value / Target_Value > 1.5.
 
 Implementation: [src/quality_analytics.py](src/quality_analytics.py). Tests: [tests/test_quality_analytics.py](tests/test_quality_analytics.py).
 
@@ -328,7 +328,7 @@ workflow artifact.
 The expanded platform includes a separate Power BI build specification:
 [`dashboard/powerbi_expanded_model.md`](dashboard/powerbi_expanded_model.md).
 It documents the star schema, relationship design, report-page plan and
-synthetic-data governance. Reusable DAX measures are in
+data-provenance governance. Reusable DAX measures are in
 [`dashboard/dax/health_data_quality_measures.dax`](dashboard/dax/health_data_quality_measures.dax)
 and calculated dimensions in
 [`dashboard/dax/dimension_tables.dax`](dashboard/dax/dimension_tables.dax).
