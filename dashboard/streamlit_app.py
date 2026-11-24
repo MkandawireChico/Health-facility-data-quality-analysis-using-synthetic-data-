@@ -468,15 +468,12 @@ with tabs[6]:
     if platform_file is None:
         st.markdown("**Generate and stage the expanded cohort locally**")
         st.code(
-            "python src/scale_data_generator.py\n"
-            "python src/etl_pipeline.py\n"
-            "python src/quality_analytics.py\n"
-            "python src/statistical_monitoring.py",
+            "python src/build_platform.py",
             language="bash",
         )
         st.caption(
             "The 288,000-row generated CSV is intentionally not committed to GitHub. "
-            "Generate it locally, then upload data/warehouse/staged/facility_reporting_staged.csv here."
+            "Run the one-command build locally, then upload data/warehouse/staged/facility_reporting_staged.csv here."
         )
     else:
         st.caption(f"Selected file: {platform_file.name} · {platform_file.size / (1024 * 1024):.1f} MB")
