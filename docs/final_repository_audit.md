@@ -392,3 +392,35 @@ The job-step endpoint returned an empty list for each job, and the log
 download was unavailable. It is unknown whether any Python test or build
 command executed; this is neither a passing result nor evidence of a
 code-level test failure. The nine new lineage tests remain unverified.
+
+
+
+## CI failure investigation — Prompt 33, 24 November 2026
+
+The quality workflow definition was inspected directly. Its intended steps are
+checkout, Python 3.11 setup, dependency installation, Python module compilation,
+notebook JSON/code-cell validation, and the full pytest suite. The expanded
+platform workflow similarly checks out the repository, sets up Python 3.11,
+installs requirements, and runs `python src/build_platform.py`.
+
+For the Prompt 32 head recorded above, the latest workflow runs were retried
+using GitHub's failed-jobs-only rerun operation. The rerun operation was
+accepted for Expanded platform build run #293 (run ID 45349421992) and Project
+quality checks run #319 (run ID 45349422082). On immediate inspection, the
+expanded build job was again completed with failure and had no recorded steps;
+the quality job was still queued and also exposed no steps at that instant.
+The step endpoint returned an empty list for both jobs. The log archive
+remained unavailable.
+
+This evidence still does not identify a Python exception, failed test, failed
+dependency install, or build assertion. An empty step list is consistent with
+a job failing before its first step, but does not by itself establish the
+underlying cause. The rerun has therefore not been treated as a code-level
+failure or a successful validation.
+
+No speculative source-code workaround or runner-image change was made. The
+next diagnostic requirement is access to the actual GitHub Actions run/job
+details or logs, including any runner provisioning and workflow-level
+annotations. Until those are available, CI remains blocked/unverified and the
+stacked PR must not be merged. The Streamlit deployment, notebook execution,
+and expanded Power BI refresh also remain independently unverified.
