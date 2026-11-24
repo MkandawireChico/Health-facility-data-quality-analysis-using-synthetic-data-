@@ -194,3 +194,14 @@ The source and tests were committed to the existing feat/facility-workforce-capa
 ### Follow-up CI observation — 24 November 2026
 
 After the exact-grid changes, Expanded platform build run 45345557288 (run #247) was created for the branch and then failed at the job level. The job endpoint returned status=completed, conclusion=failure, steps=null and no log URL. The run therefore provides no evidence that the build or Python tests executed. The separate project quality workflow was not reported for the latest source commit. Automated validation remains blocked/unverified.
+
+
+## Operational ledger reconciliation addendum — 24 November 2026
+
+A new src/operational_reconciliation.py module adds cross-domain internal-accounting checks and the one-command build now runs them before recording its final build summary. The checks cover: resource allocation gap, residual and coverage calculations plus scenario pool bounds; commodity stock balance, demand fulfilment, stockout flag/day agreement and month-to-month stock continuity; cold-chain batch balance and continuity plus batch-to-risk-summary reconciliation; equipment downtime and availability calculations plus maintenance work-order cost/downtime reconciliation; infrastructure power/water hour balances, availability percentages and the weighted resilience formula including the facility backup-power assumption; and workforce filled/vacant/absent/on-duty counts, coverage, absence and workload-pressure calculations.
+
+Regression coverage was added in tests/test_operational_reconciliation.py for valid scenarios and intentionally broken resource, stock, cold-chain, equipment, infrastructure and workforce reconciliations, including a valid zero-stock month with no batch records. The small end-to-end platform test now checks that all six domain reconciliation summaries are present. Documentation is in docs/operational_ledger_reconciliation.md and the README.
+
+A code-review adjustment was made for a valid cold-chain edge case: when no lot exists in a facility-commodity-month, the lot ledger can legitimately have no row. The reconciler accepts that only when all batch-backed quantities in the risk summary are zero; it rejects orphan lot rows and non-zero summary quantities without batch movements.
+
+These source and test changes are committed on feat/facility-workforce-capacity-intelligence and remain part of PR #26. The latest source/test commits have no reported workflow run, and the earlier runner failure returned no executed steps or logs. The new tests and full build have NOT been run successfully. The checks are authored controls, not evidence of passing CI or real-world operational validity.
