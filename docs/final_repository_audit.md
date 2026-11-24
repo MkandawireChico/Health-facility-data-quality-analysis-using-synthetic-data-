@@ -579,3 +579,25 @@ and the full platform build have not been verified by Actions. The run does
 not provide evidence of a Python exception or test assertion failure, and it
 does not establish success. Continue to treat automated validation as
 blocked/unverified until a run records actual steps and logs.
+
+
+## Dashboard filter usability and testability — Prompt 37, 24 November 2026
+
+The Streamlit sidebar now provides a one-click Reset all filters action.
+Facility, programme, reporting-period and issue controls have stable session
+keys, and the reset removes those keys before rerunning so the widgets return
+to their full-dataset defaults. The active filtering logic has been extracted
+to src/dashboard_filters.py and the dashboard delegates to that pure helper.
+
+The helper combines facility, programme, date and issue filters; preserves an
+empty result as an empty DataFrame with its columns; supports a single selected
+day as well as a two-date range; rejects reversed or malformed ranges; and
+does not silently apply unknown issue filters. Six regression tests cover
+combined filters, empty selections, one-day periods, reversed dates,
+malformed ranges and the all-records issue option.
+
+The existing no-match warning remains in place, and the expanded tabs remain
+available. This is source-level implementation and test authoring only: no
+Streamlit browser interaction, automated test run, full 288,000-row performance
+test, merge or deployment is claimed. The CI runner/log limitation remains
+open.
