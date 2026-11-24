@@ -138,11 +138,19 @@ def validate_cold_chain_ledger(batch: pd.DataFrame, risk: pd.DataFrame) -> dict[
     )
     joined = risk_data.merge(grouped, on=risk_keys, how="outer", suffixes=("_summary", "_batch"),
                              validate="one_to_one", indicator=True)
-    if not joined["_merge"].eq("both").all():
-        raise RuntimeError("Cold-chain risk summary does not cover the batch ledger population")
+    # A zero-stock month can legitimately have no batch rows at all. Treat a
+    # missing lot aggregate as zero, but reject orphan batches or non-zero
+    # summary quantities without supporting lot movements.
+    if joined["_merge"].eq("right_only").any():
+        raise RuntimeError("Cold-chain batch ledger contains rows absent from the risk summary")
     for column in ["Expired_Units", "Closing_Stock_Units",
                    "Near_Expiry_90_Day_Units", "Fulfilled_Consumption_Units"]:
-        _close(joined[f"{column}_summary"], joined[f"{column}_batch"],
+        left = joined[f"{column}_summary"]
+        right = joined[f"{column}_batch"]
+        missing_batch = joined["_merge"].eq("left_only")
+        if left[missing_batch].fillna(0).ne(0).any():
+            raise RuntimeError(f"Cold-chain {column} summary has quantity without batch movements")
+        _close(left.fillna(0), right.fillna(0),
                f"Cold-chain {column} summary", 0)
     _close(risk_data["Demand_Units"],
            risk_data["Fulfilled_Consumption_Units"] + risk_data["Unmet_Demand_Units"],
