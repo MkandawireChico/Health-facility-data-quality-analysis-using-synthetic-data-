@@ -181,20 +181,32 @@ def validate_equipment_ledger(performance: pd.DataFrame, work_orders: pd.DataFra
     if wo["Cost_Credits"].isna().any() or not np.isfinite(wo["Cost_Credits"]).all() or wo["Cost_Credits"].lt(0).any():
         raise RuntimeError("Maintenance work-order costs are invalid")
     if not wo.empty:
+        if "Downtime_Hours" not in wo.columns or "Work_Order_ID" not in wo.columns:
+            raise RuntimeError("Maintenance work orders are missing downtime or unique identifiers")
+        if wo["Work_Order_ID"].isna().any() or wo["Work_Order_ID"].duplicated().any():
+            raise RuntimeError("Maintenance work-order identifiers must be populated and unique")
+        wo["Downtime_Hours"] = pd.to_numeric(wo["Downtime_Hours"], errors="coerce")
+        if wo["Downtime_Hours"].isna().any() or not np.isfinite(wo["Downtime_Hours"]).all() or wo["Downtime_Hours"].lt(0).any():
+            raise RuntimeError("Maintenance work-order downtime is invalid")
         wo["Month"] = pd.to_datetime(wo["Month"], errors="coerce").dt.to_period("M")
         if wo["Month"].isna().any():
             raise RuntimeError("Maintenance work orders contain invalid months")
-        costs = wo.groupby(["Asset_ID", "Month"], as_index=False)["Cost_Credits"].sum()
+        totals = wo.groupby(["Asset_ID", "Month"], as_index=False).agg(
+            Cost_Credits=("Cost_Credits", "sum"),
+            Downtime_Hours=("Downtime_Hours", "sum"),
+        )
         base = data.assign(Month=pd.to_datetime(data["Month"]).dt.to_period("M"))
-        joined = base.merge(costs, on=keys, how="left", validate="one_to_one")
+        joined = base.merge(totals, on=keys, how="left", validate="one_to_one")
         _close(joined["Maintenance_Cost_Credits"], joined["Cost_Credits"].fillna(0),
                "Equipment maintenance cost versus work orders", 0)
-    elif data["Maintenance_Cost_Credits"].gt(0).any():
-        raise RuntimeError("Equipment maintenance costs exist without work orders")
+        _close(joined["Total_Downtime_Hours"], joined["Downtime_Hours"].fillna(0),
+               "Equipment downtime versus maintenance work orders", 0.11)
+    elif data["Maintenance_Cost_Credits"].gt(0).any() or data["Total_Downtime_Hours"].gt(0).any():
+        raise RuntimeError("Equipment maintenance activity exists without work orders")
     return {"asset_month_rows": len(data), "work_order_rows": len(work_orders)}
 
 
-def validate_infrastructure_ledger(monthly: pd.DataFrame) -> dict[str, int]:
+def validate_infrastructure_ledger(monthly: pd.DataFrame, profiles: pd.DataFrame | None = None) -> dict[str, int]:
     numeric = ["Calendar_Hours", "Power_Interruption_Hours", "Backup_Power_Hours_Provided",
         "Unserved_Power_Interruption_Hours", "Water_Shortage_Hours", "Water_Buffered_Hours",
         "Unserved_Water_Shortage_Hours", "Connectivity_Downtime_Hours",
@@ -223,7 +235,24 @@ def validate_infrastructure_ledger(monthly: pd.DataFrame) -> dict[str, int]:
     expected_score = (0.40 * data["Power_Availability_Pct"] +
                       0.30 * data["Water_Availability_Pct"] +
                       0.20 * data["Connectivity_Availability_Pct"])
-    # Backup readiness contributes the remaining 10%; validate the score range here.
+    if profiles is not None:
+        if not {"Facility_ID", "Illustrative_Backup_Power_Hours"}.issubset(profiles.columns):
+            raise RuntimeError("Infrastructure facility profiles are missing backup-power assumptions")
+        backup = pd.to_numeric(profiles["Illustrative_Backup_Power_Hours"], errors="coerce")
+        if backup.isna().any() or not np.isfinite(backup).all() or backup.lt(0).any():
+            raise RuntimeError("Infrastructure backup-power assumptions are invalid")
+        if profiles["Facility_ID"].isna().any() or profiles["Facility_ID"].duplicated().any():
+            raise RuntimeError("Infrastructure facility profiles must have unique facility IDs")
+        data = data.merge(profiles[["Facility_ID"]].assign(_backup=backup.to_numpy()),
+                          on="Facility_ID", how="left", validate="many_to_one")
+        if data["_backup"].isna().any():
+            raise RuntimeError("Infrastructure monthly records reference missing facility profiles")
+        expected_score = (0.40 * data["Power_Availability_Pct"] +
+                          0.30 * data["Water_Availability_Pct"] +
+                          0.20 * data["Connectivity_Availability_Pct"] +
+                          0.10 * np.minimum(100, data["_backup"] / 18 * 100))
+        _close(data["Infrastructure_Resilience_Score"], expected_score,
+               "Infrastructure resilience score", 0.04)
     if not data["Infrastructure_Resilience_Score"].between(0, 100).all():
         raise RuntimeError("Infrastructure resilience score is outside 0–100")
     if (data["Unserved_Power_Interruption_Hours"] > data["Calendar_Hours"]).any() or (data["Unserved_Water_Shortage_Hours"] > data["Calendar_Hours"]).any() or (data["Connectivity_Downtime_Hours"] > data["Calendar_Hours"]).any():
