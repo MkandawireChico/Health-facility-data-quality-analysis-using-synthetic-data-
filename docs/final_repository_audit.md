@@ -522,3 +522,14 @@ keeps the saved action portfolio and expanded platform views accessible even
 when the current analytical slice is empty. The charts and metrics in the
 current slice are expected to show empty/N/A values rather than fabricate
 observations. This interaction has not yet been browser-tested.
+
+
+### Prompt 35 CI status
+
+The source commit for the large-ID lookup regression test triggered Expanded
+platform build run #309 (45351381317) and Project quality checks run #336
+(45351381395). Both were reported as job-level failures with no step records
+or downloadable logs. The later no-match UX commit triggered runs #311
+(45351462253) and #338 (45351462241), also reported as completed failures.
+No command-level failure can be identified from these records. The 1,105-row
+lookup test, application tests and full platform build remain unverified.
