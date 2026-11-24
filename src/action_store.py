@@ -62,6 +62,28 @@ def build_action_record_id(
     return "ACT-" + hashlib.sha256(identity.encode("utf-8")).hexdigest()[:20]
 
 
+def merge_session_actions(
+    existing: dict[str, dict[str, Any]],
+    records: Iterable[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """Merge edited action rows without dropping records outside the active filters."""
+    merged = {
+        str(record_id): dict(values)
+        for record_id, values in existing.items()
+        if isinstance(values, dict)
+    } if isinstance(existing, dict) else {}
+    for record in records:
+        record_id = str(record.get("Record_ID", "")).strip()
+        if not record_id:
+            continue
+        merged[record_id] = {
+            key: _value(value)
+            for key, value in record.items()
+            if key != "Record_ID"
+        }
+    return merged
+
+
 class ActionRegisterStore:
     """Persist action assignments locally and record every field change."""
 
