@@ -533,3 +533,34 @@ or downloadable logs. The later no-match UX commit triggered runs #311
 (45351462253) and #338 (45351462241), also reported as completed failures.
 No command-level failure can be identified from these records. The 1,105-row
 lookup test, application tests and full platform build remain unverified.
+
+
+
+## Management export integrity and spreadsheet-safety audit — Prompt 36, 24 November 2026
+
+A focused review of the complete management ZIP builder identified several
+archive-boundary risks. A table could use a name that collided with the
+reserved JSON summary entry, and case-insensitive duplicate filenames could
+extract ambiguously on common desktop filesystems. The archive builder now
+validates every table name and DataFrame before writing any ZIP entry, reserves
+both management summary names, and rejects case-insensitive duplicates.
+
+Management CSVs can contain free-text notes and other user-entered strings.
+Those strings are now checked for spreadsheet formula prefixes (=, +, - and @),
+including prefixes preceded by whitespace/control characters, and are escaped
+with a leading apostrophe. Numeric DataFrame columns remain numeric and are not
+modified, including legitimate negative values. This is an export safeguard;
+it does not modify the in-memory dashboard data.
+
+The summary is serialized as strict JSON with non-finite numeric values
+rejected. ZIP entries use fixed timestamps and stable summary-key ordering so
+identical inputs produce byte-for-byte identical archives. Regression tests
+were added for reserved-name collisions, case-insensitive duplicates,
+formula-like text, numeric preservation, non-finite summary values and
+deterministic archive bytes, alongside the existing contents and path
+validation tests.
+
+These are source changes and authored tests only. The repository's Actions
+runner/log problem still prevents confirmation that the tests execute
+successfully; no test pass, full platform build, browser download, merge or
+deployment is claimed. PR #26 remains the active unmerged change set.
