@@ -33,6 +33,13 @@ def _spreadsheet_safe_frame(frame: pd.DataFrame) -> pd.DataFrame:
     return safe
 
 
+def spreadsheet_safe_csv_bytes(frame: pd.DataFrame) -> bytes:
+    """Serialize a CSV download with formula-like text cells neutralized."""
+    if not isinstance(frame, pd.DataFrame):
+        raise ValueError("CSV export requires a DataFrame")
+    return _spreadsheet_safe_frame(frame).to_csv(index=False).encode("utf-8")
+
+
 def _archive_info(filename: str) -> zipfile.ZipInfo:
     """Use a fixed ZIP timestamp so identical inputs produce identical bytes."""
     info = zipfile.ZipInfo(filename, date_time=(1980, 1, 1, 0, 0, 0))
