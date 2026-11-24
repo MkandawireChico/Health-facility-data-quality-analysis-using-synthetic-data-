@@ -816,3 +816,46 @@ The two workflow YAML files were inspected again. The quality workflow runs depe
 The README's baseline PBIX distinction and synthetic-data disclaimer remain intact. The repository audit still records the expanded Power BI PBIX, notebook execution, browser QA and deployment verification as outstanding. The top-level audit's PR-stack snapshot is historical (dated 23 November); recheck live PR states and base relationships immediately before any merge rather than treating that snapshot as current.
 
 **Release decision: NOT READY TO MERGE OR RELEASE.** The source-level work is substantial, but the remaining CI, full-build, notebook, Power BI, browser and deployment gates are genuine release blockers. No tests or deployment are claimed as successful in this prompt.
+
+
+## Final handover addendum — live GitHub inventory, 24 November 2026
+
+A fresh GitHub pull-request and commit-workflow inspection was performed for the final handover. This supersedes the earlier seven-PR inventory as a description of the repository's *currently open* pull requests; it does not change the historical record of the seven-PR feature stack.
+
+### Open pull-request inventory
+
+Nine pull requests are currently open:
+
+| PR | Head branch | Base branch | Mergeable (GitHub snapshot) | Integration note |
+|---:|---|---|---|---|
+| #18 | `docs/flagship-platform-readme-refresh` | `main` | Yes | Overlaps README and Streamlit app with #20; do not assume redundant. |
+| #19 | `feat/district-level-quality-benchmarking` | `main` | Yes | Overlaps nine files with #20, including analytics, build, notebook, Streamlit and tests. |
+| #20 | `feat/district-intelligence-action-workflow` | `main` | Yes | Root of the operational feature stack; #21 is based on this branch. |
+| #21 | `feat/resource-allocation-planning` | #20 branch | Yes | Stacked on #20. |
+| #22 | `feat/commodity-stockout-intelligence` | #21 branch | Yes | Stacked on #21. |
+| #23 | `feat/cold-chain-batch-expiry-intelligence` | #22 branch | Yes | Stacked on #22. |
+| #24 | `feat/equipment-maintenance-uptime-intelligence` | #23 branch | Yes | Stacked on #23. |
+| #25 | `feat/facility-infrastructure-utilities-intelligence` | #24 branch | Yes | Stacked on #24. |
+| #26 | `feat/facility-workforce-capacity-intelligence` | #25 branch | Yes | Stacked on #25; current head `04c6471ff808273610ef3a6eb5bafee606ff8d61`. |
+
+The #18/#19 overlap is material, not cosmetic. PR #18 changes `README.md` and `dashboard/streamlit_app.py`; PR #20 also changes both. PR #19 changes nine files, all of which are also changed by #20. Commit comparisons show the branches diverged from the same main-branch base: #20 is 112 commits ahead and one commit ahead of #18, while #20 is 112 commits ahead and 14 commits ahead of #19 (the #18/#19 branches have commits not contained in #20). File overlap and divergence mean neither older PR should be automatically closed or merged based on title similarity. Before integration, review their unique commits and diff intent, then explicitly decide whether to cherry-pick, port, close as superseded or merge separately. No such action was taken in this handover.
+
+The live PR snapshots currently report mergeable=true for #18–#26. This is only GitHub's mergeability/conflict assessment; it does not mean required checks passed. PR #20's current base is `main`, not an earlier child branch. The operational stack begins at #20 and proceeds #21 → #22 → #23 → #24 → #25 → #26.
+
+### Current workflow evidence
+
+For the latest #26 head `04c6471ff808273610ef3a6eb5bafee606ff8d61`, GitHub reports:
+- Project quality checks run ID `45354421856`: completed, failure; job ID `138308582150`, no step records.
+- Expanded platform build run ID `45354421880`: completed, failure; job ID `138308582253`, no step records.
+
+For the root feature PR #20 head `70304e6210cb95b7753a98f0b147a23e6d861b79`, quality run `45186353316` and expanded build run `45186352293` both report failure. For #18, quality run `45061386206` reports failure. For #19, quality run `45062448086` and expanded build run `45062448070` report failure. The available run/job metadata does not expose executed steps or logs, so it does not establish whether test/build commands ran. No CI pass is claimed.
+
+### Handover decision
+
+- Keep the #20–#26 operational stack unmerged until its checks execute successfully and the manual gates above are complete.
+- Resolve #18 and #19 deliberately after reviewing their unique commits; their file overlap with #20 is not enough evidence to discard them.
+- Do not close or merge any PR as part of this automated handover.
+- Do not claim the public Streamlit deployment contains the feature branch.
+- Preserve the synthetic-data disclaimer and session-only-by-default action storage statement.
+
+**Final status: DEVELOPMENT WORK COMPLETE FOR THIS 45-PROMPT PASS; RELEASE AND INTEGRATION ARE NOT COMPLETE.** The remaining work is now a named handover queue: resolve the two overlapping legacy PRs, restore Actions execution and obtain passing checks, execute the notebook, assemble/refresh the expanded Power BI PBIX, and perform local plus post-deployment Streamlit browser QA.
