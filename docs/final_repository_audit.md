@@ -329,3 +329,43 @@ table types and archive filenames, and has dedicated tests for archive contents,
 summary integrity, and invalid/path-traversal inputs. These tests have been
 committed but have not yet been confirmed by a successful CI run. No merge or
 deployment has been performed.
+
+
+## End-to-end data-lineage audit — Prompt 32, 24 November 2026
+
+A cross-artifact reconciliation layer was added in `src/lineage_audit.py`.
+The Streamlit management ZIP is now withheld unless the following checks pass:
+
+- The executive all-facility output contains exactly the canonical priority
+  register facility IDs and retains the same district, integrated score, rank
+  and priority band for every facility.
+- The validated action-performance register contains the same unique
+  `Record_ID` population and status totals as the saved integrated action
+  register.
+- Action-performance status totals, overdue KPI, district/status aggregates,
+  and monthly action totals reconcile to the saved action portfolio.
+- Executive tracked/overdue KPIs and district status totals reconcile to the
+  action-performance view. Districts with no saved actions are retained in the
+  executive portfolio and treated as zero when compared with the
+  action-performance view, which only emits districts that have actions.
+- The management ZIP's priority, action, action-performance, executive and
+  top-N queue CSVs must match the exact DataFrames supplied to the corresponding
+  dashboard views. The full executive facility output is kept distinct from
+  the separate top-12 management queue.
+
+A passing `lineage_reconciliation_checks.csv` is included in the ZIP summary
+and tables. If a required view is unavailable or any comparison fails, the
+complete management ZIP is withheld rather than presented as reconciled.
+Regression tests were added in `tests/test_lineage_audit.py` for the valid
+cross-artifact path, missing saved actions, executive facility population
+drift, KPI drift, district export drift, invalid queue facilities and an empty
+action portfolio. The existing executive-versus-action-performance district
+test was adjusted to align zero-action districts explicitly.
+
+These changes are committed to the existing
+`feat/facility-workforce-capacity-intelligence` branch and PR #26. The tests
+have been added but have **not been executed successfully** in this session.
+The latest previously observed Actions failures had no step summaries or
+downloadable logs; this audit does not claim a passing test suite, a successful
+288,000-row build, browser QA, Power BI refresh or deployment. PR #26 remains
+open and unmerged.
