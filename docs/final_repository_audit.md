@@ -464,3 +464,14 @@ migration test against a live deployment, or full pytest run was completed.
 The changes are committed to the existing workforce branch and PR #26. CI
 results must be checked separately and are not inferred from these source
 changes.
+
+
+### Prompt 34 CI observation
+
+The commit containing the Prompt 34 regression tests triggered Project quality
+checks run #331 (45351107904) and Expanded platform build run #304
+(45351107816). Both are reported as job-level failures. The job records expose
+no steps and no logs; direct log retrieval returned BlobNotFound. It is
+therefore unknown whether Python compilation, pytest, dependency installation
+or the full platform build began. The new action-ID and session-fallback tests
+remain unverified and must not be described as passing.
