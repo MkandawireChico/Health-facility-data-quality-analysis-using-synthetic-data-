@@ -276,3 +276,31 @@ integration boundary. It does not validate action ownership, evidence of
 completion, or real-world facility identity; all data remain synthetic.
 The new tests have been committed but automated execution is still
 unverified.
+
+
+## Dashboard consistency audit — Prompt 30, 24 November 2026
+
+The integrated action-performance dashboard previously grouped action labels
+by their embedded district without checking that the Facility_ID belonged to
+that district in the current integrated priority register. The executive
+briefing now performs that check, and the action-performance module now accepts
+the same priority register and independently enforces the same canonical
+facility-to-district mapping. Unknown facility IDs and mismatched district
+labels are rejected before district summaries are returned.
+
+The Streamlit expanded-platform view now passes the current priority register
+to action-performance validation. It also creates one management reference
+date per render and passes that date to the portfolio overdue calculation,
+action-performance module, executive briefing and facility drill-down. This
+prevents adjacent dashboard panels from calculating overdue status against
+different dates if the view crosses midnight.
+
+Regression tests were added for action records whose district label conflicts
+with the canonical facility mapping and for unknown facility IDs. The date is
+initialized even when the action register is empty so the executive briefing
+and facility drill-down retain a valid shared reference date.
+
+The source, dashboard and test changes are committed to the existing workforce
+capacity feature branch and PR #26. No successful automated run has been
+verified for these latest commits. The Streamlit app, notebook and Power BI
+expanded model still require separate execution/browser/Desktop validation.
