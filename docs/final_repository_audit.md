@@ -334,6 +334,16 @@ deployment has been performed.
 ## End-to-end data-lineage audit — Prompt 32, 24 November 2026
 
 A cross-artifact reconciliation layer was added in `src/lineage_audit.py`.
+The upstream build path was also traced: `src/build_platform.py` already
+checks the generated facility-month-indicator natural-key grid, generated
+versus staged/analytics row counts, monthly quality/monitoring/attainment
+populations, disjoint facility/district/programme-indicator quality profile
+totals, resource/workforce facility populations and six operational ledgers
+(resource, commodity stock, cold-chain, equipment, infrastructure and
+workforce). The analytical ZIP is assembled from the same result DataFrames
+used by the Streamlit analytical sections. These are code-level controls;
+their full build execution remains unverified.
+
 The Streamlit management ZIP is now withheld unless the following checks pass:
 
 - The executive all-facility output contains exactly the canonical priority
