@@ -73,6 +73,32 @@ def build_executive_management_briefing(
     if score_difference.gt(0.01).any():
         raise ValueError("Integrated priority scores do not reconcile with component scores")
 
+    expected_band = pd.Series(
+        pd.Series("Routine review", index=priority.index)
+        .mask(priority["Integrated_Priority_Score"].ge(25), "Focused review")
+        .mask(priority["Integrated_Priority_Score"].ge(50), "High review"),
+        index=priority.index,
+    )
+    if not priority["Priority_Band"].reset_index(drop=True).equals(
+        expected_band.reset_index(drop=True)
+    ):
+        raise ValueError("Priority bands do not reconcile with the documented score thresholds")
+    ranks = priority["Integrated_Priority_Rank"]
+    if (
+        ranks.isna().any()
+        or ranks.lt(1).any()
+        or not (ranks % 1).eq(0).all()
+        or set(ranks.astype(int)) != set(range(1, len(priority) + 1))
+    ):
+        raise ValueError("Priority ranks must be contiguous positive integers")
+    expected_order = priority.sort_values(
+        ["Integrated_Priority_Score", "Facility_ID"],
+        ascending=[False, True],
+    )["Facility_ID"].tolist()
+    actual_order = priority.sort_values("Integrated_Priority_Rank")["Facility_ID"].tolist()
+    if actual_order != expected_order:
+        raise ValueError("Priority ranks do not follow descending score and facility-ID tie-break order")
+
     actions = action_register.copy()
     reference = pd.Timestamp(as_of if as_of is not None else pd.Timestamp.now().date())
     if pd.isna(reference) or reference.tzinfo is not None:
