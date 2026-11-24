@@ -539,11 +539,12 @@ lookup test, application tests and full platform build remain unverified.
 ## Management export integrity and spreadsheet-safety audit — Prompt 36, 24 November 2026
 
 A focused review of the complete management ZIP builder identified several
-archive-boundary risks. A table could use a name that collided with the
-reserved JSON summary entry, and case-insensitive duplicate filenames could
-extract ambiguously on common desktop filesystems. The archive builder now
-validates every table name and DataFrame before writing any ZIP entry, reserves
-both management summary names, and rejects case-insensitive duplicates.
+archive-boundary risks. The reserved `management_summary.csv` name was checked
+case-sensitively, allowing an uppercase variant to bypass the reservation, and
+case-insensitive duplicate filenames could extract ambiguously on common
+desktop filesystems. The archive builder now validates every table name and
+DataFrame before writing any ZIP entry, reserves the summary names without
+case sensitivity, and rejects case-insensitive duplicates.
 
 Management CSVs can contain free-text notes and other user-entered strings.
 Those strings are now checked for spreadsheet formula prefixes (=, +, - and @),
