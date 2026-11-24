@@ -1063,6 +1063,14 @@ with tabs[6]:
                 "No integrated facility actions have been saved yet. "
                 "Assign an owner and submit the form above to create the first action records."
             )
+            from action_performance import build_action_performance
+            action_performance = build_action_performance(
+                pd.DataFrame(columns=[
+                    "Facility", "Month", "Status", "Due date",
+                ]),
+                as_of=management_as_of,
+                priority_register=result["integrated_priority_register"],
+            )
 
         st.markdown("### Executive management briefing")
         st.caption(
@@ -1334,7 +1342,10 @@ with tabs[6]:
         audit_rows = []
         if priority_action_store is not None:
             try:
-                for record_id in sorted(persisted_priority_actions):
+                integrated_record_ids = {
+                    str(item["Record_ID"]) for item in current_priority_actions
+                }
+                for record_id in sorted(integrated_record_ids):
                     history_frame = priority_action_store.history(record_id)
                     if not history_frame.empty:
                         history_frame = history_frame.copy()
