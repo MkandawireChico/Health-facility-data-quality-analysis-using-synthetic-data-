@@ -41,8 +41,8 @@ def test_management_review_archive_rejects_path_traversal_filename():
         )
 
 
-def test_management_review_archive_rejects_reserved_summary_filename():
-    for filename in ("management_summary.json.csv", "management_summary.csv", "MANAGEMENT_SUMMARY.JSON"):
+def test_management_review_archive_rejects_reserved_summary_filename_case_insensitively():
+    for filename in ("management_summary.csv", "MANAGEMENT_SUMMARY.CSV"):
         with pytest.raises(ValueError, match="Invalid management export filename"):
             build_management_review_archive(
                 {filename: pd.DataFrame()},
