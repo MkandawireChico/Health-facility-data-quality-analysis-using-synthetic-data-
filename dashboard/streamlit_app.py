@@ -21,6 +21,7 @@ from reporting import (
     REQUIRED_COLUMNS, assess_dataset, build_issue_register, facility_summary,
     validate_dataset,
 )
+from dashboard_filters import apply_dashboard_filters
 
 DATA_PATHS = [
     ROOT / "data" / "raw" / "synthetic_health_facility_data.csv",
@@ -130,13 +131,29 @@ current_source_action_id_set = set(current_source_action_ids)
 with st.sidebar:
     facilities = sorted(assessed["Facility"].dropna().astype(str).unique())
     programmes = sorted(assessed["Programme"].dropna().astype(str).unique())
-    selected_facilities = st.multiselect("Facilities", facilities, default=facilities)
-    selected_programmes = st.multiselect("Programme areas", programmes, default=programmes)
+    filter_state_keys = (
+        "dashboard_facilities",
+        "dashboard_programmes",
+        "dashboard_reporting_period",
+        "dashboard_issue_filter",
+    )
+    if st.button("Reset all filters", key="reset_dashboard_filters", use_container_width=True):
+        for state_key in filter_state_keys:
+            st.session_state.pop(state_key, None)
+        st.rerun()
+
+    selected_facilities = st.multiselect(
+        "Facilities", facilities, default=facilities, key="dashboard_facilities"
+    )
+    selected_programmes = st.multiselect(
+        "Programme areas", programmes, default=programmes, key="dashboard_programmes"
+    )
     valid_months = assessed["Month"].dropna()
     if not valid_months.empty:
         date_range = st.date_input(
             "Reporting period",
             value=(valid_months.min().date(), valid_months.max().date()),
+            key="dashboard_reporting_period",
         )
     else:
         date_range = ()
@@ -144,28 +161,17 @@ with st.sidebar:
         "All records", "Requires follow-up", "Missing values", "Late reports", "Insufficient source data",
         "Source discrepancies", "Potential outliers", "Low completeness",
     ]
-    issue_filter = st.selectbox("Record status", issue_types)
+    issue_filter = st.selectbox(
+        "Record status", issue_types, key="dashboard_issue_filter"
+    )
 
-filtered = register[
-    register["Facility"].astype(str).isin(selected_facilities)
-    & register["Programme"].astype(str).isin(selected_programmes)
-].copy()
-if isinstance(date_range, (tuple, list)) and len(date_range) == 2:
-    filtered = filtered[filtered["Month"].between(pd.Timestamp(date_range[0]), pd.Timestamp(date_range[1]))]
-elif isinstance(date_range, (tuple, list)) and len(date_range) == 1:
-    filtered = filtered[filtered["Month"].dt.date == date_range[0]]
-
-issue_map = {
-    "Requires follow-up": "Requires_Follow_Up",
-    "Missing values": "Issue_Missing_Value",
-    "Late reports": "Issue_Late_Report",
-    "Insufficient source data": "Issue_Insufficient_Sources",
-    "Source discrepancies": "Issue_Source_Discrepancy",
-    "Potential outliers": "Issue_Potential_Outlier",
-    "Low completeness": "Issue_Low_Completeness",
-}
-if issue_filter in issue_map:
-    filtered = filtered[filtered[issue_map[issue_filter]]]
+filtered = apply_dashboard_filters(
+    register,
+    selected_facilities=selected_facilities,
+    selected_programmes=selected_programmes,
+    date_range=date_range,
+    issue_filter=issue_filter,
+)
 
 if filtered.empty:
     st.warning(
