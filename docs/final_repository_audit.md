@@ -189,3 +189,8 @@ This closes a count-only validation gap: a substituted indicator could previousl
 Four regression tests were added for indicator substitution, incomplete indicator coverage, substituted reporting months and facility metadata drift. The existing successful-grid fixture was updated for the expanded diagnostic summary. The implementation is documented in docs/platform_grid_integrity.md and linked from the README.
 
 The source and tests were committed to the existing feat/facility-workforce-capacity-intelligence branch and PR #26. These new tests have NOT been executed: the repository GitHub Actions runner allocation issue remains unresolved, and no local checkout is available in this session. Do not interpret the added tests or static code changes as a passing test result. The default 288,000-row build and downstream output reconciliation remain unverified until CI can execute successfully.
+
+
+### Follow-up CI observation — 24 November 2026
+
+After the exact-grid changes, Expanded platform build run 45345557288 (run #247) was created for the branch and then failed at the job level. The job endpoint returned status=completed, conclusion=failure, steps=null and no log URL. The run therefore provides no evidence that the build or Python tests executed. The separate project quality workflow was not reported for the latest source commit. Automated validation remains blocked/unverified.
