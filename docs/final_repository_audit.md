@@ -178,3 +178,14 @@ The latest reviewed commit has two failed GitHub Actions runs. Both workflow
 jobs report no step summaries and no downloadable logs. The available evidence
 does not establish that Python installation or test commands ran; it also does
 not establish that the code passed. Full validation remains pending.
+
+
+## Exact source-grid integrity addendum — 24 November 2026
+
+The source-to-ETL boundary now validates the exact configured reporting grid, not only aggregate row counts. src/build_platform.py compares the generated programme-indicator catalogue with the generator configuration, verifies the configured monthly sequence, checks the complete facility × month × programme-indicator natural-key set, reconciles the facility population, and checks generated facility names and districts against the canonical dimension.
+
+This closes a count-only validation gap: a substituted indicator could previously preserve the expected row count and indicators-per-facility-month while still producing an incorrect catalogue. The revised check fails the build on that mismatch before staging.
+
+Four regression tests were added for indicator substitution, incomplete indicator coverage, substituted reporting months and facility metadata drift. The existing successful-grid fixture was updated for the expanded diagnostic summary. The implementation is documented in docs/platform_grid_integrity.md and linked from the README.
+
+The source and tests were committed to the existing feat/facility-workforce-capacity-intelligence branch and PR #26. These new tests have NOT been executed: the repository GitHub Actions runner allocation issue remains unresolved, and no local checkout is available in this session. Do not interpret the added tests or static code changes as a passing test result. The default 288,000-row build and downstream output reconciliation remain unverified until CI can execute successfully.
