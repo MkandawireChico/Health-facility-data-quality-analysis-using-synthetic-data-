@@ -475,3 +475,39 @@ no steps and no logs; direct log retrieval returned BlobNotFound. It is
 therefore unknown whether Python compilation, pytest, dependency installation
 or the full platform build began. The new action-ID and session-fallback tests
 remain unverified and must not be described as passing.
+
+
+## Dashboard filter, source-scope and portfolio QA — Prompt 35, 24 November 2026
+
+A deeper review of the corrective-action portfolio found a source-isolation
+defect introduced by storing content-version-scoped action IDs but loading
+every SQLite action into the current dashboard. A portfolio displayed while
+assessing one upload could therefore include records from an unrelated upload
+or the bundled synthetic dataset. The same issue could affect the session-only
+fallback.
+
+The dashboard now calculates the full set of follow-up record IDs for the
+current source version before applying interactive facility, programme and
+date filters. It loads and displays only saved actions belonging to that
+source version. This preserves the intended distinction: sidebar filters
+control the editor's current rows, while the portfolio covers all saved
+actions for the current source version. Other source versions remain in the
+local database and are not silently deleted.
+
+The SQLite retrieval method now chunks large ID filters into batches of 500,
+avoiding dependence on unusually high SQLite bind-variable limits. Added a
+regression test with more than 1,000 records to verify chunked retrieval and
+exclusion of an ID outside the requested source scope.
+
+The remaining UI review confirms that the no-match filter state currently
+shows an explanatory warning and stops rendering the remaining tabs. This is
+safe from incorrect calculations but is less useful than an in-dashboard
+empty state with a clear filter-reset path; it remains a usability improvement
+for a subsequent prompt. Large Plotly views and full-row CSV downloads have
+not been benchmarked in a live browser at the 288,000-row scale.
+
+This prompt was source-level QA and regression-test authoring only. The tests
+have not been executed in a local environment. GitHub Actions job records for
+recent commits have repeatedly failed at job level with no step records or
+downloadable logs, so no test or build success is claimed. No merge or
+deployment was performed.
