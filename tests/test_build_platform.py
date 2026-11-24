@@ -39,6 +39,11 @@ def test_small_end_to_end_platform_build(tmp_path):
     assert summary["workforce_latest_high_risk_facilities"] >= 0
     assert summary["workforce_baseline_vacancies"] >= 0
     assert summary["workforce_funded_recruitment_positions"] >= 0
+    assert set(summary["operational_ledger_reconciliation"]) == {
+        "resource_allocation", "commodity_stock", "cold_chain_batches",
+        "equipment_maintenance", "infrastructure", "workforce",
+    }
+    assert summary["operational_ledger_reconciliation"]["commodity_stock"]["ledger_rows"] > 0
 
     expected_files = [
         "raw/facility_reporting_fact.csv",
