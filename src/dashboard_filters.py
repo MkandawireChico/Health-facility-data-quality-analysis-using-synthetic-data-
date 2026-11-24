@@ -32,32 +32,35 @@ def apply_dashboard_filters(
     if missing:
         raise ValueError(f"Dashboard filter input is missing columns: {sorted(missing)}")
 
-    filtered = records[
+    # Build one boolean mask and slice once. This avoids copying a potentially
+    # 288k-row frame after each independent sidebar filter.
+    mask = (
         records["Facility"].astype(str).isin([str(value) for value in selected_facilities])
         & records["Programme"].astype(str).isin([str(value) for value in selected_programmes])
-    ].copy()
+    )
 
     if date_range is not None:
         if isinstance(date_range, (date, datetime)):
             bounds = [date_range]
         else:
             bounds = list(date_range)
-        month_values = pd.to_datetime(filtered["Month"], errors="coerce")
         if len(bounds) == 2:
             start, end = pd.Timestamp(bounds[0]), pd.Timestamp(bounds[1])
             if start > end:
                 raise ValueError("Dashboard reporting-period start must not exceed its end")
-            filtered = filtered.loc[month_values.between(start, end)].copy()
+            month_values = pd.to_datetime(records["Month"], errors="coerce")
+            mask &= month_values.between(start, end)
         elif len(bounds) == 1:
             selected_day = pd.Timestamp(bounds[0]).date()
-            filtered = filtered.loc[month_values.dt.date == selected_day].copy()
+            month_values = pd.to_datetime(records["Month"], errors="coerce")
+            mask &= month_values.dt.date.eq(selected_day)
         elif len(bounds) != 0:
             raise ValueError("Dashboard reporting period must contain zero, one or two dates")
 
     if issue_filter in ISSUE_FILTER_COLUMNS:
         issue_column = ISSUE_FILTER_COLUMNS[issue_filter]
-        if issue_column not in filtered.columns:
+        if issue_column not in records.columns:
             raise ValueError(f"Dashboard filter input is missing issue column: {issue_column}")
-        filtered = filtered.loc[filtered[issue_column].fillna(False).astype(bool)].copy()
+        mask &= records[issue_column].fillna(False).astype(bool)
 
-    return filtered
+    return records.loc[mask].copy()
