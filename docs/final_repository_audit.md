@@ -424,3 +424,12 @@ details or logs, including any runner provisioning and workflow-level
 annotations. Until those are available, CI remains blocked/unverified and the
 stacked PR must not be merged. The Streamlit deployment, notebook execution,
 and expanded Power BI refresh also remain independently unverified.
+
+
+### Prompt 33 retry follow-up
+
+A later poll of both rerun attempts showed that the quality-check job also
+completed with failure. Its step list remained empty, as did the expanded
+platform build step list. Neither retry produced downloadable job logs. Both
+reruns therefore ended in the same diagnostic state: job-level failure with
+no command-level evidence.
