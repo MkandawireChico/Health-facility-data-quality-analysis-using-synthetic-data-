@@ -77,11 +77,14 @@ with st.sidebar:
 
 try:
     if use_upload:
-        source_df = pd.read_csv(uploaded)
+        uploaded_bytes = uploaded.getvalue()
+        source_df = pd.read_csv(io.BytesIO(uploaded_bytes))
         source_name = uploaded.name
+        source_fingerprint = hashlib.sha256(uploaded_bytes).hexdigest()
     else:
         source_df = load_demo_data()
         source_name = "Bundled synthetic dataset"
+        source_fingerprint = None
 except Exception as exc:
     st.error(f"Could not read the selected CSV: {exc}")
     st.stop()
@@ -321,6 +324,7 @@ with tabs[4]:
             build_action_record_id(
                 source_name, row["Facility"], row["Month"],
                 row["Programme"], row["Indicator"],
+                source_fingerprint=source_fingerprint,
             )
             for _, row in flagged_rows.iterrows()
         ]
