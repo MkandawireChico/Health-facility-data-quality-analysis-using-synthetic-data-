@@ -614,3 +614,34 @@ and null log URLs. This is consistent with the earlier Actions observability
 problem; it does not reveal whether the filter tests or build commands ran.
 The six new tests and dashboard changes remain unverified by CI and browser
 interaction.
+
+
+## 288,000-row scalability and fact-grid validation — Prompt 38, 24 November 2026
+
+The default generator contract is 120 facilities × 60 monthly periods × 40
+programme-indicator pairs = 288,000 synthetic fact rows. Source review found
+that the grain validator constructed both an expected Cartesian-product Python
+set and an actual Python tuple set for every row. Those duplicate tuple
+collections were unnecessary because the validator already rejects duplicate
+natural keys and separately checks the complete facility population, month
+population and indicator catalogue.
+
+The validator now proves the same rectangular coverage using compact pandas
+grouped counts: every facility must appear in all configured months, and every
+facility-month group must contain exactly the configured number of distinct
+indicator rows. Combined with unique natural keys and the exact global
+programme-indicator catalogue, this rejects missing, duplicate and substituted
+coverage without materialising two full Python tuple sets. The returned unique
+natural-key count is the already validated fact row count.
+
+Two tests were added: one locks the default scale contract at 288,000 rows,
+and another verifies that a same-row-count indicator substitution is rejected.
+Existing grain tests continue to cover duplicate keys, incomplete facility
+populations, unknown facilities, invalid/configuration-mismatched months,
+catalogue mismatches and facility metadata drift.
+
+No runtime or peak-memory benchmark has yet been executed for the full default
+build. The optimization is supported by source-level complexity reasoning and
+authored regression tests, not a measured speedup claim. GitHub Actions remains
+unable to provide job steps/logs; the full build, test suite and peak-memory
+profile remain unverified. No merge or deployment is claimed.
