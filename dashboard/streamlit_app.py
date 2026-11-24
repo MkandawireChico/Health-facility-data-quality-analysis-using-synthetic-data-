@@ -327,22 +327,39 @@ with tabs[4]:
     st.subheader("Corrective action register")
     st.write("Assign accountability, document root causes, track due dates and retain a field-level change history.")
 
-    database_path = os.getenv(
-        "HEALTH_DATA_ACTION_DB",
-        str(ROOT / "data" / "warehouse" / "corrective_actions.sqlite"),
-    )
-    try:
-        action_store = ActionRegisterStore(database_path)
-        persisted_actions = action_store.get_actions(current_source_action_ids)
-    except Exception as exc:
+    # Persistence is opt-in. A public multi-user Streamlit process must not
+    # silently write uploaded users' action notes into one shared local database.
+    database_path = os.getenv("HEALTH_DATA_ACTION_DB", "").strip()
+    if database_path:
+        try:
+            action_store = ActionRegisterStore(database_path)
+            persisted_actions = action_store.get_actions(current_source_action_ids)
+            st.warning(
+                "Operator-configured shared action database is enabled. The deployment "
+                "operator must restrict access, provide durable backups and ensure users "
+                "are authorised to view this shared action register."
+            )
+        except Exception as exc:
+            action_store = None
+            persisted_actions = {
+                record_id: values
+                for record_id, values in st.session_state.get("action_register", {}).items()
+                if record_id in current_source_action_id_set
+            }
+            st.warning(
+                f"Configured SQLite persistence is unavailable: {exc}. "
+                "Changes will remain in this browser session only."
+            )
+    else:
         action_store = None
         persisted_actions = {
             record_id: values
             for record_id, values in st.session_state.get("action_register", {}).items()
             if record_id in current_source_action_id_set
         }
-        st.warning(
-            f"SQLite persistence is unavailable: {exc}. Changes will remain in this browser session only."
+        st.info(
+            "Session-only action storage is active. Persistent shared storage is disabled "
+            "unless the deployment operator explicitly configures HEALTH_DATA_ACTION_DB."
         )
 
     flagged_rows = filtered[filtered["Requires_Follow_Up"]].copy()
