@@ -112,7 +112,7 @@ def build_executive_management_briefing(
         if not actions["Facility_ID"].isin(priority["Facility_ID"]).all():
             raise ValueError("Action register references facility identifiers absent from the priority register")
         action_district = actions["Facility"].astype(str).str.extract(
-            r"\\(([^()]*)\\)\\s*\\[[^]]+\\]\\s*$", expand=False
+            r"\(([^()]*)\)\s*\[[^]]+\]\s*$", expand=False
         ).str.strip()
         canonical_district = actions["Facility_ID"].map(
             priority.set_index("Facility_ID")["District"]
