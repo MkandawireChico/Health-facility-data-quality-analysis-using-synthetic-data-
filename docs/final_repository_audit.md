@@ -655,3 +655,44 @@ The new fact-grid regression test commit triggered Project quality checks run
 and `logs_url: null`. The run metadata does not establish whether the
 new tests or full build commands executed. The optimized validator and default
 scale contract therefore remain unverified by CI.
+
+
+## GitHub Actions dispatch failure investigation — Prompt 39, 24 November 2026
+
+Inspected both workflow definitions on
+`feat/facility-workforce-capacity-intelligence`.
+
+- `.github/workflows/quality-checks.yml` has a valid-looking single Ubuntu
+  job with checkout, Python 3.11 setup, pip dependency installation,
+  compileall, notebook JSON/code-cell validation and pytest.
+- `.github/workflows/platform-build.yml` has a valid-looking single Ubuntu
+  job with checkout, Python 3.11 setup, pip dependency installation,
+  full synthetic platform build and artifact upload. It has a 25-minute
+  timeout and contents-read permissions.
+
+Latest run metadata:
+- Quality checks #350, run ID 45352711357: completed failure; job ID
+  138302858132; zero returned step records.
+- Expanded platform build #323, run ID 45352711409: completed failure; job ID
+  138302859040; zero returned step records.
+- The dedicated job-step endpoint returned empty arrays for both jobs.
+- Both job-log downloads returned BlobNotFound. The run metadata shows the
+  workflows were triggered by pull_request and failed within seconds.
+
+Interpretation: there is no evidence that dependency installation, pytest,
+compileall, notebook validation or the platform build command actually ran.
+The observed failure is at or before job-step execution, not a diagnosed
+application/test failure. Workflow definitions do not expose an obvious
+missing command or malformed job structure in this review.
+
+The user previously reported an Actions billing restriction expected to reset
+on 1 December 2026. That is consistent with the pre-step failure pattern, but
+the GitHub run/job metadata available here does not independently prove the
+billing restriction is the cause. Do not change source code or weaken CI
+checks to work around an unconfirmed infrastructure/account restriction.
+Retry after the reported reset, or ask the repository owner to verify Actions
+billing/usage and runner availability in repository/account settings.
+
+No rerun was triggered during this investigation because repeating identical
+jobs before the reported billing reset is unlikely to provide useful evidence.
+No code tests, full build, merge or deployment are claimed as successful.
