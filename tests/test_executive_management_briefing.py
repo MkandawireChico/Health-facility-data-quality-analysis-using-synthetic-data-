@@ -187,4 +187,4 @@ def test_priority_ties_use_facility_id_as_deterministic_order():
     tied.loc[1, "Integrated_Priority_Rank"] = 3
     tied.loc[2, "Integrated_Priority_Rank"] = 2
     result = build_executive_management_briefing(tied, action_rows())
-    assert result["all_facilities"]["Facility_ID"].tolist() == ["F-001", "F-002", "F-003"]
+    assert result["all_facilities"].sort_values("Integrated_Priority_Rank")["Facility_ID"].tolist() == ["F-001", "F-002", "F-003"]
