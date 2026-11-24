@@ -601,3 +601,16 @@ available. This is source-level implementation and test authoring only: no
 Streamlit browser interaction, automated test run, full 288,000-row performance
 test, merge or deployment is claimed. The CI runner/log limitation remains
 open.
+
+
+### Prompt 37 CI observation — 24 November 2026
+
+The dashboard filter test commit triggered Project quality checks run #347
+(run ID 45352362487) and Expanded platform build run #320 (run ID
+45352362319). The final audit commit triggered Project quality checks run #348
+(run ID 45352377172) and Expanded platform build run #321 (run ID
+45352377148). All four jobs completed with failure and exposed null step lists
+and null log URLs. This is consistent with the earlier Actions observability
+problem; it does not reveal whether the filter tests or build commands ran.
+The six new tests and dashboard changes remain unverified by CI and browser
+interaction.
